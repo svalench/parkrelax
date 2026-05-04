@@ -1,0 +1,15 @@
+fastapi>=0.100.0
+uvicorn[standard]
+fastapi-viewsets[sqlalchemy]
+alembic
+sqlalchemy>=2.0
+pydantic-settings
+python-jose[cryptography]
+python-multipart
+aiofiles
+httpx
+aiosqlite
+asyncmy
+fastapi-admin-panel
+bcrypt
+starlette_admin

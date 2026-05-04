@@ -1,0 +1,19 @@
+{
+  "name": "park-relax",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "concurrently \"npm run dev:backend\" \"npm run dev:frontend\"",
+    "dev:frontend": "cd frontend && npm run dev",
+    "dev:backend": "cd backend && PYTHONPATH=./app:./ ./venv/bin/uvicorn app.main:app --reload --host 127.0.0.1 --port 8000",
+    "build": "cd frontend && npm run build",
+    "start": "cd backend && PYTHONPATH=./app:./ ./venv/bin/uvicorn app.main:app --host 0.0.0.0 --port 8000",
+    "db:generate": "cd backend && ./venv/bin/alembic revision --autogenerate -m 'migrate'",
+    "db:migrate": "cd backend && ./venv/bin/alembic upgrade head",
+    "create:admin": "cd backend && PYTHONPATH=./app:./ ./venv/bin/python scripts/create_admin.py"
+  },
+  "devDependencies": {
+    "concurrently": "^9.0.0"
+  }
+}

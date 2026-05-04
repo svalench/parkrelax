@@ -1,0 +1,90 @@
+{
+  "nav": {
+    "about": "About",
+    "accommodation": "Accommodation",
+    "terrace": "Terrace & Sauna",
+    "rental": "Rental",
+    "rentals": "Rentals",
+    "contacts": "Contacts",
+    "gallery": "Gallery",
+    "rules": "House Rules",
+    "booking": "Booking"
+  },
+  "hero": {
+    "title": "Recreation Complex",
+    "titleAccent": "Park Relax",
+    "subtitle": "For family weekends, corporate events and friendly gatherings — Park Relax is perfect for everyone",
+    "feature1": "Nature & Fresh Air",
+    "feature2": "Safe Territory",
+    "feature3": "Comfortable Rest for Everyone"
+  },
+  "booking": {
+    "checkin": "Check-in",
+    "checkout": "Check-out",
+    "guests": "Guests",
+    "adults": "adults",
+    "children": "children",
+    "button": "Book Now",
+    "selectDates": "Select dates",
+    "name": "Name",
+    "phone": "Phone",
+    "email": "Email",
+    "comment": "Comment",
+    "submit": "Submit request",
+    "success": "Request submitted successfully! We will contact you shortly.",
+    "accommodationType": "Accommodation type"
+  },
+  "about": {
+    "title": "About Park Relax Complex",
+    "description": "Park Relax is the perfect place for outdoor recreation. Located in a picturesque area, our complex offers comfortable accommodation, modern saunas, BBQ areas and much more."
+  },
+  "services": {
+    "title": "Our Services",
+    "accommodation": "Accommodation",
+    "accommodationDesc": "Comfortable cottages and houses",
+    "sauna": "Sauna & Pool",
+    "saunaDesc": "Russian sauna and mini-pool",
+    "rental": "Venue Rental",
+    "rentalDesc": "For events and corporate parties",
+    "bikes": "Bike Rental",
+    "bikesDesc": "And sports equipment",
+    "bbq": "BBQ Areas",
+    "bbqDesc": "Grills and barbecues",
+    "events": "Event Organization",
+    "eventsDesc": "Corporate events and celebrations"
+  },
+  "reviews": {
+    "title": "What Our Guests Say"
+  },
+  "contacts": {
+    "title": "Contacts",
+    "address": "Address",
+    "phone": "Phone",
+    "email": "Email",
+    "hours": "Working Hours",
+    "contactUs": "Contact us",
+    "send": "Send",
+    "messageSent": "Message sent!"
+  },
+  "gallery": {
+    "title": "Gallery",
+    "viewAll": "View all photos"
+  },
+  "rules": {
+    "title": "House Rules"
+  },
+  "footer": {
+    "copyright": "© 2025 Park Relax. All rights reserved."
+  },
+  "common": {
+    "loading": "Loading...",
+    "error": "An error occurred",
+    "save": "Save",
+    "cancel": "Cancel",
+    "edit": "Edit",
+    "delete": "Delete",
+    "create": "Create",
+    "close": "Close",
+    "search": "Search"
+  }
+}
