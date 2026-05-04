@@ -1,0 +1,41 @@
+- generic [ref=e3]:
+  - banner [ref=e4]:
+    - generic [ref=e5]:
+      - button "На главную" [ref=e6] [cursor=pointer]:
+        - img [ref=e7]
+        - text: На главную
+      - link "+375 (29) 500-50-29" [ref=e9] [cursor=pointer]:
+        - /url: tel:+375295005029
+        - img [ref=e10]
+        - text: +375 (29) 500-50-29
+  - main [ref=e12]:
+    - generic [ref=e13]:
+      - heading "Бронирование проживания" [level=1] [ref=e14]
+      - paragraph [ref=e15]: Выберите даты и тип размещения, чтобы найти свободные варианты
+    - generic [ref=e17]:
+      - generic [ref=e18]:
+        - generic [ref=e19]: Тип проживания
+        - combobox [ref=e20] [cursor=pointer]:
+          - generic: Коттедж
+          - img
+      - generic [ref=e21]:
+        - generic [ref=e22]: Даты проживания
+        - button "16.05.2026 — 18.05.2026" [ref=e23] [cursor=pointer]:
+          - img [ref=e24]
+          - generic [ref=e26]:
+            - generic [ref=e27]: 16.05.2026
+            - generic [ref=e28]: —
+            - generic [ref=e29]: 18.05.2026
+      - button "Найти" [ref=e30] [cursor=pointer]
+    - generic [ref=e32]:
+      - generic [ref=e33]:
+        - img "Коттедж №1" [ref=e34]
+        - generic [ref=e36]: Коттедж
+      - generic [ref=e37]:
+        - heading "Коттедж №1" [level=3] [ref=e38]
+        - paragraph [ref=e39]: Просторный коттедж с видом на лес
+        - generic [ref=e41]:
+          - generic [ref=e42]:
+            - img [ref=e43]
+            - text: До 8 чел.
+          - generic [ref=e48]: 15 000 ₽/ночь

@@ -85,6 +85,8 @@ class ReviewUpdate(BaseModel):
 class ReviewResponse(ReviewBase):
     model_config = ConfigDict(from_attributes=True)
     id: int | None = None
+    avatarUrl: Optional[str] = None
+    yandexReviewId: Optional[str] = None
     createdAt: datetime | None = None
 
 
@@ -116,6 +118,37 @@ class GalleryItemResponse(GalleryItemBase):
     createdAt: datetime | None = None
 
 
+# ── Accommodations ─────────────────────────────────────────────────
+
+class AccommodationBase(BaseModel):
+    name: str
+    description: Optional[str] = None
+    typeId: int
+    imageUrl: Optional[str] = None
+    isActive: bool = True
+    sortOrder: int = 0
+
+
+class AccommodationCreate(AccommodationBase):
+    pass
+
+
+class AccommodationUpdate(BaseModel):
+    name: Optional[str] = None
+    description: Optional[str] = None
+    typeId: Optional[int] = None
+    imageUrl: Optional[str] = None
+    isActive: Optional[bool] = None
+    sortOrder: Optional[int] = None
+
+
+class AccommodationResponse(AccommodationBase):
+    model_config = ConfigDict(from_attributes=True)
+    id: int | None = None
+    createdAt: datetime | None = None
+    type: Optional["AccommodationTypeResponse"] = None
+
+
 # ── Bookings ───────────────────────────────────────────────────────
 
 class BookingBase(BaseModel):
@@ -126,7 +159,7 @@ class BookingBase(BaseModel):
     endDate: date
     adults: int = 1
     children: int = 0
-    accommodationType: Optional[str] = None
+    accommodationId: Optional[int] = None
     status: str = "pending"
     notes: Optional[str] = None
 
@@ -143,7 +176,7 @@ class BookingUpdate(BaseModel):
     endDate: Optional[date] = None
     adults: Optional[int] = None
     children: Optional[int] = None
-    accommodationType: Optional[str] = None
+    accommodationId: Optional[int] = None
     status: Optional[str] = None
     notes: Optional[str] = None
 
@@ -153,6 +186,7 @@ class BookingResponse(BookingBase):
     id: int | None = None
     createdAt: datetime | None = None
     updatedAt: datetime | None = None
+    accommodation: Optional[AccommodationResponse] = None
 
 
 # ── Rules ──────────────────────────────────────────────────────────

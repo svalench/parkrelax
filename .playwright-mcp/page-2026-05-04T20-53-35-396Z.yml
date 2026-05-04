@@ -1,0 +1,91 @@
+- generic [ref=e2]:
+  - banner [ref=e3]:
+    - generic [ref=e4]:
+      - link "+375 (29) 500-50-29" [ref=e5] [cursor=pointer]:
+        - /url: tel:+375295005029
+        - img [ref=e6]
+        - text: +375 (29) 500-50-29
+      - navigation [ref=e8]:
+        - link "Главная" [ref=e9] [cursor=pointer]:
+          - /url: /
+        - link "О комплексе" [ref=e10] [cursor=pointer]:
+          - /url: /#about
+        - link "Проживание" [ref=e11] [cursor=pointer]:
+          - /url: /#accommodation
+        - link "Услуги" [ref=e12] [cursor=pointer]:
+          - /url: /#rental
+        - link "Галерея" [ref=e13] [cursor=pointer]:
+          - /url: /#gallery
+        - link "Контакты" [ref=e14] [cursor=pointer]:
+          - /url: /#contacts
+      - button "Пинский район, д. Кончицы" [ref=e16] [cursor=pointer]:
+        - img [ref=e17]
+        - text: Пинский район, д. Кончицы
+  - generic [ref=e20]:
+    - main [ref=e21]:
+      - button "Назад" [ref=e23] [cursor=pointer]:
+        - img [ref=e24]
+        - text: Назад
+    - contentinfo [ref=e28]:
+      - generic [ref=e29]:
+        - generic [ref=e30]:
+          - generic [ref=e31]:
+            - heading "Инфо" [level=4] [ref=e32]
+            - list [ref=e33]:
+              - listitem [ref=e34]:
+                - link "О базе отдыха" [ref=e35] [cursor=pointer]:
+                  - /url: /#about
+              - listitem [ref=e36]:
+                - link "Контакты" [ref=e37] [cursor=pointer]:
+                  - /url: /#contacts
+              - listitem [ref=e38]:
+                - link "Галерея" [ref=e39] [cursor=pointer]:
+                  - /url: /#gallery
+          - generic [ref=e40]:
+            - heading "Размещение" [level=4] [ref=e41]
+            - list [ref=e42]:
+              - listitem [ref=e43]:
+                - link "Коттедж" [ref=e44] [cursor=pointer]:
+                  - /url: /#accommodation
+              - listitem [ref=e45]:
+                - link "Апартаменты" [ref=e46] [cursor=pointer]:
+                  - /url: /#accommodation
+              - listitem [ref=e47]:
+                - link "Летние домики" [ref=e48] [cursor=pointer]:
+                  - /url: /#accommodation
+          - generic [ref=e49]:
+            - heading "Активный отдых" [level=4] [ref=e50]
+            - list [ref=e51]:
+              - listitem [ref=e52]:
+                - link "Прокат" [ref=e53] [cursor=pointer]:
+                  - /url: /#rental
+              - listitem [ref=e54]:
+                - link "Беседки" [ref=e55] [cursor=pointer]:
+                  - /url: /#area
+              - listitem [ref=e56]:
+                - link "Баня и терраса" [ref=e57] [cursor=pointer]:
+                  - /url: /#accommodation
+          - generic [ref=e58]:
+            - heading "Юридическая информация" [level=4] [ref=e59]
+            - list [ref=e60]:
+              - listitem [ref=e61]:
+                - link "Политика конфиденциальности" [ref=e62] [cursor=pointer]:
+                  - /url: /legal/privacy-policy
+              - listitem [ref=e63]:
+                - link "Условия использования файлов cookies" [ref=e64] [cursor=pointer]:
+                  - /url: /legal/cookie-policy
+              - listitem [ref=e65]:
+                - link "Условия аренды и возврата" [ref=e66] [cursor=pointer]:
+                  - /url: /legal/rental-terms
+              - listitem [ref=e67]:
+                - link "Публичная оферта" [ref=e68] [cursor=pointer]:
+                  - /url: /legal/public-offer
+        - generic [ref=e69]:
+          - generic [ref=e71]: WebPay
+          - img [ref=e73]:
+            - generic [ref=e75]: VISA
+          - img [ref=e77]:
+            - generic [ref=e79]: Mastercard
+          - generic [ref=e81]: БЕЛКАРТ
+          - generic [ref=e83]: МИР
+        - generic [ref=e84]: ООО «Парк Relax» — © 2024

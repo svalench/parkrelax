@@ -2,12 +2,12 @@ import SectionHeader from '../components/SectionHeader'
 
 const rentals = [
   {
-    image: '/assets/asset_11.jpg',
+    image: '/assets/catamaran.webp',
     title: 'Катамаран',
     info: 'До 4 человек',
   },
   {
-    image: '/assets/asset_12.jpg',
+    image: '/assets/beach_.webp',
     title: 'Лодка с веслами',
     info: 'До 3 человек',
   },

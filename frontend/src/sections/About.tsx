@@ -1,4 +1,4 @@
-import { MapPin, TreePine, Home, Bike, PartyPopper } from 'lucide-react'
+import { MapPin, TreePine, Home, Bike, PartyPopper, Car, WavesIcon, VolleyballIcon } from 'lucide-react'
 
 const categories = [
   {
@@ -38,22 +38,34 @@ export default function About() {
               Парк Relax
             </h2>
             <p className="text-graytext leading-relaxed mb-6">
-              Парк Relax расположен в живописном уголке в деревне Островцы. Это место, где можно отдохнуть от городской суеты, насладиться тишиной, свежим воздухом и красотой природы.
+              Парк Relax расположен в живописном уголке в деревне Кончицы. Это место, где можно отдохнуть от городской суеты, насладиться тишиной, свежим воздухом и красотой природы.
             </p>
 
             {/* Info row */}
             <div className="flex flex-wrap gap-4 mb-8">
               <div className="flex items-center gap-2 text-sm text-dark">
-                <MapPin className="w-4 h-4 text-brand" />
+                <MapPin className="w-4 h-4 text-brand"/>
                 20 км от Пинска
               </div>
               <div className="flex items-center gap-2 text-sm text-dark">
-                <MapPin className="w-4 h-4 text-brand" />
-                8 км от центра
+                <MapPin className="w-4 h-4 text-brand"/>
+                3 км от центра
               </div>
               <div className="flex items-center gap-2 text-sm text-dark">
-                <TreePine className="w-4 h-4 text-brand" />
+                <Car className="w-4 h-4 text-brand"/>
+                Удобный подъезд
+              </div>
+              <div className="flex items-center gap-2 text-sm text-dark">
+                <TreePine className="w-4 h-4 text-brand"/>
                 Озеро и лес
+              </div>
+              <div className="flex items-center gap-2 text-sm text-dark">
+                <VolleyballIcon className="w-4 h-4 text-brand"/>
+                Активный отдых
+              </div>
+              <div className="flex items-center gap-2 text-sm text-dark">
+                <WavesIcon className="w-4 h-4 text-brand"/>
+                Пляж
               </div>
             </div>
 

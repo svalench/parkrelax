@@ -1,0 +1,71 @@
+- complementary [ref=e3]:
+  - generic [ref=e4]:
+    - heading "Park Relax Admin" [level=1] [ref=e5]:
+      - link "Park Relax Admin" [ref=e6] [cursor=pointer]:
+        - /url: http://localhost:8000/admin/
+        - heading "Park Relax Admin" [level=3] [ref=e7]
+    - list [ref=e9]:
+      - listitem [ref=e10]:
+        - link " Users" [ref=e11] [cursor=pointer]:
+          - /url: http://localhost:8000/admin/users/list
+          - generic [ref=e13]: 
+          - generic [ref=e14]: Users
+      - listitem [ref=e15]:
+        - link " Contacts" [ref=e16] [cursor=pointer]:
+          - /url: http://localhost:8000/admin/contacts/list
+          - generic [ref=e18]: 
+          - generic [ref=e19]: Contacts
+      - listitem [ref=e20]:
+        - link " Reviews" [ref=e21] [cursor=pointer]:
+          - /url: http://localhost:8000/admin/reviews/list
+          - generic [ref=e23]: 
+          - generic [ref=e24]: Reviews
+      - listitem [ref=e25]:
+        - link " Gallery" [ref=e26] [cursor=pointer]:
+          - /url: http://localhost:8000/admin/gallery/list
+          - generic [ref=e28]: 
+          - generic [ref=e29]: Gallery
+      - listitem [ref=e30]:
+        - link " Bookings" [ref=e31] [cursor=pointer]:
+          - /url: http://localhost:8000/admin/bookings/list
+          - generic [ref=e33]: 
+          - generic [ref=e34]: Bookings
+      - listitem [ref=e35]:
+        - link " Rules" [ref=e36] [cursor=pointer]:
+          - /url: http://localhost:8000/admin/rules/list
+          - generic [ref=e38]: 
+          - generic [ref=e39]: Rules
+      - listitem [ref=e40]:
+        - link " Translations" [ref=e41] [cursor=pointer]:
+          - /url: http://localhost:8000/admin/translations/list
+          - generic [ref=e43]: 
+          - generic [ref=e44]: Translations
+      - listitem [ref=e45]:
+        - link " Accommodation Types" [ref=e46] [cursor=pointer]:
+          - /url: http://localhost:8000/admin/accommodation/list
+          - generic [ref=e48]: 
+          - generic [ref=e49]: Accommodation Types
+      - listitem [ref=e50]:
+        - link " Accommodations" [ref=e51] [cursor=pointer]:
+          - /url: http://localhost:8000/admin/accommodations/list
+          - generic [ref=e53]: 
+          - generic [ref=e54]: Accommodations
+      - listitem [ref=e55]:
+        - link " Admins" [ref=e56] [cursor=pointer]:
+          - /url: http://localhost:8000/admin/admins/list
+          - generic [ref=e58]: 
+          - generic [ref=e59]: Admins
+      - listitem [ref=e60]:
+        - link " Site Settings" [ref=e61] [cursor=pointer]:
+          - /url: http://localhost:8000/admin/settings/list
+          - generic [ref=e63]: 
+          - generic [ref=e64]: Site Settings
+      - listitem [ref=e65]:
+        - link " Legal Pages" [ref=e66] [cursor=pointer]:
+          - /url: http://localhost:8000/admin/legal-pages/list
+          - generic [ref=e68]: 
+          - generic [ref=e69]: Legal Pages
+      - link " Logout" [ref=e70] [cursor=pointer]:
+        - /url: http://localhost:8000/admin/logout
+        - generic [ref=e71]: 
+        - generic [ref=e72]: Logout

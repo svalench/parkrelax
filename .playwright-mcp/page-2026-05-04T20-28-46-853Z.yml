@@ -1,0 +1,8 @@
+- generic [ref=e9]:
+  - generic [ref=e10]: "404"
+  - paragraph [ref=e11]: Oops… You just found an error page
+  - paragraph [ref=e12]: Model with identity booking not found
+  - link "Take me home" [ref=e14] [cursor=pointer]:
+    - /url: http://localhost:8000/admin/
+    - img [ref=e15]
+    - text: Take me home

@@ -1,6 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy import select, desc
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import joinedload
 from fastapi_viewsets import AsyncBaseViewset
 
 from app.database import AsyncSessionLocal
@@ -20,6 +21,18 @@ async def create_booking(data: BookingCreate, db: AsyncSession = Depends(get_db)
     await db.commit()
     await db.refresh(booking)
     return booking
+
+
+@router.get("/my-bookings", response_model=list[BookingResponse])
+async def list_bookings(
+    phone: str | None = None,
+    db: AsyncSession = Depends(get_db),
+):
+    stmt = select(Booking).options(joinedload(Booking.accommodation)).order_by(desc(Booking.createdAt))
+    if phone:
+        stmt = stmt.where(Booking.customerPhone == phone)
+    result = await db.execute(stmt)
+    return result.unique().scalars().all()
 
 
 # ── Admin Viewset ──────────────────────────────────────────────────

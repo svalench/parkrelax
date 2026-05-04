@@ -7,6 +7,7 @@ from app.database import AsyncSessionLocal
 from app.dependencies import get_db, get_current_admin
 from app.models import Review
 from app.schemas import ReviewResponse
+from app.services.yandex_reviews import sync_yandex_reviews
 
 router = APIRouter(prefix="/review", tags=["review"])
 
@@ -17,6 +18,13 @@ async def list_active_reviews(db: AsyncSession = Depends(get_db)):
         select(Review).where(Review.isActive == True).order_by(desc(Review.createdAt))
     )
     return result.scalars().all()
+
+
+@router.post("/sync-yandex")
+async def sync_reviews(db: AsyncSession = Depends(get_db)):
+    """Sync 5-star reviews from Yandex Maps."""
+    result = await sync_yandex_reviews(db)
+    return result
 
 
 # ── Admin Viewset ──────────────────────────────────────────────────

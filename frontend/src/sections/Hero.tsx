@@ -122,11 +122,20 @@ export default function Hero() {
       {/* Фон */}
       <div className="absolute inset-0">
         <img
-          src="/assets/hero.jpg"
+          src="/assets/hero.webp"
           alt="Озеро с деревянным мостком в Парк Relax"
           className="w-full h-full object-cover"
         />
         <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-black/40 to-transparent" />
+      </div>
+
+      {/* Логотип в правом верхнем углу — на небе */}
+      <div className="hidden lg:block absolute top-16 right-6 xl:right-12 z-10 pointer-events-none">
+        <img
+          src="/images/logo.svg"
+          alt="Парк Relax"
+          className="w-[260px] xl:w-[340px] h-auto object-contain animate-sun-glow opacity-90"
+        />
       </div>
 
       {/* Основной контент */}
@@ -152,21 +161,6 @@ export default function Hero() {
               </p>
             </div>
 
-            {/* Логотип справа */}
-            <div className="hidden lg:flex items-center justify-center">
-              <div
-                className="p-8 xl:p-10 rounded-[2rem]"
-                style={{
-                  background: 'radial-gradient(ellipse at center, rgba(0,0,0,0.35) 0%, rgba(0,0,0,0.15) 50%, transparent 75%)',
-                }}
-              >
-                <img
-                  src="/images/logo.svg"
-                  alt="Парк Relax"
-                  className="w-[400px] xl:w-[520px] h-auto object-contain drop-shadow-[0_0_30px_rgba(255,255,255,0.7)] drop-shadow-[0_0_60px_rgba(0,0,0,0.5)] contrast-125"
-                />
-              </div>
-            </div>
           </div>
         </div>
       </div>
@@ -174,8 +168,8 @@ export default function Hero() {
       {/* Панель бронирования */}
       <div className="relative z-20 w-full pb-8 md:pb-10">
         <div className="container-main">
-          <div className="bg-white rounded-2xl shadow-xl shadow-black/10 ring-1 ring-black/[0.06] p-5 md:p-6 animate-in fade-in slide-in-from-bottom-4 duration-700">
-            <h3 className="text-base md:text-lg font-semibold text-dark mb-4">
+          <div className="bg-white/20 backdrop-blur-2xl backdrop-blur-[20px] backdrop-saturate-[1.8] backdrop-contrast-125 rounded-2xl border border-white/25 shadow-inner p-5 md:p-6 animate-in fade-in slide-in-from-bottom-4 duration-700">
+            <h3 className="text-xl md:text-2xl font-extrabold text-white mb-4 drop-shadow-lg">
               Бронирование проживания
             </h3>
             <div className="flex flex-col lg:flex-row items-stretch lg:items-center gap-4">
@@ -193,12 +187,12 @@ export default function Hero() {
                     <PopoverTrigger asChild>
                       <button
                         type="button"
-                        className="group flex w-full items-center gap-3 rounded-xl bg-transparent p-1.5 -m-1.5 text-left outline-none transition-colors duration-200 hover:bg-gray-50 focus-visible:ring-2 focus-visible:ring-brand cursor-pointer"
+                        className="group flex w-full items-center gap-3 rounded-xl bg-transparent p-1.5 -m-1.5 text-left outline-none transition-all duration-200 hover:bg-white/15 hover:shadow-[0_4px_20px_rgba(0,0,0,0.25),inset_0_1px_0_rgba(255,255,255,0.4)] hover:scale-[1.02] active:scale-[0.98] focus-visible:ring-2 focus-visible:ring-brand cursor-pointer"
                       >
-                        <CalendarIcon className="w-5 h-5 text-brand shrink-0" />
+                        <CalendarIcon className="w-6 h-6 text-brand shrink-0" />
                         <div className="flex-1">
-                          <div className="text-xs text-graytext mb-0.5">Заезд</div>
-                          <div className="text-sm font-semibold text-dark">
+                          <div className="text-sm text-white/90 font-semibold mb-0.5 drop-shadow-sm">Заезд</div>
+                          <div className="text-lg font-extrabold text-white drop-shadow-md">
                             {formatShortDate(dateRange?.from)}
                           </div>
                         </div>
@@ -210,12 +204,12 @@ export default function Hero() {
                     <PopoverTrigger asChild>
                       <button
                         type="button"
-                        className="group flex w-full items-center gap-3 rounded-xl bg-transparent p-1.5 -m-1.5 text-left outline-none transition-colors duration-200 hover:bg-gray-50 focus-visible:ring-2 focus-visible:ring-brand cursor-pointer"
+                        className="group flex w-full items-center gap-3 rounded-xl bg-transparent p-1.5 -m-1.5 text-left outline-none transition-all duration-200 hover:bg-white/15 hover:shadow-[0_4px_20px_rgba(0,0,0,0.25),inset_0_1px_0_rgba(255,255,255,0.4)] hover:scale-[1.02] active:scale-[0.98] focus-visible:ring-2 focus-visible:ring-brand cursor-pointer"
                       >
-                        <CalendarIcon className="w-5 h-5 text-brand shrink-0" />
+                        <CalendarIcon className="w-6 h-6 text-brand shrink-0" />
                         <div className="flex-1">
-                          <div className="text-xs text-graytext mb-0.5">Выезд</div>
-                          <div className="text-sm font-semibold text-dark">
+                          <div className="text-sm text-white/90 font-semibold mb-0.5 drop-shadow-sm">Выезд</div>
+                          <div className="text-lg font-extrabold text-white drop-shadow-md">
                             {formatShortDate(dateRange?.to)}
                           </div>
                         </div>
@@ -253,16 +247,16 @@ export default function Hero() {
                   <PopoverTrigger asChild>
                     <button
                       type="button"
-                      className="group flex w-full items-center gap-3 rounded-xl bg-transparent p-1.5 -m-1.5 text-left outline-none transition-colors duration-200 hover:bg-gray-50 focus-visible:ring-2 focus-visible:ring-brand cursor-pointer"
+                      className="group flex w-full items-center gap-3 rounded-xl bg-transparent p-1.5 -m-1.5 text-left outline-none transition-all duration-200 hover:bg-white/15 hover:shadow-[0_4px_20px_rgba(0,0,0,0.25),inset_0_1px_0_rgba(255,255,255,0.4)] hover:scale-[1.02] active:scale-[0.98] focus-visible:ring-2 focus-visible:ring-brand cursor-pointer"
                     >
-                      <Users className="w-5 h-5 text-brand shrink-0" />
+                      <Users className="w-6 h-6 text-brand shrink-0" />
                       <div className="flex-1">
-                        <div className="text-xs text-graytext mb-0.5">Гости</div>
-                        <div className="text-sm font-semibold text-dark">
+                        <div className="text-sm text-white/90 font-semibold mb-0.5 drop-shadow-sm">Гости</div>
+                        <div className="text-lg font-extrabold text-white drop-shadow-md">
                           {formatAdultsLabel(adults)}
                         </div>
                       </div>
-                      <ChevronDown className="w-4 h-4 text-graytext shrink-0" />
+                      <ChevronDown className="w-4 h-4 text-gray-600 shrink-0" />
                     </button>
                   </PopoverTrigger>
                 </div>
@@ -344,9 +338,9 @@ export default function Hero() {
               {/* Домик */}
               <div className="flex items-center gap-3 lg:border-l border-gray-100 lg:pl-4 min-w-[160px]">
                 <div className="flex w-full flex-col">
-                  <label className="text-xs text-graytext mb-0.5">Домик</label>
+                  <label className="text-sm text-white/90 font-semibold mb-0.5 drop-shadow-sm">Домик</label>
                   <Select value={cabin} onValueChange={setCabin}>
-                    <SelectTrigger className="w-full border-0 bg-transparent p-0 h-auto shadow-none focus:ring-0 text-sm font-semibold text-dark">
+                    <SelectTrigger className="w-full border-0 bg-transparent p-0 h-auto shadow-none focus:ring-0 text-lg font-extrabold text-white drop-shadow-md hover:bg-white/15 hover:shadow-[0_4px_20px_rgba(0,0,0,0.25),inset_0_1px_0_rgba(255,255,255,0.4)] hover:scale-[1.02] active:scale-[0.98] transition-all duration-200 cursor-pointer">
                       <SelectValue placeholder="Любой" />
                     </SelectTrigger>
                     <SelectContent>

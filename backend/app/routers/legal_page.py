@@ -8,7 +8,7 @@ from app.dependencies import get_db
 from app.models import LegalPage
 from app.schemas import LegalPageResponse
 
-router = APIRouter(prefix="/api/legal-pages", tags=["legal-pages"])
+router = APIRouter(prefix="/legal-pages", tags=["legal-pages"])
 
 
 @router.get("", response_model=list[LegalPageResponse])

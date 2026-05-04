@@ -66,4 +66,19 @@
   .text-balance {
     text-wrap: balance;
   }
+
+  .animate-sun-glow {
+    animation: sun-glow 3s ease-in-out infinite;
+  }
+}
+
+@keyframes sun-glow {
+  0%, 100% {
+    filter: drop-shadow(0 0 30px rgba(255, 200, 60, 0.5))
+            drop-shadow(0 0 60px rgba(255, 150, 0, 0.3));
+  }
+  50% {
+    filter: drop-shadow(0 0 50px rgba(255, 230, 100, 0.7))
+            drop-shadow(0 0 100px rgba(255, 170, 0, 0.5));
+  }
 }

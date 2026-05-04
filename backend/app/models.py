@@ -7,8 +7,10 @@ from sqlalchemy import (
     Boolean,
     DateTime,
     Date,
+    ForeignKey,
     func,
 )
+from sqlalchemy.orm import relationship
 from app.database import Base
 
 
@@ -46,6 +48,8 @@ class Review(Base):
     name = Column(String(100), nullable=False)
     rating = Column(Integer, nullable=False)
     text = Column(Text, nullable=False)
+    avatarUrl = Column(Text, nullable=True)
+    yandexReviewId = Column(String(100), nullable=True, unique=True)
     isActive = Column(Boolean, default=True, nullable=False)
     createdAt = Column(DateTime, default=func.now(), nullable=True)
 
@@ -62,6 +66,22 @@ class GalleryItem(Base):
     createdAt = Column(DateTime, default=func.now(), nullable=True)
 
 
+class Accommodation(Base):
+    __tablename__ = "accommodations"
+
+    id = Column(Integer, primary_key=True, index=True)
+    name = Column(String(200), nullable=False)
+    description = Column(Text, nullable=True)
+    typeId = Column(Integer, ForeignKey("accommodationTypes.id"), nullable=False)
+    imageUrl = Column(Text, nullable=True)
+    isActive = Column(Boolean, default=True, nullable=False)
+    sortOrder = Column(Integer, default=0, nullable=False)
+    createdAt = Column(DateTime, default=func.now(), nullable=True)
+
+    type = relationship("AccommodationType", back_populates="accommodations")
+    bookings = relationship("Booking", back_populates="accommodation")
+
+
 class Booking(Base):
     __tablename__ = "bookings"
 
@@ -73,11 +93,13 @@ class Booking(Base):
     endDate = Column(Date, nullable=False)
     adults = Column(Integer, default=1, nullable=False)
     children = Column(Integer, default=0, nullable=False)
-    accommodationType = Column(String(50), nullable=True)
+    accommodationId = Column(Integer, ForeignKey("accommodations.id"), nullable=True)
     status = Column(String(50), default="pending", nullable=False)
     notes = Column(Text, nullable=True)
     createdAt = Column(DateTime, default=func.now(), nullable=True)
     updatedAt = Column(DateTime, default=func.now(), onupdate=func.now(), nullable=True)
+
+    accommodation = relationship("Accommodation", back_populates="bookings")
 
 
 class Rule(Base):
@@ -115,6 +137,8 @@ class AccommodationType(Base):
     isActive = Column(Boolean, default=True, nullable=False)
     sortOrder = Column(Integer, default=0, nullable=False)
     createdAt = Column(DateTime, default=func.now(), nullable=True)
+
+    accommodations = relationship("Accommodation", back_populates="type")
 
 
 class Admin(Base):

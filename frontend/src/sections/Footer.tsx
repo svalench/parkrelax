@@ -26,7 +26,7 @@ const footerColumns = [
     ],
   },
   {
-    title: 'Контакты',
+    title: 'Юридическая информация',
     links: [
       { label: 'Политика конфиденциальности', to: '/legal/privacy-policy' },
       { label: 'Условия использования файлов cookies', to: '/legal/cookie-policy' },

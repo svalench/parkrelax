@@ -1,4 +1,3 @@
-import Navbar from '../sections/Navbar'
 import Hero from '../sections/Hero'
 import About from '../sections/About'
 import Accommodation from '../sections/Accommodation'
@@ -12,7 +11,6 @@ import Footer from '../sections/Footer'
 export default function Home() {
   return (
     <div className="relative">
-      <Navbar />
       <main>
         <Hero />
         <About />

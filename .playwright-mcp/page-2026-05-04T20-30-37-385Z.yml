@@ -1,0 +1,140 @@
+- generic [ref=e2]:
+  - complementary [ref=e3]:
+    - generic [ref=e4]:
+      - heading "Park Relax Admin" [level=1] [ref=e5]:
+        - link "Park Relax Admin" [ref=e6] [cursor=pointer]:
+          - /url: http://localhost:8000/admin/
+          - heading "Park Relax Admin" [level=3] [ref=e7]
+      - list [ref=e9]:
+        - listitem [ref=e10]:
+          - link " Users" [ref=e11] [cursor=pointer]:
+            - /url: http://localhost:8000/admin/users/list
+            - generic [ref=e13]: 
+            - generic [ref=e14]: Users
+        - listitem [ref=e15]:
+          - link " Contacts" [ref=e16] [cursor=pointer]:
+            - /url: http://localhost:8000/admin/contacts/list
+            - generic [ref=e18]: 
+            - generic [ref=e19]: Contacts
+        - listitem [ref=e20]:
+          - link " Reviews" [ref=e21] [cursor=pointer]:
+            - /url: http://localhost:8000/admin/reviews/list
+            - generic [ref=e23]: 
+            - generic [ref=e24]: Reviews
+        - listitem [ref=e25]:
+          - link " Gallery" [ref=e26] [cursor=pointer]:
+            - /url: http://localhost:8000/admin/gallery/list
+            - generic [ref=e28]: 
+            - generic [ref=e29]: Gallery
+        - listitem [ref=e30]:
+          - link " Bookings" [ref=e31] [cursor=pointer]:
+            - /url: http://localhost:8000/admin/booking/list
+            - generic [ref=e33]: 
+            - generic [ref=e34]: Bookings
+        - listitem [ref=e35]:
+          - link " Rules" [ref=e36] [cursor=pointer]:
+            - /url: http://localhost:8000/admin/rules/list
+            - generic [ref=e38]: 
+            - generic [ref=e39]: Rules
+        - listitem [ref=e40]:
+          - link " Translations" [ref=e41] [cursor=pointer]:
+            - /url: http://localhost:8000/admin/translations/list
+            - generic [ref=e43]: 
+            - generic [ref=e44]: Translations
+        - listitem [ref=e45]:
+          - link " Accommodation Types" [ref=e46] [cursor=pointer]:
+            - /url: http://localhost:8000/admin/accommodation-type/list
+            - generic [ref=e48]: 
+            - generic [ref=e49]: Accommodation Types
+        - listitem [ref=e50]:
+          - link " Accommodations" [ref=e51] [cursor=pointer]:
+            - /url: http://localhost:8000/admin/accommodations/list
+            - generic [ref=e53]: 
+            - generic [ref=e54]: Accommodations
+        - listitem [ref=e55]:
+          - link " Admins" [ref=e56] [cursor=pointer]:
+            - /url: http://localhost:8000/admin/admins/list
+            - generic [ref=e58]: 
+            - generic [ref=e59]: Admins
+        - listitem [ref=e60]:
+          - link " Site Settings" [ref=e61] [cursor=pointer]:
+            - /url: http://localhost:8000/admin/settings/list
+            - generic [ref=e63]: 
+            - generic [ref=e64]: Site Settings
+        - listitem [ref=e65]:
+          - link " Legal Pages" [ref=e66] [cursor=pointer]:
+            - /url: http://localhost:8000/admin/legal-pages/list
+            - generic [ref=e68]: 
+            - generic [ref=e69]: Legal Pages
+        - link " Logout" [ref=e70] [cursor=pointer]:
+          - /url: http://localhost:8000/admin/logout
+          - generic [ref=e71]: 
+          - generic [ref=e72]: Logout
+  - generic [ref=e73]:
+    - generic [ref=e76]:
+      - heading "Bookings" [level=1] [ref=e77]
+      - list [ref=e78]:
+        - listitem [ref=e79]:
+          - link "Admin" [ref=e80] [cursor=pointer]:
+            - /url: http://localhost:8000/admin/
+        - listitem [ref=e81]: / Bookings
+    - generic [ref=e88]:
+      - generic [ref=e89]:
+        - generic [ref=e91]:
+          - button " Export" [ref=e93] [cursor=pointer]:
+            - generic [ref=e94]:
+              - generic [ref=e95]: 
+              - text: Export
+          - button " Show/Hide columns" [ref=e97] [cursor=pointer]:
+            - generic [ref=e98]:
+              - generic [ref=e99]: 
+              - text: Show/Hide columns
+          - button " Filter" [ref=e100] [cursor=pointer]:
+            - generic [ref=e101]:
+              - generic [ref=e102]: 
+              - text: Filter
+        - link "+ New Booking" [ref=e105] [cursor=pointer]:
+          - /url: http://localhost:8000/admin/booking/create
+          - generic [ref=e106]: +
+          - text: New Booking
+      - generic [ref=e108]:
+        - button "Show 10 rows" [ref=e112] [cursor=pointer]:
+          - generic [ref=e113]: Show 10 rows
+        - generic [ref=e116]:
+          - generic:
+            - img
+          - searchbox "Search in list" [ref=e117]
+      - generic [ref=e118]:
+        - table [ref=e120]:
+          - rowgroup [ref=e121]:
+            - 'row "Id: activate to sort column descending Customername: activate to sort column ascending Customerphone: activate to sort column ascending Customeremail: activate to sort column ascending Startdate: activate to sort column ascending Enddate: activate to sort column ascending Adults: activate to sort column ascending Children: activate to sort column ascending Status: activate to sort column ascending Notes: activate to sort column ascending Createdat: activate to sort column ascending Updatedat: activate to sort column ascending Accommodation" [ref=e122]':
+              - columnheader [ref=e123] [cursor=pointer]:
+                - checkbox [ref=e124]
+              - columnheader [ref=e125]
+              - 'columnheader "Id: activate to sort column descending" [ref=e126] [cursor=pointer]': ▲ Id ▼
+              - 'columnheader "Customername: activate to sort column ascending" [ref=e127] [cursor=pointer]': ▲ Customername ▼
+              - 'columnheader "Customerphone: activate to sort column ascending" [ref=e128] [cursor=pointer]': ▲ Customerphone ▼
+              - 'columnheader "Customeremail: activate to sort column ascending" [ref=e129] [cursor=pointer]': ▲ Customeremail ▼
+              - 'columnheader "Startdate: activate to sort column ascending" [ref=e130] [cursor=pointer]': ▲ Startdate ▼
+              - 'columnheader "Enddate: activate to sort column ascending" [ref=e131] [cursor=pointer]': ▲ Enddate ▼
+              - 'columnheader "Adults: activate to sort column ascending" [ref=e132] [cursor=pointer]': ▲ Adults ▼
+              - 'columnheader "Children: activate to sort column ascending" [ref=e133] [cursor=pointer]': ▲ Children ▼
+              - 'columnheader "Status: activate to sort column ascending" [ref=e134] [cursor=pointer]': ▲ Status ▼
+              - 'columnheader "Notes: activate to sort column ascending" [ref=e135] [cursor=pointer]': ▲ Notes ▼
+              - 'columnheader "Createdat: activate to sort column ascending" [ref=e136] [cursor=pointer]': ▲ Createdat ▼
+              - 'columnheader "Updatedat: activate to sort column ascending" [ref=e137] [cursor=pointer]': ▲ Updatedat ▼
+              - columnheader "Accommodation" [ref=e138]
+          - rowgroup [ref=e139]:
+            - row "No matching records found" [ref=e140] [cursor=pointer]:
+              - cell "No matching records found" [ref=e141]
+        - generic [ref=e142]:
+          - status [ref=e144]: Showing 0 to 0 of 0 entries
+          - list [ref=e147]:
+            - listitem [ref=e148]:
+              - generic: First
+            - listitem [ref=e149]:
+              - generic: Previous
+            - listitem [ref=e150]:
+              - generic: Next
+            - listitem [ref=e151]:
+              - generic: Last

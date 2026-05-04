@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useParams, useNavigate, Link } from 'react-router'
 import { ArrowLeft, FileText } from 'lucide-react'
-import Navbar from '../sections/Navbar'
 import Footer from '../sections/Footer'
 
 interface LegalPageData {
@@ -50,8 +49,6 @@ export default function LegalPage() {
 
   return (
     <div className="relative min-h-screen flex flex-col bg-white">
-      <Navbar />
-
       <main className="flex-1 pt-24 pb-16">
         <div className="container-main">
           {/* Back link */}
