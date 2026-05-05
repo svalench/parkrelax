@@ -42,6 +42,8 @@ from app.routers.admin_auth import verify_password
 from app.models import (
     User,
     Contact,
+    PhoneNumber,
+    EmailAddress,
     Review,
     GalleryItem,
     Booking,
@@ -270,10 +272,29 @@ class ContactAdminView(ModelView):
     fields = [
         IntegerField("id", read_only=True),
         TextAreaField("address", label="Адрес"),
-        StringField("phone", label="Телефон"),
-        StringField("email", label="Email"),
         StringField("workHours", label="Часы работы"),
-        TextAreaField("mapUrl", label="Ссылка на карту"),
+        TextAreaField("yandexMapEmbed", label="Код карты Яндекс (iframe)"),
+        DateTimeField("createdAt", label="Создано", read_only=True),
+        DateTimeField("updatedAt", label="Обновлено", read_only=True),
+    ]
+
+
+class PhoneNumberAdminView(ModelView):
+    fields = [
+        IntegerField("id", read_only=True),
+        StringField("number", label="Номер телефона"),
+        BooleanField("isVisibleInHeader", label="Показывать в шапке сайта"),
+        IntegerField("sortOrder", label="Порядок сортировки"),
+        DateTimeField("createdAt", label="Создано", read_only=True),
+        DateTimeField("updatedAt", label="Обновлено", read_only=True),
+    ]
+
+
+class EmailAddressAdminView(ModelView):
+    fields = [
+        IntegerField("id", read_only=True),
+        StringField("email", label="Email адрес"),
+        IntegerField("sortOrder", label="Порядок сортировки"),
         DateTimeField("createdAt", label="Создано", read_only=True),
         DateTimeField("updatedAt", label="Обновлено", read_only=True),
     ]
@@ -586,6 +607,8 @@ admin = Admin(
 
 admin.add_view(UserAdminView(User, icon="fa fa-user", label="Пользователи", identity="users"))
 admin.add_view(ContactAdminView(Contact, icon="fa fa-address-book", label="Контакты", identity="contacts"))
+admin.add_view(PhoneNumberAdminView(PhoneNumber, icon="fa fa-phone", label="Телефоны", identity="phone-numbers"))
+admin.add_view(EmailAddressAdminView(EmailAddress, icon="fa fa-envelope", label="Email адреса", identity="email-addresses"))
 admin.add_view(ReviewAdminView(Review, icon="fa fa-star", label="Отзывы", identity="reviews"))
 admin.add_view(GalleryItemAdminView(GalleryItem, icon="fa fa-images", label="Галерея", identity="gallery"))
 admin.add_view(BookingView(Booking, icon="fa fa-calendar-check", label="Бронирования", identity="booking"))

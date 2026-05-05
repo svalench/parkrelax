@@ -48,10 +48,8 @@ class UserProfileUpdate(BaseModel):
 
 class ContactBase(BaseModel):
     address: str
-    phone: str
-    email: Optional[str] = None
     workHours: Optional[str] = None
-    mapUrl: Optional[str] = None
+    yandexMapEmbed: Optional[str] = None
 
 
 class ContactCreate(ContactBase):
@@ -60,10 +58,8 @@ class ContactCreate(ContactBase):
 
 class ContactUpdate(BaseModel):
     address: Optional[str] = None
-    phone: Optional[str] = None
-    email: Optional[str] = None
     workHours: Optional[str] = None
-    mapUrl: Optional[str] = None
+    yandexMapEmbed: Optional[str] = None
 
 
 class ContactResponse(ContactBase):
@@ -71,6 +67,56 @@ class ContactResponse(ContactBase):
     id: int | None = None
     createdAt: datetime | None = None
     updatedAt: datetime | None = None
+
+
+class PhoneNumberBase(BaseModel):
+    number: str
+    isVisibleInHeader: bool = False
+    sortOrder: int = 0
+
+
+class PhoneNumberCreate(PhoneNumberBase):
+    pass
+
+
+class PhoneNumberUpdate(BaseModel):
+    number: Optional[str] = None
+    isVisibleInHeader: Optional[bool] = None
+    sortOrder: Optional[int] = None
+
+
+class PhoneNumberResponse(PhoneNumberBase):
+    model_config = ConfigDict(from_attributes=True)
+    id: int | None = None
+    createdAt: datetime | None = None
+    updatedAt: datetime | None = None
+
+
+class EmailAddressBase(BaseModel):
+    email: str
+    sortOrder: int = 0
+
+
+class EmailAddressCreate(EmailAddressBase):
+    pass
+
+
+class EmailAddressUpdate(BaseModel):
+    email: Optional[str] = None
+    sortOrder: Optional[int] = None
+
+
+class EmailAddressResponse(EmailAddressBase):
+    model_config = ConfigDict(from_attributes=True)
+    id: int | None = None
+    createdAt: datetime | None = None
+    updatedAt: datetime | None = None
+
+
+class ContactPublicResponse(BaseModel):
+    contact: Optional[ContactResponse] = None
+    phones: list[PhoneNumberResponse] = []
+    emails: list[EmailAddressResponse] = []
 
 
 # ── Reviews ────────────────────────────────────────────────────────

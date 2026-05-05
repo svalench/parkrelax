@@ -128,19 +128,20 @@ export default function Rental() {
     <section id="rental" className="py-20 bg-white overflow-hidden">
       {/* Header — внутри контейнера */}
       <div className="container-main mb-10 md:mb-12">
-        <div className="rental-header">
-          <span className="rental-eyebrow">ПРОКАТ</span>
-          <h2 className="rental-title">
-            Выбирай <span>активность</span> на любой вкус
+        <div className="max-w-xl">
+          <span className="section-label mb-3 block">ПРОКАТ</span>
+          <h2 className="text-3xl md:text-4xl font-bold text-dark mb-3">
+            Выбирай <span className="text-brand">активность</span> на любой вкус
           </h2>
         </div>
       </div>
 
-      {/* Curtain Stage — на всю ширину */}
-      <div
-        ref={stageRef}
-        className={`rental-stage w-full ${activeIndex !== null ? 'rental-stage-active' : ''}`}
-      >
+      {/* Curtain Stage */}
+      <div className="container-main">
+        <div
+          ref={stageRef}
+          className={`rental-stage w-full rounded-2xl md:rounded-3xl ${activeIndex !== null ? 'rental-stage-active' : ''}`}
+        >
         {rentals.slice(0, 5).map((item, i) => (
           <div
             key={item.title + i}
@@ -169,7 +170,7 @@ export default function Rental() {
             </span>
 
             {/* Vertical label (collapsed) */}
-            <div className="rental-panel-label-vertical">{item.title.slice(0, 12)}{item.title.length > 12 ? '…' : ''}</div>
+            <div className="rental-panel-label-vertical">{item.title}</div>
 
             {/* Close button */}
             <button
@@ -208,8 +209,8 @@ export default function Rental() {
             </div>
           </div>
         ))}
+        </div>
       </div>
-
 
     </section>
   )

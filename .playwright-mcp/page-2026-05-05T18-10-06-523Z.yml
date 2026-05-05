@@ -1,0 +1,346 @@
+- generic [ref=e2]:
+  - banner [ref=e3]:
+    - generic [ref=e4]:
+      - link "+375 (29) 500-50-29" [ref=e5] [cursor=pointer]:
+        - /url: tel:+375295005029
+        - img [ref=e6]
+        - text: +375 (29) 500-50-29
+      - navigation [ref=e8]:
+        - link "Главная" [ref=e9] [cursor=pointer]:
+          - /url: /
+        - link "О комплексе" [ref=e10] [cursor=pointer]:
+          - /url: /#about
+        - link "Проживание" [ref=e11] [cursor=pointer]:
+          - /url: /#accommodation
+        - link "Услуги" [ref=e12] [cursor=pointer]:
+          - /url: /#rental
+        - link "Галерея" [ref=e13] [cursor=pointer]:
+          - /url: /#gallery
+        - link "Контакты" [ref=e14] [cursor=pointer]:
+          - /url: /#contacts
+      - generic [ref=e15]:
+        - button "Пинский район, д. Кончицы" [ref=e16] [cursor=pointer]:
+          - img [ref=e17]
+          - text: Пинский район, д. Кончицы
+        - button "Вход" [ref=e20] [cursor=pointer]:
+          - img [ref=e21]
+          - text: Вход
+  - generic [ref=e24]:
+    - main [ref=e25]:
+      - generic [ref=e26]:
+        - img "Озеро с деревянным мостком в Парк Relax" [ref=e28]
+        - generic:
+          - img "Парк Relax"
+        - generic [ref=e33]:
+          - heading "Парк Relax — лучший комплекс отдыха и проживания на природе" [level=1] [ref=e34]:
+            - generic [ref=e35]:
+              - text: Парк Relax —
+              - text: лучший комплекс
+              - text: отдыха и проживания
+              - text: на природе
+          - paragraph [ref=e36]: Комфортные домики, чистый воздух, живописная природа и всё для незабываемого отдыха с семьёй и друзьями.
+          - paragraph [ref=e37]: Отдохните от городской суеты — наслаждайтесь природой в Парк Relax!
+        - generic [ref=e40]:
+          - heading "Бронирование проживания" [level=3] [ref=e41]
+          - generic [ref=e42]:
+            - generic [ref=e43]:
+              - button "Заезд 06.05.2026" [ref=e45] [cursor=pointer]:
+                - img [ref=e46]
+                - generic [ref=e48]:
+                  - generic [ref=e49]: Заезд
+                  - generic [ref=e50]: 06.05.2026
+              - button "Выезд 07.05.2026" [ref=e52] [cursor=pointer]:
+                - img [ref=e53]
+                - generic [ref=e55]:
+                  - generic [ref=e56]: Выезд
+                  - generic [ref=e57]: 07.05.2026
+            - button "Гости 2 взрослых" [ref=e59] [cursor=pointer]:
+              - img [ref=e60]
+              - generic [ref=e65]:
+                - generic [ref=e66]: Гости
+                - generic [ref=e67]: 2 взрослых
+              - img [ref=e68]
+            - generic [ref=e71]:
+              - generic [ref=e72]: Домик
+              - combobox [ref=e73] [cursor=pointer]:
+                - generic: Любой
+                - img
+            - button "Найти доступные" [ref=e74] [cursor=pointer]
+      - generic [ref=e76]:
+        - generic [ref=e77]:
+          - generic [ref=e78]:
+            - generic [ref=e79]: О НАС
+            - heading "Комплекс отдыха Парк Relax" [level=2] [ref=e80]:
+              - text: Комплекс отдыха
+              - text: Парк Relax
+            - paragraph [ref=e81]: Парк Relax расположен в живописном уголке в деревне Кончицы. Это место, где можно отдохнуть от городской суеты, насладиться тишиной, свежим воздухом и красотой природы.
+            - generic [ref=e82]:
+              - generic [ref=e83]:
+                - img [ref=e84]
+                - text: 20 км от Пинска
+              - generic [ref=e87]:
+                - img [ref=e88]
+                - text: 3 км от центра
+              - generic [ref=e91]:
+                - img [ref=e92]
+                - text: Удобный подъезд
+              - generic [ref=e96]:
+                - img [ref=e97]
+                - text: Озеро и лес
+              - generic [ref=e99]:
+                - img [ref=e100]
+                - text: Активный отдых
+              - generic [ref=e107]:
+                - img [ref=e108]
+                - text: Пляж
+            - generic [ref=e112]:
+              - heading "КАК ДОБРАТЬСЯ" [level=3] [ref=e113]
+              - paragraph [ref=e114]: Из Минска через магистральный центр Минск — сторону Пинска. Из Бреста по шоссейной дороге, поворот направо у ст. Островцы.
+          - generic [ref=e115]:
+            - img "Домики в Парк Relax" [ref=e116]
+            - generic [ref=e117]: Парк Relax
+        - generic [ref=e118]:
+          - generic [ref=e119]:
+            - img [ref=e121]
+            - heading "Размещение и комфорт" [level=4] [ref=e124]
+            - paragraph [ref=e125]: Уютные коттеджи, апартаменты и летние домики с современным оборудованием
+          - generic [ref=e126]:
+            - img [ref=e128]
+            - heading "Отдых и активность" [level=4] [ref=e133]
+            - paragraph [ref=e134]: Прокат, прогулки на лодках, катамаранах и SUP, спортивные площадки, велосипеды
+          - generic [ref=e135]:
+            - img [ref=e137]
+            - heading "Природа и рекреация" [level=4] [ref=e139]
+            - paragraph [ref=e140]: "Окно в мир природы: озеро, лес, баня, бассейны, и многое другое на свежем воздухе"
+          - generic [ref=e141]:
+            - img [ref=e143]
+            - heading "Мероприятия и праздники" [level=4] [ref=e149]
+            - paragraph [ref=e150]: Идеальное место для дней рождения, свадеб, корпоративов и любых особых событий
+      - generic [ref=e153]:
+        - generic [ref=e154]: Где остановиться
+        - heading "Выбери своё жильё" [level=2] [ref=e155]
+      - generic [ref=e156]:
+        - generic [ref=e158]:
+          - generic [ref=e159]: ПРОКАТ
+          - heading "Выбирай активность на любой вкус" [level=2] [ref=e160]
+        - generic [ref=e161]:
+          - button "Катамаран" [ref=e162] [cursor=pointer]:
+            - generic [ref=e165]: Вода
+            - generic: Катамаран
+            - button "Закрыть":
+              - img
+            - generic:
+              - generic: Водный спорт
+              - heading "Катамаран" [level=3]
+              - generic: Прогулки по озеру на комфортабельном катамаране. Идеально для семейного отдыха и романтических прогулок на закате.
+              - generic:
+                - generic:
+                  - img
+                  - text: 1–2 часа
+                - generic:
+                  - img
+                  - text: до 4 чел.
+                - button "Забронировать":
+                  - text: Забронировать
+                  - img
+          - button "Лодка с веслами" [ref=e166] [cursor=pointer]:
+            - generic [ref=e169]: Рыбалка
+            - generic: Лодка с весл…
+            - button "Закрыть":
+              - img
+            - generic:
+              - generic: Спокойствие
+              - heading "Лодка с веслами" [level=3]
+              - generic: Тихая гребля по заливам и заливчикам озера. Отличный способ расслабиться и половить рыбу в уединённых местах.
+              - generic:
+                - generic:
+                  - img
+                  - text: от 1 часа
+                - generic:
+                  - img
+                  - text: до 3 чел.
+                - button "Забронировать":
+                  - text: Забронировать
+                  - img
+          - button "Велосипед" [ref=e170] [cursor=pointer]:
+            - generic [ref=e173]: Спорт
+            - generic: Велосипед
+            - button "Закрыть":
+              - img
+            - generic:
+              - generic: Активный отдых
+              - heading "Велосипед" [level=3]
+              - generic: Велосипеды для взрослых и детей. Катайтесь по лесным тропам и береговой линии, наслаждаясь природой.
+              - generic:
+                - generic:
+                  - img
+                  - text: почасово
+                - generic:
+                  - img
+                  - text: 1 чел.
+                - button "Забронировать":
+                  - text: Забронировать
+                  - img
+          - button "SUP-доски" [ref=e174] [cursor=pointer]:
+            - generic [ref=e177]: Актив
+            - generic: SUP-доски
+            - button "Закрыть":
+              - img
+            - generic:
+              - generic: Баланс
+              - heading "SUP-доски" [level=3]
+              - generic: SUP-бординг для новичков и опытных. Укрепляйте корпус, наслаждайтесь видами и освежающими купаниями.
+              - generic:
+                - generic:
+                  - img
+                  - text: от 1 часа
+                - generic:
+                  - img
+                  - text: 1 чел.
+                - button "Забронировать":
+                  - text: Забронировать
+                  - img
+      - generic [ref=e179]:
+        - generic [ref=e180]:
+          - generic [ref=e181]:
+            - generic [ref=e182]: ГАЛЕРЕЯ
+            - heading "Атмосфера, в которую хочется вернуться" [level=2] [ref=e183]
+            - paragraph [ref=e184]: Тёплые вечера, лес, озёра и уютные — всё для вашего идеального отдыха
+          - button "Смотреть все фото" [ref=e185] [cursor=pointer]:
+            - img [ref=e186]
+            - text: Смотреть все фото
+        - generic [ref=e188]:
+          - img "Галерея Парк Relax — фото 1" [ref=e189]
+          - button "Предыдущее фото" [ref=e190] [cursor=pointer]:
+            - img [ref=e191]
+          - button "Следующее фото" [ref=e193] [cursor=pointer]:
+            - img [ref=e194]
+        - generic [ref=e196]:
+          - button "Миниатюра 1" [ref=e197] [cursor=pointer]:
+            - img "Миниатюра 1" [ref=e198]
+          - button "Миниатюра 2" [ref=e199] [cursor=pointer]:
+            - img "Миниатюра 2" [ref=e200]
+          - button "Миниатюра 3" [ref=e201] [cursor=pointer]:
+            - img "Миниатюра 3" [ref=e202]
+          - button "Миниатюра 4" [ref=e203] [cursor=pointer]:
+            - img "Миниатюра 4" [ref=e204]
+          - button "Миниатюра 5" [ref=e205] [cursor=pointer]:
+            - img "Миниатюра 5" [ref=e206]
+        - paragraph [ref=e207]: Каждый уголок Парк Relax создан для вашего комфорта и вдохновения
+      - generic [ref=e210]:
+        - generic [ref=e211]:
+          - generic [ref=e212]: КОНТАКТЫ
+          - heading "Всегда на связи и легко добраться" [level=2] [ref=e213]
+          - paragraph [ref=e214]: Свяжитесь по указанным данным, поможем подобрать формат размещения и быстро оформить бронирование
+          - generic [ref=e215]:
+            - generic [ref=e216]:
+              - img [ref=e217]
+              - text: Гостеприимный персонал 24/7
+            - generic [ref=e219]:
+              - img [ref=e220]
+              - text: Удобный подъезд в любое время года
+          - generic [ref=e222]:
+            - generic [ref=e223]:
+              - img [ref=e224]
+              - generic [ref=e227]:
+                - generic [ref=e228]: Адрес
+                - generic [ref=e229]: Пинский район, д. Кончицы
+            - generic [ref=e230]:
+              - img [ref=e231]
+              - generic [ref=e233]:
+                - generic [ref=e234]: Телефон
+                - link "+375 (29) 500-50-29" [ref=e235] [cursor=pointer]:
+                  - /url: tel:+375295005029
+                - link "+375 (29) 500-50-08" [ref=e236] [cursor=pointer]:
+                  - /url: tel:+375295005008
+            - generic [ref=e237]:
+              - img [ref=e238]
+              - generic [ref=e241]:
+                - generic [ref=e242]: Email
+                - link "park_office@mail.ru" [ref=e243] [cursor=pointer]:
+                  - /url: mailto:park_office@mail.ru
+          - generic [ref=e244]:
+            - link "Позвонить" [ref=e245] [cursor=pointer]:
+              - /url: tel:+375295005029
+              - img [ref=e246]
+              - text: Позвонить
+            - link "Написать" [ref=e248] [cursor=pointer]:
+              - /url: mailto:park_office@mail.ru
+              - img [ref=e249]
+              - text: Написать
+        - generic [ref=e252]:
+          - img "Карта расположения Парк Relax" [ref=e253]
+          - generic [ref=e254]:
+            - button [ref=e255] [cursor=pointer]:
+              - img [ref=e256]
+            - button [ref=e257] [cursor=pointer]:
+              - img [ref=e258]
+            - button [ref=e259] [cursor=pointer]:
+              - img [ref=e260]
+      - generic [ref=e265]:
+        - generic [ref=e266]: ОТЗЫВЫ ГОСТЕЙ
+        - heading "Что говорят о Парк Relax" [level=2] [ref=e267]
+        - paragraph [ref=e268]: Реальные отзывы с Яндекс.Карт — только 5 звёзд
+    - contentinfo [ref=e271]:
+      - generic [ref=e272]:
+        - generic [ref=e273]:
+          - generic [ref=e274]:
+            - heading "Инфо" [level=4] [ref=e275]
+            - list [ref=e276]:
+              - listitem [ref=e277]:
+                - link "О базе отдыха" [ref=e278] [cursor=pointer]:
+                  - /url: /#about
+              - listitem [ref=e279]:
+                - link "Контакты" [ref=e280] [cursor=pointer]:
+                  - /url: /#contacts
+              - listitem [ref=e281]:
+                - link "Галерея" [ref=e282] [cursor=pointer]:
+                  - /url: /#gallery
+          - generic [ref=e283]:
+            - heading "Размещение" [level=4] [ref=e284]
+            - list [ref=e285]:
+              - listitem [ref=e286]:
+                - link "Коттедж" [ref=e287] [cursor=pointer]:
+                  - /url: /#accommodation
+              - listitem [ref=e288]:
+                - link "Апартаменты" [ref=e289] [cursor=pointer]:
+                  - /url: /#accommodation
+              - listitem [ref=e290]:
+                - link "Летние домики" [ref=e291] [cursor=pointer]:
+                  - /url: /#accommodation
+          - generic [ref=e292]:
+            - heading "Активный отдых" [level=4] [ref=e293]
+            - list [ref=e294]:
+              - listitem [ref=e295]:
+                - link "Прокат" [ref=e296] [cursor=pointer]:
+                  - /url: /#rental
+              - listitem [ref=e297]:
+                - link "Беседки" [ref=e298] [cursor=pointer]:
+                  - /url: /#area
+              - listitem [ref=e299]:
+                - link "Баня и терраса" [ref=e300] [cursor=pointer]:
+                  - /url: /#accommodation
+          - generic [ref=e301]:
+            - heading "Юридическая информация" [level=4] [ref=e302]
+            - list [ref=e303]:
+              - listitem [ref=e304]:
+                - link "Политика конфиденциальности" [ref=e305] [cursor=pointer]:
+                  - /url: /legal/privacy-policy
+              - listitem [ref=e306]:
+                - link "Условия использования файлов cookies" [ref=e307] [cursor=pointer]:
+                  - /url: /legal/cookie-policy
+              - listitem [ref=e308]:
+                - link "Условия аренды и возврата" [ref=e309] [cursor=pointer]:
+                  - /url: /legal/rental-terms
+              - listitem [ref=e310]:
+                - link "Публичная оферта" [ref=e311] [cursor=pointer]:
+                  - /url: /legal/public-offer
+        - generic [ref=e312]:
+          - generic [ref=e314]: WebPay
+          - img [ref=e316]:
+            - generic [ref=e318]: VISA
+          - img [ref=e320]:
+            - generic [ref=e322]: Mastercard
+          - generic [ref=e324]: БЕЛКАРТ
+          - generic [ref=e326]: МИР
+        - generic [ref=e327]: ООО «Парк Relax» — © 2024

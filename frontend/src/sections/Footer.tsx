@@ -18,14 +18,6 @@ const footerColumns = [
     ],
   },
   {
-    title: 'Активный отдых',
-    links: [
-      { label: 'Прокат', to: '/#rental' },
-      { label: 'Беседки', to: '/#area' },
-      { label: 'Баня и терраса', to: '/#accommodation' },
-    ],
-  },
-  {
     title: 'Юридическая информация',
     links: [
       { label: 'Политика конфиденциальности', to: '/legal/privacy-policy' },
@@ -40,7 +32,7 @@ export default function Footer() {
   return (
     <footer className="bg-dark text-white">
       <div className="container-main py-16">
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-10 mb-12">
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-10 mb-12">
           {footerColumns.map((col) => (
             <div key={col.title}>
               <h4 className="text-sm font-semibold mb-4">{col.title}</h4>

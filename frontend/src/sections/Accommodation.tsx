@@ -1,333 +1,127 @@
-import { useEffect, useState, useRef, useCallback } from 'react'
+import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router'
-import { ChevronLeft, ChevronRight } from 'lucide-react'
 import { plainTextFromHtml } from '../lib/safeHtml'
 
-interface AccommodationItem {
+interface AccommodationType {
   id: number
   name: string
   description?: string
-  typeId: number
-  imageUrl?: string
   capacity: number
   pricePerNight: number
+  imageUrl?: string
   isActive: boolean
-  showOnMain: boolean
   sortOrder: number
 }
 
-const MORE_CARD: AccommodationItem = {
-  id: -1,
-  name: 'Смотреть больше',
-  description: 'Все варианты размещения',
-  typeId: 0,
-  imageUrl: '',
-  capacity: 0,
-  pricePerNight: 0,
-  isActive: true,
-  showOnMain: true,
-  sortOrder: 999,
-}
-
-const fallbackAccommodations: AccommodationItem[] = [
+const fallbackTypes: AccommodationType[] = [
   {
     id: 1,
     name: 'Коттедж',
-    description: 'До 8 человек · 4 комнаты · с камином',
-    typeId: 1,
-    imageUrl: '/assets/asset_7.jpg',
+    description: 'Просторный двухэтажный коттедж с камином, террасой и панорамными окнами. Идеально для большой компании или семейного праздника.',
     capacity: 8,
     pricePerNight: 8500,
+    imageUrl: '/assets/asset_7.jpg',
     isActive: true,
-    showOnMain: true,
     sortOrder: 0,
   },
   {
     id: 2,
     name: 'Апартаменты',
-    description: 'До 4 человек · 2 комнаты · с балконом',
-    typeId: 2,
-    imageUrl: '/assets/asset_8.jpg',
+    description: 'Современные апартаменты с балконом, полностью оборудованной кухней и уютной гостиной. Комфорт как дома, но среди природы.',
     capacity: 4,
     pricePerNight: 5200,
+    imageUrl: '/assets/asset_8.jpg',
     isActive: true,
-    showOnMain: true,
     sortOrder: 1,
   },
   {
     id: 3,
     name: 'Летние домики',
-    description: 'До 6 человек · 3 комнаты · терраса',
-    typeId: 3,
-    imageUrl: '/assets/asset_9.jpg',
+    description: 'Уютные A-образные домики у озера с террасой и видом на воду. Идеальный выбор для романтического getaway или тихого отдыха.',
     capacity: 6,
     pricePerNight: 4800,
+    imageUrl: '/assets/asset_9.jpg',
     isActive: true,
-    showOnMain: true,
     sortOrder: 2,
   },
   {
     id: 4,
     name: 'Терраса с баней',
-    description: 'До 10 человек · баня · мини-бассейн',
-    typeId: 4,
-    imageUrl: '/assets/asset_10.jpg',
+    description: 'Большая терраса с русской баней, мини-бассейном и обеденной зоной. Отличное место для вечеринок и корпоративного отдыха.',
     capacity: 10,
     pricePerNight: 12000,
+    imageUrl: '/assets/asset_10.jpg',
     isActive: true,
-    showOnMain: true,
     sortOrder: 3,
   },
-  MORE_CARD,
 ]
 
 export default function Accommodation() {
   const navigate = useNavigate()
-  const [accommodations, setAccommodations] = useState<AccommodationItem[]>([])
-  const [active, setActive] = useState(1)
-  const stageRef = useRef<HTMLDivElement>(null)
-  const [stageWidth, setStageWidth] = useState(0)
+  const [types, setTypes] = useState<AccommodationType[]>([])
 
   useEffect(() => {
-    fetch('/api/accommodation/objects?showOnMain=true')
+    fetch('/api/accommodation/types')
       .then((r) => r.json())
-      .then((data: AccommodationItem[]) => {
+      .then((data: AccommodationType[]) => {
         const items =
-          Array.isArray(data) && data.length > 0
-            ? [...data, MORE_CARD]
-            : fallbackAccommodations
-        setAccommodations(items)
+          Array.isArray(data) && data.length > 0 ? data : fallbackTypes
+        setTypes(items)
       })
-      .catch(() => setAccommodations(fallbackAccommodations))
+      .catch(() => setTypes(fallbackTypes))
   }, [])
-
-  useEffect(() => {
-    function updateWidth() {
-      if (stageRef.current) setStageWidth(stageRef.current.offsetWidth)
-    }
-    updateWidth()
-    window.addEventListener('resize', updateWidth)
-    return () => window.removeEventListener('resize', updateWidth)
-  }, [])
-
-  const goTo = useCallback(
-    (index: number) => {
-      const N = accommodations.length
-      if (N === 0) return
-      setActive(Math.max(0, Math.min(index, N - 1)))
-    },
-    [accommodations.length]
-  )
-
-  const goPrev = useCallback(() => goTo(active - 1), [active, goTo])
-  const goNext = useCallback(() => goTo(active + 1), [active, goTo])
-
-  // Keyboard navigation
-  useEffect(() => {
-    function onKey(e: KeyboardEvent) {
-      if (e.key === 'ArrowLeft') goPrev()
-      if (e.key === 'ArrowRight') goNext()
-    }
-    window.addEventListener('keydown', onKey)
-    return () => window.removeEventListener('keydown', onKey)
-  }, [goPrev, goNext])
-
-  // Drag / touch
-  const dragStartX = useRef(0)
-  const dragging = useRef(false)
-
-  const onStart = useCallback((x: number) => {
-    dragStartX.current = x
-    dragging.current = true
-    if (stageRef.current) stageRef.current.style.cursor = 'grabbing'
-  }, [])
-
-  const onMove = useCallback((x: number) => {
-    if (!dragging.current) return
-    if (Math.abs(x - dragStartX.current) > 8) dragging.current = true
-  }, [])
-
-  const onEnd = useCallback(
-    (x: number) => {
-      if (!dragging.current) return
-      dragging.current = false
-      if (stageRef.current) stageRef.current.style.cursor = ''
-      const diff = dragStartX.current - x
-      if (Math.abs(diff) > 50) {
-        goTo(active + (diff > 0 ? 1 : -1))
-      }
-    },
-    [active, goTo]
-  )
-
-  // Compute card styles
-  const getCardStyle = (index: number): React.CSSProperties => {
-    const diff = index - active
-    const absDiff = Math.abs(diff)
-    const dir = Math.sign(diff)
-    const W = stageWidth || 1200
-
-    const SIDE_OFFSET = W * 0.14
-    const SIDE_SCALE = 0.82
-    const SIDE_ROTATE = 6
-    const FAR_OFFSET = W * 0.26
-    const FAR_SCALE = 0.68
-    const FAR_ROTATE = 12
-
-    let tx = 0,
-      scale = 1,
-      rotate = 0,
-      opacity = 1,
-      zIndex = 10
-
-    if (diff === 0) {
-      tx = 0
-      scale = 1
-      rotate = 0
-      zIndex = 20
-      opacity = 1
-    } else if (absDiff === 1) {
-      tx = dir * SIDE_OFFSET
-      scale = SIDE_SCALE
-      rotate = dir * SIDE_ROTATE
-      zIndex = 15
-      opacity = 1
-    } else if (absDiff === 2) {
-      tx = dir * FAR_OFFSET
-      scale = FAR_SCALE
-      rotate = dir * FAR_ROTATE
-      zIndex = 10
-      opacity = 0.75
-    } else {
-      tx = dir * W * 0.65
-      scale = 0.55
-      rotate = dir * 18
-      zIndex = 5
-      opacity = 0
-    }
-
-    return {
-      transform: `translate(-50%, -50%) translateX(${tx}px) rotate(${rotate}deg) scale(${scale})`,
-      zIndex,
-      opacity,
-    }
-  }
-
-  const handleBook = (itemTypeId: number) => {
-    navigate(`/booking?typeId=${itemTypeId}`)
-  }
-
-  const N = accommodations.length
 
   return (
-    <section id="accommodation" className="acc-section">
-      <div className="acc-header">
-        <div className="acc-eyebrow">Где остановиться</div>
-        <h2 className="acc-title">
-          Выбери своё <span>жильё</span>
-        </h2>
-      </div>
-
-      <div
-        className="acc-stage"
-        ref={stageRef}
-        onMouseDown={(e) => onStart(e.clientX)}
-        onMouseMove={(e) => onMove(e.clientX)}
-        onMouseUp={(e) => onEnd(e.clientX)}
-        onMouseLeave={(e) => { if (dragging.current) onEnd(e.clientX) }}
-        onTouchStart={(e) => onStart(e.touches[0].clientX)}
-        onTouchMove={(e) => onMove(e.touches[0].clientX)}
-        onTouchEnd={(e) => onEnd(e.changedTouches[0].clientX)}
-      >
-        <div className="acc-track">
-          {accommodations.map((item, i) => {
-            const isMore = item.id === -1
-            return (
-            <div
-              key={item.id}
-              className={`acc-card ${i === active ? 'is-center' : ''} ${isMore ? 'acc-card-more' : ''}`}
-              style={getCardStyle(i)}
-              onClick={() => {
-                if (i !== active) goTo(i)
-                else if (isMore) navigate('/booking')
-              }}
-            >
-              {!isMore && (
-                <div className="acc-num">
-                  {String(i + 1).padStart(2, '0')}
-                </div>
-              )}
-              {!isMore && (
-                <img
-                  src={item.imageUrl || '/assets/asset_7.jpg'}
-                  alt={item.name}
-                  draggable={false}
-                />
-              )}
-              <div className="acc-info">
-                <div className="acc-info-title">{item.name}</div>
-                {!isMore && (
-                  <div className="acc-info-sub">
-                    {plainTextFromHtml(item.description) ||
-                      `До ${item.capacity} человек`}
-                  </div>
-                )}
-                {!isMore && item.pricePerNight > 0 && (
-                  <div className="acc-info-price">
-                    {item.pricePerNight.toLocaleString('ru-RU')} ₽ / ночь
-                  </div>
-                )}
-                <button
-                  className="acc-info-btn"
-                  onClick={(e) => {
-                    e.stopPropagation()
-                    if (isMore) navigate('/booking')
-                    else handleBook(item.typeId)
-                  }}
-                >
-                  {isMore ? 'Все варианты →' : 'Забронировать'}
-                </button>
-              </div>
-              <div className="acc-label-side">{item.name}</div>
-            </div>
-            )
-          })}
+    <section id="accommodation" className="py-20 bg-white">
+      <div className="container-main mb-10 md:mb-12">
+        <div className="max-w-xl">
+          <span className="section-label mb-3 block">Где остановиться</span>
+          <h2 className="text-3xl md:text-4xl font-bold text-dark mb-3">
+            Выбери своё <span className="text-brand">жильё</span>
+          </h2>
         </div>
-
-        {N > 1 && (
-          <>
-            <button
-              className="acc-arrow acc-arrow--l"
-              onClick={goPrev}
-              disabled={active === 0}
-              aria-label="Назад"
-            >
-              <ChevronLeft className="w-5 h-5" />
-            </button>
-            <button
-              className="acc-arrow acc-arrow--r"
-              onClick={goNext}
-              disabled={active === N - 1}
-              aria-label="Вперёд"
-            >
-              <ChevronRight className="w-5 h-5" />
-            </button>
-          </>
-        )}
       </div>
 
-      {N > 1 && (
-        <div className="acc-dots">
-          {accommodations.map((_, i) => (
-            <button
-              key={i}
-              className={`acc-dot ${i === active ? 'active' : ''}`}
-              onClick={() => goTo(i)}
-              aria-label={i === accommodations.length - 1 ? 'Все варианты' : `Жильё ${i + 1}`}
-            />
+      <div className="container-main">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+          {types.map((type) => (
+            <div
+              key={type.id}
+              onClick={() => navigate(`/booking?typeId=${type.id}`)}
+              className="group cursor-pointer rounded-2xl overflow-hidden border border-border/60 bg-white shadow-sm hover:shadow-xl hover:border-brand/30 transition-all duration-300"
+            >
+              <div className="relative aspect-[4/3] overflow-hidden">
+                <img
+                  src={type.imageUrl || '/assets/asset_7.jpg'}
+                  alt={type.name}
+                  className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                  loading="lazy"
+                />
+              </div>
+              <div className="p-5">
+                <h3 className="text-lg font-bold text-dark mb-1">
+                  {type.name}
+                </h3>
+                <p className="text-sm text-graytext mb-3">
+                  {plainTextFromHtml(type.description) ||
+                    `До ${type.capacity} человек`}
+                </p>
+                <div className="flex items-center justify-between">
+                  <span className="text-brand font-bold">
+                    {type.pricePerNight.toLocaleString('ru-RU')} ₽{' '}
+                    <span className="text-sm text-graytext font-normal">
+                      / ночь
+                    </span>
+                  </span>
+                  <span className="text-sm text-brand font-medium group-hover:underline">
+                    Смотреть →
+                  </span>
+                </div>
+              </div>
+            </div>
           ))}
         </div>
-      )}
+      </div>
     </section>
   )
 }

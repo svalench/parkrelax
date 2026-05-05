@@ -23,6 +23,7 @@ function Calendar({
   buttonVariant = "ghost",
   formatters,
   components,
+  modifiersClassNames,
   ...props
 }: React.ComponentProps<typeof DayPicker> & {
   buttonVariant?: React.ComponentProps<typeof Button>["variant"]
@@ -148,6 +149,12 @@ function Calendar({
         hidden: cn("invisible", defaultClassNames.hidden),
         ...classNames,
       }}
+      modifiersClassNames={{
+        hoverStart: cn("rounded-l-md bg-brand-light/40"),
+        hoverMiddle: cn("rounded-none bg-brand-light/25"),
+        hoverEnd: cn("rounded-r-md bg-brand-light/40"),
+        ...modifiersClassNames,
+      }}
       components={{
         Root: ({ className, rootRef, ...props }) => {
           return (
@@ -224,8 +231,11 @@ function CalendarDayButton({
       data-range-start={modifiers.range_start}
       data-range-end={modifiers.range_end}
       data-range-middle={modifiers.range_middle}
+      data-hover-start={modifiers.hoverStart}
+      data-hover-middle={modifiers.hoverMiddle}
+      data-hover-end={modifiers.hoverEnd}
       className={cn(
-        "data-[selected-single=true]:bg-primary data-[selected-single=true]:text-primary-foreground data-[range-middle=true]:bg-transparent data-[range-middle=true]:text-dark data-[range-start=true]:bg-brand data-[range-start=true]:text-white data-[range-end=true]:bg-brand data-[range-end=true]:text-white group-data-[focused=true]/day:border-ring group-data-[focused=true]/day:ring-ring/50 mx-auto flex aspect-square min-h-[var(--cell-size)] min-w-[var(--cell-size)] max-h-[var(--cell-size)] max-w-[var(--cell-size)] flex-col gap-1 rounded-lg leading-none font-medium transition-colors duration-150 hover:bg-brand-light/60 dark:hover:text-accent-foreground group-data-[focused=true]/day:relative group-data-[focused=true]/day:z-10 group-data-[focused=true]/day:ring-[3px] data-[range-end=true]:rounded-md data-[range-end=true]:rounded-r-md data-[range-middle=true]:rounded-none data-[range-start=true]:rounded-md data-[range-start=true]:rounded-l-md [&>span]:text-xs [&>span]:opacity-70",
+        "data-[selected-single=true]:bg-primary data-[selected-single=true]:text-primary-foreground data-[range-middle=true]:bg-transparent data-[range-middle=true]:text-dark data-[range-start=true]:bg-brand data-[range-start=true]:text-white data-[range-end=true]:bg-brand data-[range-end=true]:text-white data-[hover-start=true]:bg-brand/60 data-[hover-start=true]:text-dark data-[hover-middle=true]:bg-transparent data-[hover-middle=true]:text-dark data-[hover-end=true]:bg-brand/60 data-[hover-end=true]:text-dark group-data-[focused=true]/day:border-ring group-data-[focused=true]/day:ring-ring/50 mx-auto flex aspect-square min-h-[var(--cell-size)] min-w-[var(--cell-size)] max-h-[var(--cell-size)] max-w-[var(--cell-size)] flex-col gap-1 rounded-lg leading-none font-medium transition-colors duration-150 hover:bg-brand-light/60 dark:hover:text-accent-foreground group-data-[focused=true]/day:relative group-data-[focused=true]/day:z-10 group-data-[focused=true]/day:ring-[3px] data-[range-end=true]:rounded-md data-[range-end=true]:rounded-r-md data-[range-middle=true]:rounded-none data-[range-start=true]:rounded-md data-[range-start=true]:rounded-l-md data-[hover-end=true]:rounded-md data-[hover-end=true]:rounded-r-md data-[hover-middle=true]:rounded-none data-[hover-start=true]:rounded-md data-[hover-start=true]:rounded-l-md [&>span]:text-xs [&>span]:opacity-70",
         defaultClassNames.day_button,
         className
       )}

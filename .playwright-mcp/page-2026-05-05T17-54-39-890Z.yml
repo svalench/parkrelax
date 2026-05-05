@@ -1,0 +1,586 @@
+- generic [ref=e1]:
+  - generic [ref=e2]:
+    - banner [ref=e3]:
+      - generic [ref=e4]:
+        - link "+375 (29) 500-50-29" [ref=e5] [cursor=pointer]:
+          - /url: tel:+375295005029
+          - img [ref=e6]
+          - text: +375 (29) 500-50-29
+        - navigation [ref=e8]:
+          - link "Главная" [ref=e9] [cursor=pointer]:
+            - /url: /
+          - link "О комплексе" [ref=e10] [cursor=pointer]:
+            - /url: /#about
+          - link "Проживание" [ref=e11] [cursor=pointer]:
+            - /url: /#accommodation
+          - link "Услуги" [ref=e12] [cursor=pointer]:
+            - /url: /#rental
+          - link "Галерея" [ref=e13] [cursor=pointer]:
+            - /url: /#gallery
+          - link "Контакты" [ref=e14] [cursor=pointer]:
+            - /url: /#contacts
+        - generic [ref=e15]:
+          - button "Пинский район, д. Кончицы" [ref=e16] [cursor=pointer]:
+            - img [ref=e17]
+            - text: Пинский район, д. Кончицы
+          - button "Вход" [ref=e20] [cursor=pointer]:
+            - img [ref=e21]
+            - text: Вход
+    - generic [ref=e24]:
+      - main [ref=e25]:
+        - generic [ref=e26]:
+          - img "Озеро с деревянным мостком в Парк Relax" [ref=e28]
+          - generic:
+            - img "Парк Relax"
+          - generic [ref=e33]:
+            - heading "Парк Relax — лучший комплекс отдыха и проживания на природе" [level=1] [ref=e34]:
+              - generic [ref=e35]:
+                - text: Парк Relax —
+                - text: лучший комплекс
+                - text: отдыха и проживания
+                - text: на природе
+            - paragraph [ref=e36]: Комфортные домики, чистый воздух, живописная природа и всё для незабываемого отдыха с семьёй и друзьями.
+            - paragraph [ref=e37]: Отдохните от городской суеты — наслаждайтесь природой в Парк Relax!
+          - generic [ref=e40]:
+            - heading "Бронирование проживания" [level=3] [ref=e41]
+            - generic [ref=e42]:
+              - generic [ref=e43]:
+                - button "Заезд 10.05.2026" [expanded] [ref=e529] [cursor=pointer]:
+                  - img [ref=e46]
+                  - generic [ref=e48]:
+                    - generic [ref=e49]: Заезд
+                    - generic [ref=e50]: 10.05.2026
+                - button "Выезд —" [expanded] [ref=e530] [cursor=pointer]:
+                  - img [ref=e53]
+                  - generic [ref=e55]:
+                    - generic [ref=e56]: Выезд
+                    - generic [ref=e57]: —
+              - button "Гости 2 взрослых" [ref=e59] [cursor=pointer]:
+                - img [ref=e60]
+                - generic [ref=e65]:
+                  - generic [ref=e66]: Гости
+                  - generic [ref=e67]: 2 взрослых
+                - img [ref=e68]
+              - generic [ref=e71]:
+                - generic [ref=e72]: Домик
+                - combobox [ref=e73] [cursor=pointer]:
+                  - generic: Любой
+                  - img
+              - button "Найти доступные" [ref=e74] [cursor=pointer]
+        - generic [ref=e76]:
+          - generic [ref=e77]:
+            - generic [ref=e78]:
+              - generic [ref=e79]: О НАС
+              - heading "Комплекс отдыха Парк Relax" [level=2] [ref=e80]:
+                - text: Комплекс отдыха
+                - text: Парк Relax
+              - paragraph [ref=e81]: Парк Relax расположен в живописном уголке в деревне Кончицы. Это место, где можно отдохнуть от городской суеты, насладиться тишиной, свежим воздухом и красотой природы.
+              - generic [ref=e82]:
+                - generic [ref=e83]:
+                  - img [ref=e84]
+                  - text: 20 км от Пинска
+                - generic [ref=e87]:
+                  - img [ref=e88]
+                  - text: 3 км от центра
+                - generic [ref=e91]:
+                  - img [ref=e92]
+                  - text: Удобный подъезд
+                - generic [ref=e96]:
+                  - img [ref=e97]
+                  - text: Озеро и лес
+                - generic [ref=e99]:
+                  - img [ref=e100]
+                  - text: Активный отдых
+                - generic [ref=e107]:
+                  - img [ref=e108]
+                  - text: Пляж
+              - generic [ref=e112]:
+                - heading "КАК ДОБРАТЬСЯ" [level=3] [ref=e113]
+                - paragraph [ref=e114]: Из Минска через магистральный центр Минск — сторону Пинска. Из Бреста по шоссейной дороге, поворот направо у ст. Островцы.
+            - generic [ref=e115]:
+              - img "Домики в Парк Relax" [ref=e116]
+              - generic [ref=e117]: Парк Relax
+          - generic [ref=e118]:
+            - generic [ref=e119]:
+              - img [ref=e121]
+              - heading "Размещение и комфорт" [level=4] [ref=e124]
+              - paragraph [ref=e125]: Уютные коттеджи, апартаменты и летние домики с современным оборудованием
+            - generic [ref=e126]:
+              - img [ref=e128]
+              - heading "Отдых и активность" [level=4] [ref=e133]
+              - paragraph [ref=e134]: Прокат, прогулки на лодках, катамаранах и SUP, спортивные площадки, велосипеды
+            - generic [ref=e135]:
+              - img [ref=e137]
+              - heading "Природа и рекреация" [level=4] [ref=e139]
+              - paragraph [ref=e140]: "Окно в мир природы: озеро, лес, баня, бассейны, и многое другое на свежем воздухе"
+            - generic [ref=e141]:
+              - img [ref=e143]
+              - heading "Мероприятия и праздники" [level=4] [ref=e149]
+              - paragraph [ref=e150]: Идеальное место для дней рождения, свадеб, корпоративов и любых особых событий
+        - generic [ref=e151]:
+          - generic [ref=e153]:
+            - generic [ref=e154]: Где остановиться
+            - heading "Выбери своё жильё" [level=2] [ref=e155]
+          - generic [ref=e156]:
+            - generic [ref=e157]:
+              - generic [ref=e330] [cursor=pointer]:
+                - generic: "01"
+                - img "Коттедж"
+                - generic:
+                  - generic: Коттедж
+                  - generic: До 8 человек · 4 комнаты · с камином
+                  - generic: 8 500 ₽ / ночь
+                  - button "Забронировать"
+                - generic: Коттедж
+              - generic [ref=e331] [cursor=pointer]:
+                - generic: "02"
+                - img "Апартаменты"
+                - generic [ref=e332]:
+                  - generic [ref=e333]: Апартаменты
+                  - generic [ref=e334]: До 4 человек · 2 комнаты · с балконом
+                  - generic [ref=e335]: 5 200 ₽ / ночь
+                  - button "Забронировать" [ref=e336]
+                - generic: Апартаменты
+              - generic [ref=e337] [cursor=pointer]:
+                - generic: "03"
+                - img "Летние домики"
+                - generic:
+                  - generic: Летние домики
+                  - generic: До 6 человек · 3 комнаты · терраса
+                  - generic: 4 800 ₽ / ночь
+                  - button "Забронировать"
+                - generic: Летние домики
+              - generic [ref=e338] [cursor=pointer]:
+                - generic: "04"
+                - img "Терраса с баней"
+                - generic:
+                  - generic: Терраса с баней
+                  - generic: До 10 человек · баня · мини-бассейн
+                  - generic: 12 000 ₽ / ночь
+                  - button "Забронировать"
+                - generic: Терраса с баней
+              - generic [ref=e339] [cursor=pointer]:
+                - generic:
+                  - generic: Смотреть больше
+                  - button "Все варианты →"
+                - generic: Смотреть больше
+            - button "Назад" [ref=e340] [cursor=pointer]:
+              - img [ref=e341]
+            - button "Вперёд" [ref=e343] [cursor=pointer]:
+              - img [ref=e344]
+          - generic [ref=e346]:
+            - button "Жильё 1" [ref=e347] [cursor=pointer]
+            - button "Жильё 2" [ref=e348] [cursor=pointer]
+            - button "Жильё 3" [ref=e349] [cursor=pointer]
+            - button "Жильё 4" [ref=e350] [cursor=pointer]
+            - button "Все варианты" [ref=e351] [cursor=pointer]
+        - generic [ref=e158]:
+          - generic [ref=e160]:
+            - generic [ref=e161]: ПРОКАТ
+            - heading "Выбирай активность на любой вкус" [level=2] [ref=e162]
+          - generic [ref=e163]:
+            - button "Катамаран" [ref=e164] [cursor=pointer]:
+              - generic [ref=e167]: Вода
+              - generic: Катамаран
+              - button "Закрыть":
+                - img
+              - generic:
+                - generic: Водный спорт
+                - heading "Катамаран" [level=3]
+                - generic: Прогулки по озеру на комфортабельном катамаране. Идеально для семейного отдыха и романтических прогулок на закате.
+                - generic:
+                  - generic:
+                    - img
+                    - text: 1–2 часа
+                  - generic:
+                    - img
+                    - text: до 4 чел.
+                  - button "Забронировать":
+                    - text: Забронировать
+                    - img
+            - button "Лодка с веслами" [ref=e168] [cursor=pointer]:
+              - generic [ref=e171]: Рыбалка
+              - generic: Лодка с весл…
+              - button "Закрыть":
+                - img
+              - generic:
+                - generic: Спокойствие
+                - heading "Лодка с веслами" [level=3]
+                - generic: Тихая гребля по заливам и заливчикам озера. Отличный способ расслабиться и половить рыбу в уединённых местах.
+                - generic:
+                  - generic:
+                    - img
+                    - text: от 1 часа
+                  - generic:
+                    - img
+                    - text: до 3 чел.
+                  - button "Забронировать":
+                    - text: Забронировать
+                    - img
+            - button "Велосипед" [ref=e172] [cursor=pointer]:
+              - generic [ref=e175]: Спорт
+              - generic: Велосипед
+              - button "Закрыть":
+                - img
+              - generic:
+                - generic: Активный отдых
+                - heading "Велосипед" [level=3]
+                - generic: Велосипеды для взрослых и детей. Катайтесь по лесным тропам и береговой линии, наслаждаясь природой.
+                - generic:
+                  - generic:
+                    - img
+                    - text: почасово
+                  - generic:
+                    - img
+                    - text: 1 чел.
+                  - button "Забронировать":
+                    - text: Забронировать
+                    - img
+            - button "SUP-доски" [ref=e176] [cursor=pointer]:
+              - generic [ref=e179]: Актив
+              - generic: SUP-доски
+              - button "Закрыть":
+                - img
+              - generic:
+                - generic: Баланс
+                - heading "SUP-доски" [level=3]
+                - generic: SUP-бординг для новичков и опытных. Укрепляйте корпус, наслаждайтесь видами и освежающими купаниями.
+                - generic:
+                  - generic:
+                    - img
+                    - text: от 1 часа
+                  - generic:
+                    - img
+                    - text: 1 чел.
+                  - button "Забронировать":
+                    - text: Забронировать
+                    - img
+        - generic [ref=e181]:
+          - generic [ref=e182]:
+            - generic [ref=e183]:
+              - generic [ref=e184]: ГАЛЕРЕЯ
+              - heading "Атмосфера, в которую хочется вернуться" [level=2] [ref=e185]
+              - paragraph [ref=e186]: Тёплые вечера, лес, озёра и уютные — всё для вашего идеального отдыха
+            - button "Смотреть все фото" [ref=e187] [cursor=pointer]:
+              - img [ref=e188]
+              - text: Смотреть все фото
+          - generic [ref=e190]:
+            - img "Галерея Парк Relax — фото 1" [ref=e191]
+            - button "Предыдущее фото" [ref=e192] [cursor=pointer]:
+              - img [ref=e193]
+            - button "Следующее фото" [ref=e195] [cursor=pointer]:
+              - img [ref=e196]
+          - generic [ref=e198]:
+            - button "Миниатюра 1" [ref=e199] [cursor=pointer]:
+              - img "Миниатюра 1" [ref=e200]
+            - button "Миниатюра 2" [ref=e201] [cursor=pointer]:
+              - img "Миниатюра 2" [ref=e202]
+            - button "Миниатюра 3" [ref=e203] [cursor=pointer]:
+              - img "Миниатюра 3" [ref=e204]
+            - button "Миниатюра 4" [ref=e205] [cursor=pointer]:
+              - img "Миниатюра 4" [ref=e206]
+            - button "Миниатюра 5" [ref=e207] [cursor=pointer]:
+              - img "Миниатюра 5" [ref=e208]
+          - paragraph [ref=e209]: Каждый уголок Парк Relax создан для вашего комфорта и вдохновения
+        - generic [ref=e212]:
+          - generic [ref=e213]:
+            - generic [ref=e214]: КОНТАКТЫ
+            - heading "Всегда на связи и легко добраться" [level=2] [ref=e215]
+            - paragraph [ref=e216]: Свяжитесь по указанным данным, поможем подобрать формат размещения и быстро оформить бронирование
+            - generic [ref=e217]:
+              - generic [ref=e218]:
+                - img [ref=e219]
+                - text: Гостеприимный персонал 24/7
+              - generic [ref=e221]:
+                - img [ref=e222]
+                - text: Удобный подъезд в любое время года
+            - generic [ref=e224]:
+              - generic [ref=e225]:
+                - img [ref=e226]
+                - generic [ref=e229]:
+                  - generic [ref=e230]: Адрес
+                  - generic [ref=e231]: Пинский район, д. Кончицы
+              - generic [ref=e232]:
+                - img [ref=e233]
+                - generic [ref=e235]:
+                  - generic [ref=e236]: Телефон
+                  - link "+375 (29) 500-50-29" [ref=e237] [cursor=pointer]:
+                    - /url: tel:+375295005029
+                  - link "+375 (29) 500-50-08" [ref=e238] [cursor=pointer]:
+                    - /url: tel:+375295005008
+              - generic [ref=e239]:
+                - img [ref=e240]
+                - generic [ref=e243]:
+                  - generic [ref=e244]: Email
+                  - link "park_office@mail.ru" [ref=e245] [cursor=pointer]:
+                    - /url: mailto:park_office@mail.ru
+            - generic [ref=e246]:
+              - link "Позвонить" [ref=e247] [cursor=pointer]:
+                - /url: tel:+375295005029
+                - img [ref=e248]
+                - text: Позвонить
+              - link "Написать" [ref=e250] [cursor=pointer]:
+                - /url: mailto:park_office@mail.ru
+                - img [ref=e251]
+                - text: Написать
+          - generic [ref=e254]:
+            - img "Карта расположения Парк Relax" [ref=e255]
+            - generic [ref=e256]:
+              - button [ref=e257] [cursor=pointer]:
+                - img [ref=e258]
+              - button [ref=e259] [cursor=pointer]:
+                - img [ref=e260]
+              - button [ref=e261] [cursor=pointer]:
+                - img [ref=e262]
+        - generic [ref=e265]:
+          - generic [ref=e267]:
+            - generic [ref=e268]: ОТЗЫВЫ ГОСТЕЙ
+            - heading "Что говорят о Парк Relax" [level=2] [ref=e269]
+            - paragraph [ref=e270]: Реальные отзывы с Яндекс.Карт — только 5 звёзд
+          - generic [ref=e271]: Пока нет отзывов. Скоро добавим!
+      - contentinfo [ref=e273]:
+        - generic [ref=e274]:
+          - generic [ref=e275]:
+            - generic [ref=e276]:
+              - heading "Инфо" [level=4] [ref=e277]
+              - list [ref=e278]:
+                - listitem [ref=e279]:
+                  - link "О базе отдыха" [ref=e280] [cursor=pointer]:
+                    - /url: /#about
+                - listitem [ref=e281]:
+                  - link "Контакты" [ref=e282] [cursor=pointer]:
+                    - /url: /#contacts
+                - listitem [ref=e283]:
+                  - link "Галерея" [ref=e284] [cursor=pointer]:
+                    - /url: /#gallery
+            - generic [ref=e285]:
+              - heading "Размещение" [level=4] [ref=e286]
+              - list [ref=e287]:
+                - listitem [ref=e288]:
+                  - link "Коттедж" [ref=e289] [cursor=pointer]:
+                    - /url: /#accommodation
+                - listitem [ref=e290]:
+                  - link "Апартаменты" [ref=e291] [cursor=pointer]:
+                    - /url: /#accommodation
+                - listitem [ref=e292]:
+                  - link "Летние домики" [ref=e293] [cursor=pointer]:
+                    - /url: /#accommodation
+            - generic [ref=e294]:
+              - heading "Активный отдых" [level=4] [ref=e295]
+              - list [ref=e296]:
+                - listitem [ref=e297]:
+                  - link "Прокат" [ref=e298] [cursor=pointer]:
+                    - /url: /#rental
+                - listitem [ref=e299]:
+                  - link "Беседки" [ref=e300] [cursor=pointer]:
+                    - /url: /#area
+                - listitem [ref=e301]:
+                  - link "Баня и терраса" [ref=e302] [cursor=pointer]:
+                    - /url: /#accommodation
+            - generic [ref=e303]:
+              - heading "Юридическая информация" [level=4] [ref=e304]
+              - list [ref=e305]:
+                - listitem [ref=e306]:
+                  - link "Политика конфиденциальности" [ref=e307] [cursor=pointer]:
+                    - /url: /legal/privacy-policy
+                - listitem [ref=e308]:
+                  - link "Условия использования файлов cookies" [ref=e309] [cursor=pointer]:
+                    - /url: /legal/cookie-policy
+                - listitem [ref=e310]:
+                  - link "Условия аренды и возврата" [ref=e311] [cursor=pointer]:
+                    - /url: /legal/rental-terms
+                - listitem [ref=e312]:
+                  - link "Публичная оферта" [ref=e313] [cursor=pointer]:
+                    - /url: /legal/public-offer
+          - generic [ref=e314]:
+            - generic [ref=e316]: WebPay
+            - img [ref=e318]:
+              - generic [ref=e320]: VISA
+            - img [ref=e322]:
+              - generic [ref=e324]: Mastercard
+            - generic [ref=e326]: БЕЛКАРТ
+            - generic [ref=e328]: МИР
+          - generic [ref=e329]: ООО «Парк Relax» — © 2024
+  - dialog [ref=e353]:
+    - generic [ref=e532]:
+      - navigation "Navigation bar" [ref=e533]:
+        - button "Go to the Previous Month" [ref=e534] [cursor=pointer]:
+          - img
+        - button "Go to the Next Month" [ref=e535] [cursor=pointer]:
+          - img
+      - generic [ref=e536]:
+        - status [ref=e538]: май 2026
+        - grid "май 2026" [ref=e539]:
+          - rowgroup [ref=e540]:
+            - row [ref=e541]:
+              - columnheader [ref=e542]: пн
+              - columnheader [ref=e543]: вт
+              - columnheader [ref=e544]: ср
+              - columnheader [ref=e545]: чт
+              - columnheader [ref=e546]: пт
+              - columnheader [ref=e547]: сб
+              - columnheader [ref=e548]: вс
+          - rowgroup [ref=e549]:
+            - row "понедельник, 27 апреля 2026 г. вторник, 28 апреля 2026 г. среда, 29 апреля 2026 г. четверг, 30 апреля 2026 г. пятница, 1 мая 2026 г. суббота, 2 мая 2026 г. воскресенье, 3 мая 2026 г." [ref=e550]:
+              - gridcell "понедельник, 27 апреля 2026 г." [ref=e551]:
+                - button "понедельник, 27 апреля 2026 г." [disabled]: "27"
+              - gridcell "вторник, 28 апреля 2026 г." [ref=e552]:
+                - button "вторник, 28 апреля 2026 г." [disabled]: "28"
+              - gridcell "среда, 29 апреля 2026 г." [ref=e553]:
+                - button "среда, 29 апреля 2026 г." [disabled]: "29"
+              - gridcell "четверг, 30 апреля 2026 г." [ref=e554]:
+                - button "четверг, 30 апреля 2026 г." [disabled]: "30"
+              - gridcell "пятница, 1 мая 2026 г." [ref=e555]:
+                - button "пятница, 1 мая 2026 г." [disabled]: "1"
+              - gridcell "суббота, 2 мая 2026 г." [ref=e556]:
+                - button "суббота, 2 мая 2026 г." [disabled]: "2"
+              - gridcell "воскресенье, 3 мая 2026 г." [ref=e557]:
+                - button "воскресенье, 3 мая 2026 г." [disabled]: "3"
+            - row "понедельник, 4 мая 2026 г. Today, вторник, 5 мая 2026 г. среда, 6 мая 2026 г. четверг, 7 мая 2026 г. пятница, 8 мая 2026 г. суббота, 9 мая 2026 г. воскресенье, 10 мая 2026 г., selected" [ref=e558]:
+              - gridcell "понедельник, 4 мая 2026 г." [ref=e559]:
+                - button "понедельник, 4 мая 2026 г." [disabled]: "4"
+              - gridcell "Today, вторник, 5 мая 2026 г." [ref=e560]:
+                - button "Today, вторник, 5 мая 2026 г." [ref=e561] [cursor=pointer]: "5"
+              - gridcell "среда, 6 мая 2026 г." [ref=e562]:
+                - button "среда, 6 мая 2026 г." [ref=e563] [cursor=pointer]: "6"
+              - gridcell "четверг, 7 мая 2026 г." [ref=e564]:
+                - button "четверг, 7 мая 2026 г." [ref=e565] [cursor=pointer]: "7"
+              - gridcell "пятница, 8 мая 2026 г." [ref=e566]:
+                - button "пятница, 8 мая 2026 г." [ref=e567] [cursor=pointer]: "8"
+              - gridcell "суббота, 9 мая 2026 г." [ref=e568]:
+                - button "суббота, 9 мая 2026 г." [ref=e569] [cursor=pointer]: "9"
+              - gridcell "воскресенье, 10 мая 2026 г., selected" [selected] [ref=e570]:
+                - button "воскресенье, 10 мая 2026 г., selected" [active] [ref=e571] [cursor=pointer]: "10"
+            - row "понедельник, 11 мая 2026 г. вторник, 12 мая 2026 г. среда, 13 мая 2026 г. четверг, 14 мая 2026 г. пятница, 15 мая 2026 г. суббота, 16 мая 2026 г. воскресенье, 17 мая 2026 г." [ref=e572]:
+              - gridcell "понедельник, 11 мая 2026 г." [ref=e573]:
+                - button "понедельник, 11 мая 2026 г." [ref=e574] [cursor=pointer]: "11"
+              - gridcell "вторник, 12 мая 2026 г." [ref=e575]:
+                - button "вторник, 12 мая 2026 г." [ref=e576] [cursor=pointer]: "12"
+              - gridcell "среда, 13 мая 2026 г." [ref=e577]:
+                - button "среда, 13 мая 2026 г." [ref=e578] [cursor=pointer]: "13"
+              - gridcell "четверг, 14 мая 2026 г." [ref=e579]:
+                - button "четверг, 14 мая 2026 г." [ref=e580] [cursor=pointer]: "14"
+              - gridcell "пятница, 15 мая 2026 г." [ref=e581]:
+                - button "пятница, 15 мая 2026 г." [ref=e582] [cursor=pointer]: "15"
+              - gridcell "суббота, 16 мая 2026 г." [ref=e583]:
+                - button "суббота, 16 мая 2026 г." [ref=e584] [cursor=pointer]: "16"
+              - gridcell "воскресенье, 17 мая 2026 г." [ref=e585]:
+                - button "воскресенье, 17 мая 2026 г." [ref=e586] [cursor=pointer]: "17"
+            - row "понедельник, 18 мая 2026 г. вторник, 19 мая 2026 г. среда, 20 мая 2026 г. четверг, 21 мая 2026 г. пятница, 22 мая 2026 г. суббота, 23 мая 2026 г. воскресенье, 24 мая 2026 г." [ref=e587]:
+              - gridcell "понедельник, 18 мая 2026 г." [ref=e588]:
+                - button "понедельник, 18 мая 2026 г." [ref=e589] [cursor=pointer]: "18"
+              - gridcell "вторник, 19 мая 2026 г." [ref=e590]:
+                - button "вторник, 19 мая 2026 г." [ref=e591] [cursor=pointer]: "19"
+              - gridcell "среда, 20 мая 2026 г." [ref=e592]:
+                - button "среда, 20 мая 2026 г." [ref=e593] [cursor=pointer]: "20"
+              - gridcell "четверг, 21 мая 2026 г." [ref=e594]:
+                - button "четверг, 21 мая 2026 г." [ref=e595] [cursor=pointer]: "21"
+              - gridcell "пятница, 22 мая 2026 г." [ref=e596]:
+                - button "пятница, 22 мая 2026 г." [ref=e597] [cursor=pointer]: "22"
+              - gridcell "суббота, 23 мая 2026 г." [ref=e598]:
+                - button "суббота, 23 мая 2026 г." [ref=e599] [cursor=pointer]: "23"
+              - gridcell "воскресенье, 24 мая 2026 г." [ref=e600]:
+                - button "воскресенье, 24 мая 2026 г." [ref=e601] [cursor=pointer]: "24"
+            - row "понедельник, 25 мая 2026 г. вторник, 26 мая 2026 г. среда, 27 мая 2026 г. четверг, 28 мая 2026 г. пятница, 29 мая 2026 г. суббота, 30 мая 2026 г. воскресенье, 31 мая 2026 г." [ref=e602]:
+              - gridcell "понедельник, 25 мая 2026 г." [ref=e603]:
+                - button "понедельник, 25 мая 2026 г." [ref=e604] [cursor=pointer]: "25"
+              - gridcell "вторник, 26 мая 2026 г." [ref=e605]:
+                - button "вторник, 26 мая 2026 г." [ref=e606] [cursor=pointer]: "26"
+              - gridcell "среда, 27 мая 2026 г." [ref=e607]:
+                - button "среда, 27 мая 2026 г." [ref=e608] [cursor=pointer]: "27"
+              - gridcell "четверг, 28 мая 2026 г." [ref=e609]:
+                - button "четверг, 28 мая 2026 г." [ref=e610] [cursor=pointer]: "28"
+              - gridcell "пятница, 29 мая 2026 г." [ref=e611]:
+                - button "пятница, 29 мая 2026 г." [ref=e612] [cursor=pointer]: "29"
+              - gridcell "суббота, 30 мая 2026 г." [ref=e613]:
+                - button "суббота, 30 мая 2026 г." [ref=e614] [cursor=pointer]: "30"
+              - gridcell "воскресенье, 31 мая 2026 г." [ref=e615]:
+                - button "воскресенье, 31 мая 2026 г." [ref=e616] [cursor=pointer]: "31"
+      - generic [ref=e617]:
+        - status [ref=e619]: июнь 2026
+        - grid "июнь 2026" [ref=e620]:
+          - rowgroup [ref=e621]:
+            - row [ref=e622]:
+              - columnheader [ref=e623]: пн
+              - columnheader [ref=e624]: вт
+              - columnheader [ref=e625]: ср
+              - columnheader [ref=e626]: чт
+              - columnheader [ref=e627]: пт
+              - columnheader [ref=e628]: сб
+              - columnheader [ref=e629]: вс
+          - rowgroup [ref=e630]:
+            - row "понедельник, 1 июня 2026 г. вторник, 2 июня 2026 г. среда, 3 июня 2026 г. четверг, 4 июня 2026 г. пятница, 5 июня 2026 г. суббота, 6 июня 2026 г. воскресенье, 7 июня 2026 г." [ref=e631]:
+              - gridcell "понедельник, 1 июня 2026 г." [ref=e632]:
+                - button "понедельник, 1 июня 2026 г." [ref=e633] [cursor=pointer]: "1"
+              - gridcell "вторник, 2 июня 2026 г." [ref=e634]:
+                - button "вторник, 2 июня 2026 г." [ref=e635] [cursor=pointer]: "2"
+              - gridcell "среда, 3 июня 2026 г." [ref=e636]:
+                - button "среда, 3 июня 2026 г." [ref=e637] [cursor=pointer]: "3"
+              - gridcell "четверг, 4 июня 2026 г." [ref=e638]:
+                - button "четверг, 4 июня 2026 г." [ref=e639] [cursor=pointer]: "4"
+              - gridcell "пятница, 5 июня 2026 г." [ref=e640]:
+                - button "пятница, 5 июня 2026 г." [ref=e641] [cursor=pointer]: "5"
+              - gridcell "суббота, 6 июня 2026 г." [ref=e642]:
+                - button "суббота, 6 июня 2026 г." [ref=e643] [cursor=pointer]: "6"
+              - gridcell "воскресенье, 7 июня 2026 г." [ref=e644]:
+                - button "воскресенье, 7 июня 2026 г." [ref=e645] [cursor=pointer]: "7"
+            - row "понедельник, 8 июня 2026 г. вторник, 9 июня 2026 г. среда, 10 июня 2026 г. четверг, 11 июня 2026 г. пятница, 12 июня 2026 г. суббота, 13 июня 2026 г. воскресенье, 14 июня 2026 г." [ref=e646]:
+              - gridcell "понедельник, 8 июня 2026 г." [ref=e647]:
+                - button "понедельник, 8 июня 2026 г." [ref=e648] [cursor=pointer]: "8"
+              - gridcell "вторник, 9 июня 2026 г." [ref=e649]:
+                - button "вторник, 9 июня 2026 г." [ref=e650] [cursor=pointer]: "9"
+              - gridcell "среда, 10 июня 2026 г." [ref=e651]:
+                - button "среда, 10 июня 2026 г." [ref=e652] [cursor=pointer]: "10"
+              - gridcell "четверг, 11 июня 2026 г." [ref=e653]:
+                - button "четверг, 11 июня 2026 г." [ref=e654] [cursor=pointer]: "11"
+              - gridcell "пятница, 12 июня 2026 г." [ref=e655]:
+                - button "пятница, 12 июня 2026 г." [ref=e656] [cursor=pointer]: "12"
+              - gridcell "суббота, 13 июня 2026 г." [ref=e657]:
+                - button "суббота, 13 июня 2026 г." [ref=e658] [cursor=pointer]: "13"
+              - gridcell "воскресенье, 14 июня 2026 г." [ref=e659]:
+                - button "воскресенье, 14 июня 2026 г." [ref=e660] [cursor=pointer]: "14"
+            - row "понедельник, 15 июня 2026 г. вторник, 16 июня 2026 г. среда, 17 июня 2026 г. четверг, 18 июня 2026 г. пятница, 19 июня 2026 г. суббота, 20 июня 2026 г. воскресенье, 21 июня 2026 г." [ref=e661]:
+              - gridcell "понедельник, 15 июня 2026 г." [ref=e662]:
+                - button "понедельник, 15 июня 2026 г." [ref=e663] [cursor=pointer]: "15"
+              - gridcell "вторник, 16 июня 2026 г." [ref=e664]:
+                - button "вторник, 16 июня 2026 г." [ref=e665] [cursor=pointer]: "16"
+              - gridcell "среда, 17 июня 2026 г." [ref=e666]:
+                - button "среда, 17 июня 2026 г." [ref=e667] [cursor=pointer]: "17"
+              - gridcell "четверг, 18 июня 2026 г." [ref=e668]:
+                - button "четверг, 18 июня 2026 г." [ref=e669] [cursor=pointer]: "18"
+              - gridcell "пятница, 19 июня 2026 г." [ref=e670]:
+                - button "пятница, 19 июня 2026 г." [ref=e671] [cursor=pointer]: "19"
+              - gridcell "суббота, 20 июня 2026 г." [ref=e672]:
+                - button "суббота, 20 июня 2026 г." [ref=e673] [cursor=pointer]: "20"
+              - gridcell "воскресенье, 21 июня 2026 г." [ref=e674]:
+                - button "воскресенье, 21 июня 2026 г." [ref=e675] [cursor=pointer]: "21"
+            - row "понедельник, 22 июня 2026 г. вторник, 23 июня 2026 г. среда, 24 июня 2026 г. четверг, 25 июня 2026 г. пятница, 26 июня 2026 г. суббота, 27 июня 2026 г. воскресенье, 28 июня 2026 г." [ref=e676]:
+              - gridcell "понедельник, 22 июня 2026 г." [ref=e677]:
+                - button "понедельник, 22 июня 2026 г." [ref=e678] [cursor=pointer]: "22"
+              - gridcell "вторник, 23 июня 2026 г." [ref=e679]:
+                - button "вторник, 23 июня 2026 г." [ref=e680] [cursor=pointer]: "23"
+              - gridcell "среда, 24 июня 2026 г." [ref=e681]:
+                - button "среда, 24 июня 2026 г." [ref=e682] [cursor=pointer]: "24"
+              - gridcell "четверг, 25 июня 2026 г." [ref=e683]:
+                - button "четверг, 25 июня 2026 г." [ref=e684] [cursor=pointer]: "25"
+              - gridcell "пятница, 26 июня 2026 г." [ref=e685]:
+                - button "пятница, 26 июня 2026 г." [ref=e686] [cursor=pointer]: "26"
+              - gridcell "суббота, 27 июня 2026 г." [ref=e687]:
+                - button "суббота, 27 июня 2026 г." [ref=e688] [cursor=pointer]: "27"
+              - gridcell "воскресенье, 28 июня 2026 г." [ref=e689]:
+                - button "воскресенье, 28 июня 2026 г." [ref=e690] [cursor=pointer]: "28"
+            - row "понедельник, 29 июня 2026 г. вторник, 30 июня 2026 г. среда, 1 июля 2026 г. четверг, 2 июля 2026 г. пятница, 3 июля 2026 г. суббота, 4 июля 2026 г. воскресенье, 5 июля 2026 г." [ref=e691]:
+              - gridcell "понедельник, 29 июня 2026 г." [ref=e692]:
+                - button "понедельник, 29 июня 2026 г." [ref=e693] [cursor=pointer]: "29"
+              - gridcell "вторник, 30 июня 2026 г." [ref=e694]:
+                - button "вторник, 30 июня 2026 г." [ref=e695] [cursor=pointer]: "30"
+              - gridcell "среда, 1 июля 2026 г." [ref=e696]:
+                - button "среда, 1 июля 2026 г." [ref=e697] [cursor=pointer]: "1"
+              - gridcell "четверг, 2 июля 2026 г." [ref=e698]:
+                - button "четверг, 2 июля 2026 г." [ref=e699] [cursor=pointer]: "2"
+              - gridcell "пятница, 3 июля 2026 г." [ref=e700]:
+                - button "пятница, 3 июля 2026 г." [ref=e701] [cursor=pointer]: "3"
+              - gridcell "суббота, 4 июля 2026 г." [ref=e702]:
+                - button "суббота, 4 июля 2026 г." [ref=e703] [cursor=pointer]: "4"
+              - gridcell "воскресенье, 5 июля 2026 г." [ref=e704]:
+                - button "воскресенье, 5 июля 2026 г." [ref=e705] [cursor=pointer]: "5"

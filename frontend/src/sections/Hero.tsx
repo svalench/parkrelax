@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router'
-import { addDays, compareAsc, format, startOfDay, startOfToday } from 'date-fns'
+import { addDays, compareAsc, format, isAfter, isBefore, isSameDay, startOfDay, startOfToday } from 'date-fns'
 import { ru } from 'date-fns/locale'
 import type { DateRange, OnSelectHandler } from 'react-day-picker'
 import { Calendar as CalendarIcon, ChevronDown, Minus, Plus, Users } from 'lucide-react'
@@ -53,6 +53,18 @@ export default function Hero() {
 
   const [datesOpen, setDatesOpen] = useState(false)
   const [guestsOpen, setGuestsOpen] = useState(false)
+  const [hoverDate, setHoverDate] = useState<Date | undefined>(undefined)
+
+  const hoverFrom = dateRange?.from && !dateRange?.to && hoverDate
+    ? (compareAsc(startOfDay(dateRange.from), startOfDay(hoverDate)) > 0
+        ? startOfDay(hoverDate)
+        : startOfDay(dateRange.from))
+    : undefined
+  const hoverTo = dateRange?.from && !dateRange?.to && hoverDate
+    ? (compareAsc(startOfDay(dateRange.from), startOfDay(hoverDate)) > 0
+        ? startOfDay(dateRange.from)
+        : startOfDay(hoverDate))
+    : undefined
   const [adults, setAdults] = useState(2)
   const [childrenCount, setChildrenCount] = useState(0)
   const [cabin, setCabin] = useState('any')
@@ -248,6 +260,17 @@ export default function Hero() {
                     onSelect={handleRangeSelect}
                     disabled={{ before: startOfToday() }}
                     defaultMonth={dateRange?.from ?? addDays(startOfToday(), 1)}
+                    modifiers={{
+                      hoverStart: (d) => hoverFrom ? isSameDay(d, hoverFrom) : false,
+                      hoverMiddle: (d) => hoverFrom && hoverTo ? (isAfter(d, hoverFrom) && isBefore(d, hoverTo)) : false,
+                      hoverEnd: (d) => hoverTo ? isSameDay(d, hoverTo) : false,
+                    }}
+                    onDayMouseEnter={(day) => {
+                      if (dateRange?.from && !dateRange?.to) {
+                        setHoverDate(day)
+                      }
+                    }}
+                    onDayMouseLeave={() => setHoverDate(undefined)}
                   />
                 </PopoverContent>
               </Popover>

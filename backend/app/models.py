@@ -37,10 +37,29 @@ class Contact(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     address = Column(Text, nullable=False)
-    phone = Column(String(50), nullable=False)
-    email = Column(String(100), nullable=True)
     workHours = Column(String(100), nullable=True)
-    mapUrl = Column(Text, nullable=True)
+    yandexMapEmbed = Column(Text, nullable=True)
+    createdAt = Column(DateTime, default=func.now(), nullable=True)
+    updatedAt = Column(DateTime, default=func.now(), onupdate=func.now(), nullable=True)
+
+
+class PhoneNumber(Base):
+    __tablename__ = "phone_numbers"
+
+    id = Column(Integer, primary_key=True, index=True)
+    number = Column(String(50), nullable=False)
+    isVisibleInHeader = Column(Boolean, default=False, nullable=False)
+    sortOrder = Column(Integer, default=0, nullable=False)
+    createdAt = Column(DateTime, default=func.now(), nullable=True)
+    updatedAt = Column(DateTime, default=func.now(), onupdate=func.now(), nullable=True)
+
+
+class EmailAddress(Base):
+    __tablename__ = "email_addresses"
+
+    id = Column(Integer, primary_key=True, index=True)
+    email = Column(String(100), nullable=False)
+    sortOrder = Column(Integer, default=0, nullable=False)
     createdAt = Column(DateTime, default=func.now(), nullable=True)
     updatedAt = Column(DateTime, default=func.now(), onupdate=func.now(), nullable=True)
 

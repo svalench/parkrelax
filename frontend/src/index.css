@@ -67,6 +67,14 @@
     text-wrap: balance;
   }
 
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+
   .animate-sun-glow {
     animation: sun-glow 3s ease-in-out infinite;
   }
@@ -84,48 +92,19 @@
 }
 
 /* ─── Rental Curtain Carousel ─── */
-.rental-header {
-  text-align: left;
-  padding: 0 1rem;
-}
-
-.rental-eyebrow {
-  font-size: 0.75rem;
-  font-weight: 700;
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
-  color: #8BA84B;
-  margin-bottom: 0.5rem;
-}
-
-.rental-title {
-  font-family: 'Inter', system-ui, -apple-system, sans-serif;
-  font-size: clamp(2.5rem, 5.5vw, 4.5rem);
-  font-weight: 900;
-  line-height: 1.05;
-  color: #1A1A1A;
-  letter-spacing: -0.04em;
-}
-
-.rental-title span {
-  color: #8BA84B;
-}
-
 .rental-stage {
   display: flex;
   height: 75svh;
   min-height: 480px;
-  border-radius: 0.75rem;
   overflow: hidden;
   position: relative;
   box-shadow: 0 32px 80px rgba(0,0,0,0.18);
-  margin: 0 2rem;
 }
 
 .rental-panel {
   position: relative;
   flex: 1;
-  min-width: 72px;
+  min-width: 100px;
   transition:
     flex 700ms cubic-bezier(0.16, 1, 0.3, 1),
     min-width 700ms cubic-bezier(0.16, 1, 0.3, 1);
@@ -135,8 +114,8 @@
 
 /* When active panel exists, collapse non-active */
 .rental-stage-active .rental-panel:not(.rental-panel-active) {
-  flex: 0 0 72px;
-  min-width: 72px;
+  flex: 0 0 100px;
+  min-width: 100px;
 }
 
 /* Expanded panel */
@@ -185,7 +164,7 @@
   transform-origin: center center;
   white-space: nowrap;
   font-family: 'Inter', system-ui, -apple-system, sans-serif;
-  font-size: clamp(0.65rem, 0.55rem + 0.35vw, 0.9rem);
+  font-size: clamp(1rem, 0.7rem + 0.9vw, 1.6rem);
   font-weight: 700;
   letter-spacing: 0.12em;
   text-transform: uppercase;
@@ -366,7 +345,6 @@
     flex-direction: column;
     height: auto;
     min-height: unset;
-    border-radius: 0;
   }
   .rental-panel {
     height: 80px;
@@ -432,35 +410,6 @@
 .acc-section {
   padding: 0 0 2rem;
   background: #fff;
-}
-
-.acc-header {
-  text-align: left;
-  padding: 3rem 1rem 1.5rem;
-  max-width: 1200px;
-  margin: 0 auto;
-}
-
-.acc-eyebrow {
-  font-size: 0.75rem;
-  font-weight: 700;
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
-  color: #8BA84B;
-  margin-bottom: 0.5rem;
-}
-
-.acc-title {
-  font-family: 'Inter', system-ui, -apple-system, sans-serif;
-  font-size: clamp(2.5rem, 5.5vw, 4.5rem);
-  font-weight: 900;
-  line-height: 1.05;
-  color: #1A1A1A;
-  letter-spacing: -0.04em;
-}
-
-.acc-title span {
-  color: #8BA84B;
 }
 
 .acc-stage {
