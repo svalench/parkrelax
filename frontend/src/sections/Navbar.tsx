@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
-import { useLocation } from 'react-router'
-import { Menu, X, Phone, MapPin, Check } from 'lucide-react'
+import { useLocation, useNavigate } from 'react-router'
+import { Menu, X, Phone, MapPin, Check, User } from 'lucide-react'
+import { useAuth } from '@/contexts/AuthContext'
 
 const navLinks = [
   { label: 'Главная', href: '/' },
@@ -16,7 +17,9 @@ export default function Navbar() {
   const [mobileOpen, setMobileOpen] = useState(false)
   const [copied, setCopied] = useState(false)
   const location = useLocation()
+  const navigate = useNavigate()
   const isHome = location.pathname === '/'
+  const { user } = useAuth()
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 50)
@@ -117,6 +120,27 @@ export default function Navbar() {
               )}
               {copied ? 'Скопировано!' : 'Пинский район, д. Кончицы'}
             </button>
+            {user ? (
+              <button
+                onClick={() => navigate('/profile')}
+                className={`hidden md:flex items-center gap-2 text-sm font-medium transition-colors ${
+                  isHome ? (scrolled ? 'text-dark hover:text-brand' : 'text-white hover:text-white/80') : 'text-white hover:text-white/80'
+                }`}
+              >
+                <User className="w-4 h-4" />
+                Личный кабинет
+              </button>
+            ) : (
+              <button
+                onClick={() => navigate('/login')}
+                className={`hidden md:flex items-center gap-2 text-sm font-medium transition-colors ${
+                  isHome ? (scrolled ? 'text-dark hover:text-brand' : 'text-white hover:text-white/80') : 'text-white hover:text-white/80'
+                }`}
+              >
+                <User className="w-4 h-4" />
+                Вход
+              </button>
+            )}
             <button
               onClick={() => setMobileOpen(!mobileOpen)}
               className={`lg:hidden p-2 rounded-lg transition-colors ${
@@ -168,6 +192,23 @@ export default function Navbar() {
               <Phone className="w-5 h-5" />
               +375 (29) 500-50-29
             </a>
+            {user ? (
+              <button
+                onClick={() => { setMobileOpen(false); navigate('/profile') }}
+                className={`flex items-center gap-2 font-semibold mt-4 ${isHome ? 'text-brand' : 'text-white'}`}
+              >
+                <User className="w-5 h-5" />
+                Личный кабинет
+              </button>
+            ) : (
+              <button
+                onClick={() => { setMobileOpen(false); navigate('/login') }}
+                className={`flex items-center gap-2 font-semibold mt-4 ${isHome ? 'text-brand' : 'text-white'}`}
+              >
+                <User className="w-5 h-5" />
+                Вход
+              </button>
+            )}
             <button
               onClick={() => {
                 setMobileOpen(false)

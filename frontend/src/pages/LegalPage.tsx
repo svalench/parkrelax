@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { useParams, useNavigate, Link } from 'react-router'
 import { ArrowLeft, FileText } from 'lucide-react'
 import Footer from '../sections/Footer'
+import { sanitizeRichHtml } from '../lib/safeHtml'
 
 interface LegalPageData {
   id: number
@@ -24,19 +25,28 @@ export default function LegalPage() {
 
   useEffect(() => {
     if (!slug) return
-    setLoading(true)
-    setError(null)
-    fetch(`${API_BASE}/${slug}`)
-      .then((res) => {
+    const ac = new AbortController()
+    void (async () => {
+      await Promise.resolve()
+      setLoading(true)
+      setError(null)
+      try {
+        const res = await fetch(`${API_BASE}/${slug}`, { signal: ac.signal })
         if (!res.ok) {
           if (res.status === 404) throw new Error('Страница не найдена')
           throw new Error('Ошибка загрузки страницы')
         }
-        return res.json()
-      })
-      .then((data: LegalPageData) => setPage(data))
-      .catch((err) => setError(err.message))
-      .finally(() => setLoading(false))
+        const data: LegalPageData = await res.json()
+        if (ac.signal.aborted) return
+        setPage(data)
+      } catch (err) {
+        if (ac.signal.aborted) return
+        setError(err instanceof Error ? err.message : 'Ошибка загрузки страницы')
+      } finally {
+        setLoading(false)
+      }
+    })()
+    return () => ac.abort()
   }, [slug])
 
   const lastUpdated = page?.updatedAt
@@ -111,7 +121,7 @@ export default function LegalPage() {
                   prose-strong:text-dark prose-strong:font-semibold
                   prose-a:text-brand hover:prose-a:text-brand-hover
                   prose-hr:my-8"
-                dangerouslySetInnerHTML={{ __html: page.content }}
+                dangerouslySetInnerHTML={{ __html: sanitizeRichHtml(page.content) }}
               />
             </article>
           )}

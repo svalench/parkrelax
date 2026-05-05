@@ -25,12 +25,23 @@ class UserUpdate(BaseModel):
     lastSignInAt: Optional[datetime] = None
 
 
-class UserResponse(UserBase):
+class UserResponse(BaseModel):
     model_config = ConfigDict(from_attributes=True)
     id: int | None = None
+    unionId: str | None = None
+    name: Optional[str] = None
+    email: Optional[str] = None
+    avatar: Optional[str] = None
+    role: str = "user"
+    emailVerified: bool = False
     createdAt: datetime | None = None
     updatedAt: datetime | None = None
     lastSignInAt: datetime | None = None
+
+
+class UserProfileUpdate(BaseModel):
+    name: Optional[str] = None
+    email: Optional[str] = None
 
 
 # ── Contacts ───────────────────────────────────────────────────────
@@ -125,7 +136,10 @@ class AccommodationBase(BaseModel):
     description: Optional[str] = None
     typeId: int
     imageUrl: Optional[str] = None
+    capacity: int = 0
+    pricePerNight: int = 0
     isActive: bool = True
+    showOnMain: bool = False
     sortOrder: int = 0
 
 
@@ -138,7 +152,10 @@ class AccommodationUpdate(BaseModel):
     description: Optional[str] = None
     typeId: Optional[int] = None
     imageUrl: Optional[str] = None
+    capacity: Optional[int] = None
+    pricePerNight: Optional[int] = None
     isActive: Optional[bool] = None
+    showOnMain: Optional[bool] = None
     sortOrder: Optional[int] = None
 
 
@@ -160,6 +177,7 @@ class BookingBase(BaseModel):
     adults: int = 1
     children: int = 0
     accommodationId: Optional[int] = None
+    userId: Optional[int] = None
     status: str = "pending"
     notes: Optional[str] = None
 
@@ -177,6 +195,7 @@ class BookingUpdate(BaseModel):
     adults: Optional[int] = None
     children: Optional[int] = None
     accommodationId: Optional[int] = None
+    userId: Optional[int] = None
     status: Optional[str] = None
     notes: Optional[str] = None
 
@@ -187,6 +206,25 @@ class BookingResponse(BookingBase):
     createdAt: datetime | None = None
     updatedAt: datetime | None = None
     accommodation: Optional[AccommodationResponse] = None
+
+
+class BookingPublicResponse(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+    id: int
+    customerName: str
+    customerPhone: str
+    customerEmail: Optional[str] = None
+    startDate: date
+    endDate: date
+    adults: int
+    children: int
+    accommodationId: Optional[int] = None
+    status: str
+    createdAt: datetime
+    updatedAt: datetime
+    accommodation: Optional[AccommodationResponse] = None
+    isNewUser: bool = False
+    tempPassword: Optional[str] = None
 
 
 # ── Rules ──────────────────────────────────────────────────────────
@@ -333,6 +371,15 @@ class UploadResponse(BaseModel):
     url: str
 
 
+class EmailLoginRequest(BaseModel):
+    email: str
+    password: str
+
+
+class RequestPasswordRequest(BaseModel):
+    email: str
+
+
 # ── Legal Pages ────────────────────────────────────────────────────
 
 class LegalPageBase(BaseModel):
@@ -358,3 +405,68 @@ class LegalPageResponse(LegalPageBase):
     id: int | None = None
     createdAt: datetime | None = None
     updatedAt: datetime | None = None
+
+
+# ── Rental Items ───────────────────────────────────────────────────
+
+class RentalItemBase(BaseModel):
+    title: str
+    info: Optional[str] = None
+    badge: Optional[str] = None
+    badgeColor: Optional[str] = None
+    eyebrow: Optional[str] = None
+    description: Optional[str] = None
+    duration: Optional[str] = None
+    capacity: Optional[str] = None
+    imageUrl: Optional[str] = None
+    isActive: bool = True
+    sortOrder: int = 0
+
+
+class RentalItemCreate(RentalItemBase):
+    pass
+
+
+class RentalItemUpdate(BaseModel):
+    title: Optional[str] = None
+    info: Optional[str] = None
+    badge: Optional[str] = None
+    badgeColor: Optional[str] = None
+    eyebrow: Optional[str] = None
+    description: Optional[str] = None
+    duration: Optional[str] = None
+    capacity: Optional[str] = None
+    imageUrl: Optional[str] = None
+    isActive: Optional[bool] = None
+    sortOrder: Optional[int] = None
+
+
+class RentalItemResponse(RentalItemBase):
+    model_config = ConfigDict(from_attributes=True)
+    id: int | None = None
+    createdAt: datetime | None = None
+    updatedAt: datetime | None = None
+
+
+# ── Payment ────────────────────────────────────────────────────────
+
+class PaymentInitiateRequest(BaseModel):
+    bookingId: int
+
+
+class PaymentInitiateResponse(BaseModel):
+    bookingId: int
+    clientSecret: str
+    amount: int
+    currency: str = "RUB"
+
+
+class PaymentConfirmRequest(BaseModel):
+    bookingId: int
+    clientSecret: str
+
+
+class PaymentConfirmResponse(BaseModel):
+    success: bool
+    bookingId: int
+    status: str

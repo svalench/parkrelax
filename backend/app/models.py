@@ -23,9 +23,13 @@ class User(Base):
     email = Column(String(320), nullable=True)
     avatar = Column(Text, nullable=True)
     role = Column(String(50), default="user", nullable=False)
+    passwordHash = Column(String(255), nullable=True)
+    emailVerified = Column(Boolean, default=False, nullable=False)
     createdAt = Column(DateTime, default=func.now(), nullable=True)
     updatedAt = Column(DateTime, default=func.now(), onupdate=func.now(), nullable=True)
     lastSignInAt = Column(DateTime, default=func.now(), nullable=True)
+
+    bookings = relationship("Booking", back_populates="user")
 
 
 class Contact(Base):
@@ -74,7 +78,10 @@ class Accommodation(Base):
     description = Column(Text, nullable=True)
     typeId = Column(Integer, ForeignKey("accommodationTypes.id"), nullable=False)
     imageUrl = Column(Text, nullable=True)
+    capacity = Column(Integer, default=0, nullable=False)
+    pricePerNight = Column(Integer, default=0, nullable=False)
     isActive = Column(Boolean, default=True, nullable=False)
+    showOnMain = Column(Boolean, default=False, nullable=False)
     sortOrder = Column(Integer, default=0, nullable=False)
     createdAt = Column(DateTime, default=func.now(), nullable=True)
 
@@ -94,12 +101,14 @@ class Booking(Base):
     adults = Column(Integer, default=1, nullable=False)
     children = Column(Integer, default=0, nullable=False)
     accommodationId = Column(Integer, ForeignKey("accommodations.id"), nullable=True)
+    userId = Column(Integer, ForeignKey("users.id"), nullable=True)
     status = Column(String(50), default="pending", nullable=False)
     notes = Column(Text, nullable=True)
     createdAt = Column(DateTime, default=func.now(), nullable=True)
     updatedAt = Column(DateTime, default=func.now(), onupdate=func.now(), nullable=True)
 
     accommodation = relationship("Accommodation", back_populates="bookings")
+    user = relationship("User", back_populates="bookings")
 
 
 class Rule(Base):
@@ -170,3 +179,75 @@ class LegalPage(Base):
     isActive = Column(Boolean, default=True, nullable=False)
     createdAt = Column(DateTime, default=func.now(), nullable=True)
     updatedAt = Column(DateTime, default=func.now(), onupdate=func.now(), nullable=True)
+
+
+class RentalItem(Base):
+    __tablename__ = "rental_items"
+
+    id = Column(Integer, primary_key=True, index=True)
+    title = Column(String(200), nullable=False)
+    info = Column(String(200), nullable=True)
+    badge = Column(String(100), nullable=True)
+    badgeColor = Column(String(100), nullable=True)
+    eyebrow = Column(String(100), nullable=True)
+    description = Column(Text, nullable=True)
+    duration = Column(String(100), nullable=True)
+    capacity = Column(String(100), nullable=True)
+    imageUrl = Column(Text, nullable=True)
+    isActive = Column(Boolean, default=True, nullable=False)
+    sortOrder = Column(Integer, default=0, nullable=False)
+    createdAt = Column(DateTime, default=func.now(), nullable=True)
+    updatedAt = Column(DateTime, default=func.now(), onupdate=func.now(), nullable=True)
+
+
+# ── Email / SMTP ───────────────────────────────────────────────────
+
+class SmtpSettings(Base):
+    __tablename__ = "smtp_settings"
+
+    id = Column(Integer, primary_key=True, autoincrement=False, default=1)
+    host = Column(String(255), nullable=False, default="smtp.gmail.com")
+    port = Column(Integer, nullable=False, default=587)
+    username = Column(String(255), nullable=True)
+    password = Column(String(255), nullable=True)
+    useTls = Column(Boolean, default=True, nullable=False)
+    fromEmail = Column(String(320), nullable=True)
+    fromName = Column(String(255), nullable=True)
+    isActive = Column(Boolean, default=False, nullable=False)
+    updatedAt = Column(DateTime, default=func.now(), onupdate=func.now(), nullable=True)
+
+
+class EmailTemplate(Base):
+    __tablename__ = "email_templates"
+
+    id = Column(Integer, primary_key=True, index=True)
+    type = Column(String(50), unique=True, nullable=False)
+    subject = Column(String(500), nullable=False)
+    bodyHtml = Column(Text, nullable=False)
+    uploadPath = Column(String(500), nullable=True)
+    isActive = Column(Boolean, default=True, nullable=False)
+    createdAt = Column(DateTime, default=func.now(), nullable=True)
+    updatedAt = Column(DateTime, default=func.now(), onupdate=func.now(), nullable=True)
+
+    @property
+    def previewUrl(self) -> str:
+        return f"/admin/email-template-preview/{self.id}"
+
+
+class EmailLog(Base):
+    __tablename__ = "email_logs"
+
+    id = Column(Integer, primary_key=True, index=True)
+    toEmail = Column(String(320), nullable=False)
+    subject = Column(String(500), nullable=False)
+    bodyPreview = Column(Text, nullable=True)
+    bodyHtml = Column(Text, nullable=True)
+    templateType = Column(String(50), nullable=True)
+    status = Column(String(50), default="pending", nullable=False)
+    errorMessage = Column(Text, nullable=True)
+    messageId = Column(String(500), nullable=True)
+    sentAt = Column(DateTime, default=func.now(), nullable=True)
+
+    @property
+    def previewUrl(self) -> str:
+        return f"/admin/email-preview/{self.id}"

@@ -143,20 +143,37 @@ export default function Hero() {
         <div className="container-main w-full">
           <div className="flex flex-col lg:flex-row items-center justify-between gap-10 lg:gap-16">
             {/* Текст слева */}
-            <div className="max-w-2xl">
-              <h1 className="text-4xl md:text-5xl lg:text-[56px] font-bold text-white leading-[1.15] mb-6">
-                Парк Relax —
-                <br />
-                лучший комплекс
-                <br />
-                отдыха и проживания
-                <br />
-                на природе
+            <div className="max-w-2xl w-full">
+              {/* До md: логотип вместо многострочного заголовка; с планшета/десктопа — прежний h1 */}
+              <h1 className="mb-6 text-white">
+                <span className="relative block md:hidden mb-4 px-2 py-1">
+                  <span
+                    aria-hidden="true"
+                    className="absolute right-2 top-1/2 h-16 w-[48%] -translate-y-1/2 rounded-full bg-white/22 blur-2xl"
+                  />
+                  <img
+                    src="/images/logo.svg"
+                    alt="Парк Relax — лучший комплекс отдыха и проживания на природе"
+                    className="relative w-full max-w-[min(100%,420px)] h-auto object-contain drop-shadow-[0_2px_10px_rgba(0,0,0,0.45)] mx-auto md:mx-0"
+                  />
+                </span>
+                <span className="hidden md:block text-4xl md:text-5xl lg:text-[56px] font-bold leading-[1.15]">
+                  Парк Relax —
+                  <br />
+                  лучший комплекс
+                  <br />
+                  отдыха и проживания
+                  <br />
+                  на природе
+                </span>
               </h1>
-              <p className="text-base md:text-lg text-white/90 leading-relaxed mb-3 max-w-[520px]">
+              <p className="md:hidden text-xl sm:text-2xl font-extrabold text-white leading-snug sm:leading-tight mb-4 max-w-[min(100%,28rem)] mx-auto md:mx-0 drop-shadow-[0_2px_10px_rgba(0,0,0,0.9)] text-center sm:text-left tracking-tight">
+                Отдохните от городской суеты — наслаждайтесь природой в Парк Relax!
+              </p>
+              <p className="hidden md:block text-base md:text-lg text-white/90 leading-relaxed mb-3 max-w-[520px] mx-auto md:mx-0 text-center sm:text-left">
                 Комфортные домики, чистый воздух, живописная природа и всё для незабываемого отдыха с семьёй и друзьями.
               </p>
-              <p className="text-base md:text-lg text-white/90 leading-relaxed max-w-[520px]">
+              <p className="hidden md:block text-base md:text-lg text-white/90 leading-relaxed max-w-[520px]">
                 Отдохните от городской суеты — наслаждайтесь природой в Парк Relax!
               </p>
             </div>

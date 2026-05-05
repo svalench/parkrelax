@@ -29,7 +29,7 @@ async def login(
     result = await db.execute(select(Admin).where(Admin.username == data.username))
     admin = result.scalar_one_or_none()
     if not admin or not verify_password(data.password, admin.passwordHash):
-        raise HTTPException(status_code=401, detail="Invalid username or password")
+        raise HTTPException(status_code=401, detail="Неверное имя пользователя или пароль")
 
     token = sign_admin_token(admin.id)
     cookie_settings = CookieSettings(request)

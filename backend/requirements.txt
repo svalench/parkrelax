@@ -14,3 +14,8 @@ greenlet
 fastapi-admin-panel
 bcrypt
 starlette_admin
+babel>=2.12
+Pillow
+aiosmtplib
+passlib[bcrypt]
+nh3>=0.2.0

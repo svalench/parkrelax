@@ -1,0 +1,1134 @@
+<!DOCTYPE html>
+<html lang="ru" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>База отдыха — Активности</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@400;700;900&family=Inter:wght@300..700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --font-display: 'Unbounded', sans-serif;
+      --font-body: 'Inter', sans-serif;
+      --text-xs:   clamp(0.75rem,  0.7rem  + 0.25vw, 0.875rem);
+      --text-sm:   clamp(0.875rem, 0.8rem  + 0.35vw, 1rem);
+      --text-base: clamp(1rem,     0.95rem + 0.25vw, 1.125rem);
+      --text-lg:   clamp(1.125rem, 1rem    + 0.75vw, 1.5rem);
+      --text-xl:   clamp(1.5rem,   1.2rem  + 1.25vw, 2.25rem);
+      --text-2xl:  clamp(2rem,     1.2rem  + 2.5vw,  3.5rem);
+      --text-hero: clamp(2.5rem,   1rem    + 4vw,    5.5rem);
+      --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+      --ease-in:  cubic-bezier(0.4, 0, 1, 1);
+      --dur: 700ms;
+    }
+
+    [data-theme="dark"] {
+      --bg: #080b08;
+      --surface: #111611;
+      --border: rgba(255,255,255,0.08);
+      --text: #e8f0e8;
+      --text-muted: #6b7a6b;
+      --primary: #52b788;
+      --accent: #f4a261;
+    }
+    [data-theme="light"] {
+      --bg: #f4f1ec;
+      --surface: #ffffff;
+      --border: rgba(0,0,0,0.08);
+      --text: #18201a;
+      --text-muted: #5a6b5a;
+      --primary: #2d6a4f;
+      --accent: #e76f51;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { -webkit-font-smoothing: antialiased; }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--font-body);
+      overflow-x: hidden;
+      min-height: 100dvh;
+    }
+    button { cursor: pointer; background: none; border: none; font: inherit; color: inherit; }
+    img { display: block; }
+
+    /* ─── HEADER ─── */
+    .header {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 200;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 1.25rem 2.5rem;
+      background: color-mix(in oklch, var(--bg) 75%, transparent);
+      backdrop-filter: blur(20px);
+      border-bottom: 1px solid var(--border);
+    }
+    .logo {
+      font-family: var(--font-display);
+      font-size: var(--text-sm); font-weight: 700;
+      color: var(--text); text-decoration: none;
+      display: flex; align-items: center; gap: 0.6rem;
+    }
+    .logo-mark { color: var(--primary); }
+    .theme-btn {
+      width: 40px; height: 40px; border-radius: 50%;
+      display: grid; place-items: center;
+      color: var(--text-muted);
+      transition: background 150ms, color 150ms;
+    }
+    .theme-btn:hover { background: var(--border); color: var(--text); }
+
+    /* ─── HERO ─── */
+    .hero {
+      height: 100svh;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      text-align: center; padding: 2rem;
+      position: relative; overflow: hidden;
+    }
+    .hero-glow {
+      position: absolute; inset: 0; pointer-events: none;
+      background:
+        radial-gradient(ellipse 70% 50% at 25% 80%, color-mix(in oklch, var(--primary) 15%, transparent), transparent 70%),
+        radial-gradient(ellipse 50% 60% at 80% 20%, color-mix(in oklch, var(--accent) 10%, transparent), transparent 70%);
+    }
+    .hero-tag {
+      display: inline-flex; align-items: center; gap: 0.5rem;
+      border: 1px solid var(--border);
+      border-radius: 999px; padding: 0.35rem 1rem;
+      font-size: var(--text-xs); font-weight: 600;
+      text-transform: uppercase; letter-spacing: 0.1em;
+      color: var(--primary); margin-bottom: 2rem;
+      background: color-mix(in oklch, var(--primary) 6%, transparent);
+    }
+    .hero h1 {
+      font-family: var(--font-display);
+      font-size: var(--text-hero);
+      font-weight: 900; line-height: 0.9;
+      letter-spacing: -0.04em;
+      color: var(--text); margin-bottom: 1.5rem;
+    }
+    .hero h1 em { color: var(--accent); font-style: normal; }
+    .hero p {
+      font-size: var(--text-lg); color: var(--text-muted);
+      max-width: 44ch; line-height: 1.6; margin-bottom: 3rem;
+    }
+    .scroll-hint {
+      display: flex; flex-direction: column; align-items: center;
+      gap: 0.5rem; color: var(--text-muted); font-size: var(--text-xs);
+      letter-spacing: 0.08em; text-transform: uppercase;
+      animation: bounce 2s ease-in-out infinite;
+    }
+    @keyframes bounce { 0%,100%{transform:translateY(0)} 50%{transform:translateY(6px)} }
+
+    /* ─── SECTION HEADER ─── */
+    .section-header {
+      padding: 6rem 2.5rem 3rem;
+      max-width: 900px;
+    }
+    .section-eyebrow {
+      font-size: var(--text-xs); font-weight: 700;
+      text-transform: uppercase; letter-spacing: 0.12em;
+      color: var(--primary); margin-bottom: 0.75rem;
+    }
+    .section-title {
+      font-family: var(--font-display);
+      font-size: var(--text-2xl); font-weight: 900;
+      line-height: 1.0; letter-spacing: -0.035em;
+      color: var(--text);
+    }
+    .section-title span { color: var(--accent); }
+
+    /* ─── CURTAINS STAGE ─── */
+    .stage {
+      display: flex;
+      height: 80svh;
+      min-height: 560px;
+      margin: 0 2.5rem 2.5rem;
+      border-radius: 1.5rem;
+      overflow: hidden;
+      position: relative;
+      box-shadow: 0 32px 80px rgba(0,0,0,0.5);
+    }
+
+    /* ─── CURTAIN PANEL ─── */
+    .panel {
+      position: relative;
+      flex: 1;                          /* collapsed: equal shares */
+      min-width: 72px;
+      transition:
+        flex var(--dur) var(--ease-out),
+        min-width var(--dur) var(--ease-out);
+      overflow: hidden;
+      cursor: pointer;
+    }
+
+    /* When ANY sibling is expanded, collapse non-active */
+    .stage.has-active .panel:not(.active) {
+      flex: 0 0 72px;
+      min-width: 72px;
+    }
+    /* Expanded panel gets a BIG flex value */
+    .stage .panel.active {
+      flex: 5 0 0;
+      cursor: default;
+    }
+
+    /* ─── BG PHOTO ─── */
+    .panel-bg {
+      position: absolute; inset: 0;
+      background-size: cover;
+      background-position: center;
+      transition: transform var(--dur) var(--ease-out),
+                  filter var(--dur) var(--ease-out);
+      will-change: transform, filter;
+    }
+    .panel:not(.active):hover .panel-bg {
+      transform: scale(1.06);
+    }
+    .panel.active .panel-bg {
+      transform: scale(1.0);
+      filter: brightness(0.5);
+    }
+    .panel:not(.active) .panel-bg {
+      filter: brightness(0.35) saturate(0.6);
+    }
+
+    /* ─── DARK OVERLAY ─── */
+    .panel-overlay {
+      position: absolute; inset: 0;
+      background: linear-gradient(
+        to bottom,
+        transparent 30%,
+        rgba(0,0,0,0.85) 100%
+      );
+    }
+
+    /* ─── VERTICAL LABEL (collapsed state) ─── */
+    .panel-label-vertical {
+      position: absolute;
+      bottom: 2.5rem; left: 50%;
+      transform: translateX(-50%) rotate(-90deg);
+      transform-origin: center center;
+      white-space: nowrap;
+      font-family: var(--font-display);
+      font-size: var(--text-xs); font-weight: 700;
+      letter-spacing: 0.14em; text-transform: uppercase;
+      color: rgba(255,255,255,0.75);
+      transition: opacity 300ms var(--ease-in);
+      pointer-events: none;
+    }
+    .panel.active .panel-label-vertical {
+      opacity: 0;
+      transition: opacity 150ms;
+    }
+
+    /* ─── BADGE ─── */
+    .panel-badge {
+      position: absolute; top: 1.5rem; left: 1.5rem;
+      padding: 0.25rem 0.75rem;
+      border-radius: 999px;
+      font-size: var(--text-xs); font-weight: 700;
+      letter-spacing: 0.06em; text-transform: uppercase;
+      backdrop-filter: blur(8px);
+      opacity: 0;
+      transform: translateY(-8px);
+      transition: opacity 350ms var(--ease-out) 250ms,
+                  transform 350ms var(--ease-out) 250ms;
+    }
+    .panel.active .panel-badge {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* ─── EXPANDED CONTENT ─── */
+    .panel-content {
+      position: absolute;
+      bottom: 0; left: 0; right: 0;
+      padding: 2.5rem 3rem;
+      opacity: 0;
+      transform: translateY(24px);
+      transition:
+        opacity 400ms var(--ease-out) 200ms,
+        transform 400ms var(--ease-out) 200ms;
+      pointer-events: none;
+    }
+    .panel.active .panel-content {
+      opacity: 1;
+      transform: translateY(0);
+      pointer-events: auto;
+    }
+    .panel-eyebrow {
+      font-size: var(--text-xs); font-weight: 600;
+      letter-spacing: 0.1em; text-transform: uppercase;
+      margin-bottom: 0.75rem;
+      opacity: 0.7; color: #fff;
+    }
+    .panel-title {
+      font-family: var(--font-display);
+      font-size: var(--text-xl); font-weight: 900;
+      line-height: 1.05; letter-spacing: -0.03em;
+      color: #fff; margin-bottom: 1rem;
+    }
+    .panel-desc {
+      font-size: var(--text-sm); line-height: 1.7;
+      color: rgba(255,255,255,0.75);
+      max-width: 46ch; margin-bottom: 1.75rem;
+    }
+    .panel-meta {
+      display: flex; align-items: center; gap: 1.5rem;
+      flex-wrap: wrap;
+    }
+    .meta-chip {
+      display: inline-flex; align-items: center; gap: 0.4rem;
+      padding: 0.35rem 0.85rem;
+      border: 1px solid rgba(255,255,255,0.25);
+      border-radius: 999px;
+      font-size: var(--text-xs); font-weight: 500;
+      color: rgba(255,255,255,0.85);
+    }
+    .panel-cta {
+      display: inline-flex; align-items: center; gap: 0.5rem;
+      padding: 0.7rem 1.75rem;
+      background: var(--primary); color: #fff;
+      border-radius: 999px;
+      font-size: var(--text-sm); font-weight: 700;
+      letter-spacing: -0.01em;
+      transition: background 180ms, transform 180ms, box-shadow 180ms;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+    }
+    .panel-cta:hover { transform: scale(1.04); box-shadow: 0 8px 32px rgba(0,0,0,0.5); }
+    .panel-cta:active { transform: scale(0.98); }
+
+    /* ─── CLOSE BUTTON ─── */
+    .close-btn {
+      position: absolute; top: 1.5rem; right: 1.5rem;
+      width: 44px; height: 44px; border-radius: 50%;
+      display: grid; place-items: center;
+      background: rgba(0,0,0,0.5); color: rgba(255,255,255,0.8);
+      backdrop-filter: blur(8px);
+      opacity: 0; transform: scale(0.7);
+      transition: opacity 300ms var(--ease-out) 300ms,
+                  transform 300ms var(--ease-out) 300ms,
+                  background 150ms;
+      pointer-events: none;
+    }
+    .panel.active .close-btn {
+      opacity: 1; transform: scale(1);
+      pointer-events: auto;
+    }
+    .close-btn:hover { background: rgba(0,0,0,0.75); }
+
+    /* ─── HOVER GLOW LINE (bottom border accent) ─── */
+    .panel::after {
+      content: '';
+      position: absolute; bottom: 0; left: 0; right: 0;
+      height: 3px;
+      background: var(--primary);
+      transform: scaleX(0);
+      transform-origin: left;
+      transition: transform 350ms var(--ease-out);
+    }
+    .panel:not(.active):hover::after { transform: scaleX(1); }
+    .panel.active::after { transform: scaleX(0); }
+
+    /* ─── THUMBNAILS BAR ─── */
+    .thumbs {
+      display: flex; gap: 0.75rem;
+      padding: 0 2.5rem 5rem;
+      overflow-x: auto; scrollbar-width: none;
+    }
+    .thumbs::-webkit-scrollbar { display: none; }
+    .thumb {
+      flex: 0 0 80px; height: 56px;
+      border-radius: 0.75rem; overflow: hidden;
+      border: 2px solid transparent;
+      transition: border-color 200ms, transform 200ms, opacity 200ms;
+      opacity: 0.5; cursor: pointer;
+    }
+    .thumb.active { border-color: var(--primary); opacity: 1; transform: scale(1.05); }
+    .thumb:hover:not(.active) { opacity: 0.8; transform: scale(1.02); }
+    .thumb img { width: 100%; height: 100%; object-fit: cover; }
+
+    /* ─── MOBILE ─── */
+    @media (max-width: 768px) {
+      .header { padding: 1rem 1.25rem; }
+      .stage { flex-direction: column; height: auto; min-height: unset; margin: 0 1rem 1.5rem; border-radius: 1rem; }
+      .panel {
+        height: 72px;
+        min-width: unset !important;
+        width: 100% !important;
+        flex: 0 0 72px !important;
+        transition: height var(--dur) var(--ease-out), flex var(--dur) var(--ease-out);
+      }
+      .stage.has-active .panel:not(.active) { flex: 0 0 72px !important; height: 72px; }
+      .stage .panel.active { flex: 0 0 380px !important; height: 380px; }
+      .panel-label-vertical { transform: translateX(-50%); bottom: 1.25rem; }
+      .panel:not(.active) .panel-label-vertical { transform: translateX(-50%) rotate(0deg); }
+      .panel-content { padding: 1.5rem; }
+      .panel-title { font-size: var(--text-lg); }
+      .panel-desc { display: none; }
+      .section-header { padding: 4rem 1.25rem 2rem; }
+      .thumbs { padding: 0 1rem 4rem; }
+      .close-btn { top: 0.75rem; right: 0.75rem; width: 36px; height: 36px; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { transition-duration: 0.01ms !important; }
+    }
+
+    /* badge colors */
+    .b-water  { background: rgba(30,96,145,0.82); color: #caf0f8; }
+    .b-nature { background: rgba(45,106,79,0.82); color: #d8f3dc; }
+    .b-relax  { background: rgba(123,45,139,0.82); color: #f3e8ff; }
+    .b-fire   { background: rgba(187,62,3,0.82); color: #ffe8d6; }
+    .b-sport  { background: rgba(231,111,81,0.82); color: #fff1ec; }
+    .b-night  { background: rgba(20,20,60,0.88); color: #e0d9ff; }
+    .b-boat   { background: rgba(0,80,130,0.82); color: #bde8ff; }
+
+
+    /* ─── FAN CAROUSEL (property) ─── */
+    .prop-section { padding: 0 0 2rem; }
+
+    .fan-stage {
+      position: relative;
+      width: 100%;
+      overflow: hidden;
+      padding: 3rem 0 4rem;
+      /* perspective for the 3D tilt */
+    }
+
+    /* track holds cards in a flex row, we move it via JS */
+    .fan-track {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0;
+      min-height: 520px;
+      position: relative;
+    }
+
+    /* ── individual card ── */
+    .fan-card {
+      position: absolute;
+      width: clamp(220px, 28vw, 320px);
+      height: clamp(340px, 46vw, 500px);
+      border-radius: 1.5rem;
+      overflow: hidden;
+      cursor: pointer;
+      user-select: none;
+      -webkit-user-select: none;
+      will-change: transform, opacity, z-index;
+      transition:
+        transform 550ms cubic-bezier(0.16, 1, 0.3, 1),
+        opacity   400ms cubic-bezier(0.16, 1, 0.3, 1),
+        box-shadow 400ms ease;
+      box-shadow: 0 8px 40px rgba(0,0,0,0.45);
+    }
+
+    .fan-card img {
+      position: absolute; inset: 0;
+      width: 100%; height: 100%;
+      object-fit: cover;
+      pointer-events: none;
+      transition: transform 600ms cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .fan-card.is-center img { transform: scale(1.04); }
+
+    /* dark gradient overlay */
+    .fan-card::after {
+      content: '';
+      position: absolute; inset: 0;
+      background: linear-gradient(
+        160deg,
+        rgba(0,0,0,0.15) 0%,
+        rgba(0,0,0,0.72) 100%
+      );
+      transition: opacity 400ms;
+    }
+    .fan-card:not(.is-center)::after {
+      background: rgba(0,0,0,0.55);
+    }
+
+    /* big number */
+    .fan-num {
+      position: absolute; top: 1rem; left: 1.25rem;
+      font-family: var(--font-display);
+      font-size: clamp(3.5rem, 8vw, 6rem);
+      font-weight: 900; line-height: 1;
+      color: rgba(255,255,255,0.9);
+      letter-spacing: -0.04em;
+      z-index: 2;
+      text-shadow: 0 2px 20px rgba(0,0,0,0.5);
+      pointer-events: none;
+    }
+
+    /* bottom info block */
+    .fan-info {
+      position: absolute; bottom: 0; left: 0; right: 0;
+      padding: 1.5rem 1.5rem 1.75rem;
+      z-index: 2;
+      pointer-events: none;
+      opacity: 0;
+      transform: translateY(10px);
+      transition: opacity 350ms ease 200ms, transform 350ms ease 200ms;
+    }
+    .fan-card.is-center .fan-info {
+      opacity: 1;
+      transform: translateY(0);
+      pointer-events: auto;
+    }
+    /* non-center: just show title */
+    .fan-card:not(.is-center) .fan-title-mini {
+      display: block;
+    }
+
+    .fan-title {
+      font-family: var(--font-display);
+      font-size: clamp(1.1rem, 2.5vw, 1.55rem);
+      font-weight: 900; color: #fff;
+      letter-spacing: -0.02em; line-height: 1.1;
+      margin-bottom: 0.4rem;
+    }
+    .fan-sub {
+      font-size: 0.78rem; color: rgba(255,255,255,0.7);
+      margin-bottom: 0.75rem; line-height: 1.4;
+    }
+    .fan-price {
+      font-family: var(--font-display);
+      font-size: 1.1rem; font-weight: 900;
+      color: var(--primary); margin-bottom: 1rem;
+      text-shadow: 0 1px 8px rgba(0,0,0,0.5);
+    }
+    .fan-btn {
+      display: inline-flex; align-items: center; gap: 0.4rem;
+      padding: 0.6rem 1.4rem;
+      background: var(--primary); color: #fff;
+      border: none; border-radius: 999px;
+      font-size: 0.82rem; font-weight: 700;
+      cursor: pointer;
+      transition: background 150ms, transform 150ms;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+    }
+    .fan-btn:hover { transform: scale(1.05); }
+    .fan-btn:active { transform: scale(0.97); }
+
+    /* collapsed label for non-center cards */
+    .fan-label-side {
+      position: absolute;
+      bottom: 1.5rem; left: 50%;
+      transform: translateX(-50%);
+      font-family: var(--font-display);
+      font-size: 0.85rem; font-weight: 700;
+      color: rgba(255,255,255,0.85);
+      white-space: nowrap; z-index: 2;
+      letter-spacing: -0.01em;
+      pointer-events: none;
+      text-shadow: 0 1px 8px rgba(0,0,0,0.7);
+      transition: opacity 300ms;
+    }
+    .fan-card.is-center .fan-label-side { opacity: 0; }
+
+    /* arrows */
+    .fan-arrow {
+      position: absolute; top: 50%; transform: translateY(-50%);
+      width: 50px; height: 50px; border-radius: 50%;
+      background: color-mix(in oklch, var(--surface) 85%, transparent);
+      border: 1px solid var(--border);
+      display: grid; place-items: center;
+      color: var(--text); z-index: 20;
+      backdrop-filter: blur(10px);
+      transition: background 150ms, color 150ms, transform 200ms;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+    }
+    .fan-arrow:hover { background: var(--primary); color: #fff; border-color: transparent; }
+    .fan-arrow:active { transform: translateY(-50%) scale(0.93); }
+    .fan-arrow:disabled { opacity: 0.2; pointer-events: none; }
+    .fan-arrow--l { left: clamp(0.5rem, 3vw, 5rem); }
+    .fan-arrow--r { right: clamp(0.5rem, 3vw, 5rem); }
+
+    /* dots */
+    .fan-dots {
+      display: flex; justify-content: center; gap: 0.5rem;
+      padding-bottom: 4rem;
+    }
+    .fan-dot {
+      width: 7px; height: 7px; border-radius: 999px;
+      background: var(--border); border: none; cursor: pointer; padding: 0;
+      transition: background 200ms, width 200ms;
+    }
+    .fan-dot.active { background: var(--primary); width: 22px; }
+
+    @media (max-width: 600px) {
+      .fan-card {
+        width: clamp(190px, 60vw, 260px);
+        height: clamp(300px, 70vw, 400px);
+      }
+    }
+
+
+  </style>
+</head>
+<body>
+
+  <header class="header">
+    <a href="#" class="logo">
+      <svg width="28" height="28" viewBox="0 0 32 32" fill="none">
+        <circle cx="16" cy="16" r="15" stroke="currentColor" stroke-width="1.5"/>
+        <path d="M8 22 Q12 10 16 14 Q20 18 24 8" stroke="var(--primary)" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+        <circle cx="16" cy="14" r="2" fill="var(--accent)"/>
+      </svg>
+      Таёжная <span class="logo-mark">Заимка</span>
+    </a>
+    <button class="theme-btn" data-theme-toggle aria-label="Тема">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+      </svg>
+    </button>
+  </header>
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="hero-glow" aria-hidden="true"></div>
+    <span class="hero-tag">
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l3 7h7l-6 4 2 7-6-4-6 4 2-7-6-4h7z"/></svg>
+      База отдыха · Минская область
+    </span>
+    <h1>Живи<br><em>природой</em></h1>
+    <p>Рыбалка, баня, сплав, походы — выбери своё приключение среди первозданного белорусского леса.</p>
+    <a href="#activities" style="text-decoration:none">
+      <div class="scroll-hint">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12l7 7 7-7"/></svg>
+        Активности
+      </div>
+    </a>
+  </section>
+
+  <!-- ACTIVITIES -->
+  <section id="activities">
+    <div class="section-header">
+      <div class="section-eyebrow">Что делать на базе</div>
+      <h2 class="section-title">Выбери своё<br><span>приключение</span></h2>
+    </div>
+
+    <!-- CURTAIN STAGE -->
+    <div class="stage" id="stage">
+
+      <!-- 1 Kayak -->
+      <div class="panel" data-index="0" role="button" tabindex="0" aria-label="Сплав на каяках">
+        <div class="panel-bg" style="background-image:url('https://pplx-res.cloudinary.com/image/upload/pplx_search_images/20923e962ce26c7e1fab436919c38c1f9d56abf8.jpg')"></div>
+        <div class="panel-overlay"></div>
+        <span class="panel-badge b-water">Вода</span>
+        <div class="panel-label-vertical">Каяки</div>
+        <button class="close-btn" aria-label="Закрыть">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 6L6 18M6 6l12 12"/></svg>
+        </button>
+        <div class="panel-content">
+          <div class="panel-eyebrow">Водный спорт</div>
+          <h3 class="panel-title">Сплав<br>на каяках</h3>
+          <p class="panel-desc">Бороздите спокойные воды реки на закате. Маршруты для новичков и опытных гребцов. Снаряжение и инструктор включены.</p>
+          <div class="panel-meta">
+            <span class="meta-chip">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+              от 2 часов
+            </span>
+            <span class="meta-chip">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+              1–8 чел.
+            </span>
+            <button class="panel-cta">
+              Забронировать
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- 2 Fishing -->
+      <div class="panel" data-index="1" role="button" tabindex="0" aria-label="Рыбалка">
+        <div class="panel-bg" style="background-image:url('https://pplx-res.cloudinary.com/image/upload/pplx_search_images/94b084a7656dc743db8bba1eadea9acfd53c610b.jpg')"></div>
+        <div class="panel-overlay"></div>
+        <span class="panel-badge b-nature">Рыбалка</span>
+        <div class="panel-label-vertical">Рыбалка</div>
+        <button class="close-btn" aria-label="Закрыть">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 6L6 18M6 6l12 12"/></svg>
+        </button>
+        <div class="panel-content">
+          <div class="panel-eyebrow">Природа</div>
+          <h3 class="panel-title">Рыбалка<br>на озере</h3>
+          <p class="panel-desc">Щука, окунь, лещ — богатые уловы в живописных местах. Лодки, снасти и наживка в аренду. Чистим и готовим улов.</p>
+          <div class="panel-meta">
+            <span class="meta-chip">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+              весь день
+            </span>
+            <span class="meta-chip">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+              до 4 чел.
+            </span>
+            <button class="panel-cta">
+              Забронировать
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- 3 Banya -->
+      <div class="panel" data-index="2" role="button" tabindex="0" aria-label="Баня">
+        <div class="panel-bg" style="background-image:url('https://pplx-res.cloudinary.com/image/upload/pplx_search_images/7c12b9fda66bb8bd93756f8f91684b49bd47e92d.jpg')"></div>
+        <div class="panel-overlay"></div>
+        <span class="panel-badge b-relax">Релакс</span>
+        <div class="panel-label-vertical">Баня</div>
+        <button class="close-btn" aria-label="Закрыть">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 6L6 18M6 6l12 12"/></svg>
+        </button>
+        <div class="panel-content">
+          <div class="panel-eyebrow">Оздоровление</div>
+          <h3 class="panel-title">Русская<br>баня-бочка</h3>
+          <p class="panel-desc">Традиционная парилка с берёзовыми вениками прямо у воды. Купель, предбанник с травяным чаем и мёдом.</p>
+          <div class="panel-meta">
+            <span class="meta-chip">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+              3 часа
+            </span>
+            <span class="meta-chip">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+              до 6 чел.
+            </span>
+            <button class="panel-cta">
+              Забронировать
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- 4 Hiking -->
+      <div class="panel" data-index="3" role="button" tabindex="0" aria-label="Походы">
+        <div class="panel-bg" style="background-image:url('https://pplx-res.cloudinary.com/image/upload/pplx_search_images/bde76b706e46a426e63f898ad07eeea21f70bdb4.jpg')"></div>
+        <div class="panel-overlay"></div>
+        <span class="panel-badge b-nature">Природа</span>
+        <div class="panel-label-vertical">Походы</div>
+        <button class="close-btn" aria-label="Закрыть">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 6L6 18M6 6l12 12"/></svg>
+        </button>
+        <div class="panel-content">
+          <div class="panel-eyebrow">Активный отдых</div>
+          <h3 class="panel-title">Лесные<br>походы</h3>
+          <p class="panel-desc">Экскурсии по заповедным тропам с гидом. Знакомство с флорой и фауной Беларуси, сбор грибов и ягод.</p>
+          <div class="panel-meta">
+            <span class="meta-chip">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+              4–8 часов
+            </span>
+            <span class="meta-chip">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+              группа
+            </span>
+            <button class="panel-cta">
+              Забронировать
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- 5 Bonfire -->
+      <div class="panel" data-index="4" role="button" tabindex="0" aria-label="Костёр">
+        <div class="panel-bg" style="background-image:url('https://pplx-res.cloudinary.com/image/upload/pplx_search_images/dbc6f2d73118eb326c92e70a373a6d4569d9e445.jpg')"></div>
+        <div class="panel-overlay"></div>
+        <span class="panel-badge b-fire">Вечер</span>
+        <div class="panel-label-vertical">Костёр</div>
+        <button class="close-btn" aria-label="Закрыть">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 6L6 18M6 6l12 12"/></svg>
+        </button>
+        <div class="panel-content">
+          <div class="panel-eyebrow">Вечерний отдых</div>
+          <h3 class="panel-title">Вечер<br>у костра</h3>
+          <p class="panel-desc">Шашлыки, гитара, звёздное небо. Оборудованные места с мангалами, дровами и беседками у воды.</p>
+          <div class="panel-meta">
+            <span class="meta-chip">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+              с заката
+            </span>
+            <span class="meta-chip">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+              компания
+            </span>
+            <button class="panel-cta">
+              Забронировать
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- 6 Volleyball -->
+      <div class="panel" data-index="5" role="button" tabindex="0" aria-label="Волейбол">
+        <div class="panel-bg" style="background-image:url('https://pplx-res.cloudinary.com/image/upload/pplx_search_images/8e839127b3f547fbdb4db8cbd1a3c92558aacaa0.jpg')"></div>
+        <div class="panel-overlay"></div>
+        <span class="panel-badge b-sport">Спорт</span>
+        <div class="panel-label-vertical">Волейбол</div>
+        <button class="close-btn" aria-label="Закрыть">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 6L6 18M6 6l12 12"/></svg>
+        </button>
+        <div class="panel-content">
+          <div class="panel-eyebrow">Командный спорт</div>
+          <h3 class="panel-title">Пляжный<br>волейбол</h3>
+          <p class="panel-desc">Площадка прямо на пляже. Инвентарь в аренду, турниры для групп, судейство и призы.</p>
+          <div class="panel-meta">
+            <span class="meta-chip">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+              1–3 часа
+            </span>
+            <span class="meta-chip">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+              6–12 чел.
+            </span>
+            <button class="panel-cta">
+              Забронировать
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+            </button>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /stage -->
+
+    <!-- THUMBNAILS -->
+    <div class="thumbs" id="thumbs">
+      <div class="thumb active" data-for="0"><img src="https://pplx-res.cloudinary.com/image/upload/pplx_search_images/20923e962ce26c7e1fab436919c38c1f9d56abf8.jpg" alt="Каяки" width="80" height="56" loading="lazy"></div>
+      <div class="thumb" data-for="1"><img src="https://pplx-res.cloudinary.com/image/upload/pplx_search_images/94b084a7656dc743db8bba1eadea9acfd53c610b.jpg" alt="Рыбалка" width="80" height="56" loading="lazy"></div>
+      <div class="thumb" data-for="2"><img src="https://pplx-res.cloudinary.com/image/upload/pplx_search_images/7c12b9fda66bb8bd93756f8f91684b49bd47e92d.jpg" alt="Баня" width="80" height="56" loading="lazy"></div>
+      <div class="thumb" data-for="3"><img src="https://pplx-res.cloudinary.com/image/upload/pplx_search_images/bde76b706e46a426e63f898ad07eeea21f70bdb4.jpg" alt="Походы" width="80" height="56" loading="lazy"></div>
+      <div class="thumb" data-for="4"><img src="https://pplx-res.cloudinary.com/image/upload/pplx_search_images/dbc6f2d73118eb326c92e70a373a6d4569d9e445.jpg" alt="Костёр" width="80" height="56" loading="lazy"></div>
+      <div class="thumb" data-for="5"><img src="https://pplx-res.cloudinary.com/image/upload/pplx_search_images/8e839127b3f547fbdb4db8cbd1a3c92558aacaa0.jpg" alt="Волейбол" width="80" height="56" loading="lazy"></div>
+    </div>
+
+  </section>
+
+
+
+  <!-- ── PROPERTY FAN CAROUSEL ── -->
+  <section class="prop-section" id="accommodation">
+    <div class="section-header">
+      <div class="section-eyebrow">Где остановиться</div>
+      <h2 class="section-title">Выбери своё<br><span>жильё</span></h2>
+    </div>
+
+    <div class="fan-stage" id="fanStage">
+      <div class="fan-track" id="fanTrack">
+
+        <!-- 1 -->
+        <div class="fan-card" data-idx="0">
+          <div class="fan-num">01</div>
+          <img src="https://pplx-res.cloudinary.com/image/upload/pplx_search_images/2eaa4c73ba48ccced58631df99daa49b06243b35.jpg" alt="Сосновый уют" draggable="false">
+          <div class="fan-info">
+            <div class="fan-title">Сосновый уют</div>
+            <div class="fan-sub">Домик в лесу · 2 комн. · до 4 чел.</div>
+            <div class="fan-price">3 500 ₽ / ночь</div>
+            <button class="fan-btn">Забронировать</button>
+          </div>
+        </div>
+
+        <!-- 2 -->
+        <div class="fan-card" data-idx="1">
+          <div class="fan-num">02</div>
+          <img src="https://pplx-res.cloudinary.com/image/upload/pplx_search_images/1cf56440afb01b1411772aa889e2dbbbb3c4ed74.jpg" alt="Лесной шале" draggable="false">
+          <div class="fan-info">
+            <div class="fan-title">Лесной шале</div>
+            <div class="fan-sub">Коттедж с камином · 4 комн. · до 10 чел.</div>
+            <div class="fan-price">8 900 ₽ / ночь</div>
+            <button class="fan-btn">Забронировать</button>
+          </div>
+        </div>
+
+        <!-- 3 -->
+        <div class="fan-card" data-idx="2">
+          <div class="fan-num">03</div>
+          <img src="https://pplx-res.cloudinary.com/image/upload/pplx_search_images/60837a3fbaa262a728900d9ed529159665987c0e.jpg" alt="Лесная палатка" draggable="false">
+          <div class="fan-info">
+            <div class="fan-title">Лесная палатка</div>
+            <div class="fan-sub">Глэмпинг · Эко · до 2 чел.</div>
+            <div class="fan-price">2 200 ₽ / ночь</div>
+            <button class="fan-btn">Забронировать</button>
+          </div>
+        </div>
+
+        <!-- 4 -->
+        <div class="fan-card" data-idx="3">
+          <div class="fan-num">04</div>
+          <img src="https://pplx-res.cloudinary.com/image/upload/pplx_search_images/cc84d092387176c766d87f690e6e3ddadbfc77b8.jpg" alt="Озёрный лодж" draggable="false">
+          <div class="fan-info">
+            <div class="fan-title">Озёрный лодж</div>
+            <div class="fan-sub">Люкс у воды · 2 спальни · до 4 чел.</div>
+            <div class="fan-price">6 400 ₽ / ночь</div>
+            <button class="fan-btn">Забронировать</button>
+          </div>
+        </div>
+
+        <!-- 5 -->
+        <div class="fan-card" data-idx="4">
+          <div class="fan-num">05</div>
+          <img src="https://pplx-res.cloudinary.com/image/upload/pplx_search_images/e9158f4ac9e565905dfc515723e7044765f76f3d.jpg" alt="Таёжный треугольник" draggable="false">
+          <div class="fan-info">
+            <div class="fan-title">Таёжный треугольник</div>
+            <div class="fan-sub">А-фрейм · Studio · до 3 чел.</div>
+            <div class="fan-price">2 800 ₽ / ночь</div>
+            <button class="fan-btn">Забронировать</button>
+          </div>
+        </div>
+
+        <!-- 6 -->
+        <div class="fan-card" data-idx="5">
+          <div class="fan-num">06</div>
+          <img src="https://pplx-res.cloudinary.com/image/upload/pplx_search_images/e1b099f9f900868b3dd74be27c14965342a14856.jpg" alt="Лесной наблюдатель" draggable="false">
+          <div class="fan-info">
+            <div class="fan-title">Лесной наблюдатель</div>
+            <div class="fan-sub">Домик на сваях · 1 спальня · до 2 чел.</div>
+            <div class="fan-price">4 100 ₽ / ночь</div>
+            <button class="fan-btn">Забронировать</button>
+          </div>
+        </div>
+
+      </div><!-- /fan-track -->
+
+      <!-- Arrows -->
+      <button class="fan-arrow fan-arrow--l" id="fanPrev" aria-label="Назад">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M15 18l-6-6 6-6"/></svg>
+      </button>
+      <button class="fan-arrow fan-arrow--r" id="fanNext" aria-label="Вперёд">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 18l6-6-6-6"/></svg>
+      </button>
+    </div>
+
+    <!-- Dots -->
+    <div class="fan-dots" id="fanDots"></div>
+  </section>
+
+
+  <footer style="padding:3rem 2.5rem;border-top:1px solid var(--border);text-align:center;color:var(--text-muted);font-size:var(--text-sm)">
+    <p style="font-family:var(--font-display);font-weight:700;color:var(--primary);margin-bottom:0.5rem">Таёжная Заимка</p>
+    <p>Беларусь · Минская область · +375 (XX) XXX-XX-XX</p>
+  </footer>
+
+  <script>
+    // Theme
+    (function(){
+      const btn = document.querySelector('[data-theme-toggle]');
+      const root = document.documentElement;
+      let mode = root.getAttribute('data-theme') || (matchMedia('(prefers-color-scheme:dark)').matches ? 'dark' : 'light');
+      root.setAttribute('data-theme', mode);
+      const sunSVG = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>';
+      const moonSVG = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>';
+      btn.innerHTML = mode === 'dark' ? sunSVG : moonSVG;
+      btn.addEventListener('click', () => {
+        mode = mode === 'dark' ? 'light' : 'dark';
+        root.setAttribute('data-theme', mode);
+        btn.innerHTML = mode === 'dark' ? sunSVG : moonSVG;
+      });
+    })();
+
+    // Curtain logic
+    (function(){
+      const stage = document.getElementById('stage');
+      const panels = Array.from(stage.querySelectorAll('.panel'));
+      const thumbs = Array.from(document.querySelectorAll('.thumb'));
+
+      let activeIndex = null;
+
+      function activate(index) {
+        if (activeIndex === index) return;
+        activeIndex = index;
+        stage.classList.add('has-active');
+        panels.forEach((p, i) => p.classList.toggle('active', i === index));
+        thumbs.forEach((t, i) => t.classList.toggle('active', i === index));
+      }
+
+      function deactivate() {
+        activeIndex = null;
+        stage.classList.remove('has-active');
+        panels.forEach(p => p.classList.remove('active'));
+        thumbs.forEach(t => t.classList.remove('active'));
+      }
+
+      panels.forEach((panel, i) => {
+        // Click on collapsed panel → expand
+        panel.addEventListener('click', (e) => {
+          if (panel.classList.contains('active')) return;
+          e.stopPropagation();
+          activate(i);
+        });
+
+        // Close button
+        const closeBtn = panel.querySelector('.close-btn');
+        closeBtn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          deactivate();
+        });
+
+        // Keyboard
+        panel.addEventListener('keydown', e => {
+          if ((e.key === 'Enter' || e.key === ' ') && !panel.classList.contains('active')) {
+            e.preventDefault();
+            activate(i);
+          }
+          if (e.key === 'Escape') deactivate();
+        });
+      });
+
+      thumbs.forEach((thumb, i) => {
+        thumb.addEventListener('click', () => activate(i));
+      });
+
+      // Click outside to close
+      document.addEventListener('click', (e) => {
+        if (!stage.contains(e.target)) deactivate();
+      });
+    })();
+
+    // ── Fan Carousel (property) ──
+    (function(){
+      const stage   = document.getElementById('fanStage');
+      const cards   = Array.from(stage.querySelectorAll('.fan-card'));
+      const prevBtn = document.getElementById('fanPrev');
+      const nextBtn = document.getElementById('fanNext');
+      const dotsEl  = document.getElementById('fanDots');
+      const N       = cards.length;
+      let active    = 0;
+
+      // Add side-label spans
+      cards.forEach(c => {
+        const lbl = document.createElement('div');
+        lbl.className = 'fan-label-side';
+        lbl.textContent = c.querySelector('.fan-title').textContent;
+        c.appendChild(lbl);
+      });
+
+      // Build dots
+      cards.forEach((_, i) => {
+        const d = document.createElement('button');
+        d.className = 'fan-dot' + (i === 0 ? ' active' : '');
+        d.setAttribute('aria-label', 'Жильё ' + (i+1));
+        d.addEventListener('click', () => goTo(i));
+        dotsEl.appendChild(d);
+      });
+
+      // Layout parameters
+      const SIDE_OFFSET_VW = 0.22; // fraction of stage width each side card is offset
+      const SIDE_SCALE     = 0.82;
+      const SIDE_ROTATE    = 6;    // degrees
+      const FAR_SCALE      = 0.68;
+      const FAR_ROTATE     = 12;
+      const FAR_OFFSET_VW  = 0.40;
+
+      function layout() {
+        const W = stage.offsetWidth;
+        cards.forEach((card, i) => {
+          const diff = i - active;
+          const absDiff = Math.abs(diff);
+          const dir = Math.sign(diff); // +1 right, -1 left
+
+          let tx = 0, scale = 1, rotate = 0, opacity = 1, zIndex = 10;
+
+          if (diff === 0) {
+            tx = 0; scale = 1; rotate = 0; zIndex = 20; opacity = 1;
+          } else if (absDiff === 1) {
+            tx = dir * W * SIDE_OFFSET_VW;
+            scale = SIDE_SCALE;
+            rotate = dir * SIDE_ROTATE;
+            zIndex = 15;
+            opacity = 1;
+          } else if (absDiff === 2) {
+            tx = dir * W * FAR_OFFSET_VW;
+            scale = FAR_SCALE;
+            rotate = dir * FAR_ROTATE;
+            zIndex = 10;
+            opacity = 0.75;
+          } else {
+            tx = dir * W * 0.65;
+            scale = 0.55;
+            rotate = dir * 18;
+            zIndex = 5;
+            opacity = 0;
+          }
+
+          card.style.transform = `translateX(${tx}px) rotate(${rotate}deg) scale(${scale})`;
+          card.style.zIndex    = zIndex;
+          card.style.opacity   = opacity;
+          card.classList.toggle('is-center', diff === 0);
+        });
+
+        dotsEl.querySelectorAll('.fan-dot').forEach((d, i) => d.classList.toggle('active', i === active));
+        prevBtn.disabled = active === 0;
+        nextBtn.disabled = active === N - 1;
+      }
+
+      function goTo(i) {
+        active = Math.max(0, Math.min(i, N - 1));
+        layout();
+      }
+
+      prevBtn.addEventListener('click', () => goTo(active - 1));
+      nextBtn.addEventListener('click', () => goTo(active + 1));
+
+      // Click on side card → go to it
+      cards.forEach((card, i) => {
+        card.addEventListener('click', () => {
+          if (i !== active) goTo(i);
+        });
+      });
+
+      // ── Drag / touch swipe ──
+      let dragStartX = 0, dragging = false, dragMoved = false;
+
+      function onStart(x) {
+        dragStartX = x; dragging = true; dragMoved = false;
+        stage.style.cursor = 'grabbing';
+      }
+      function onMove(x) {
+        if (!dragging) return;
+        if (Math.abs(x - dragStartX) > 8) dragMoved = true;
+      }
+      function onEnd(x) {
+        if (!dragging) return;
+        dragging = false;
+        stage.style.cursor = '';
+        const diff = dragStartX - x;
+        if (Math.abs(diff) > 50) goTo(active + (diff > 0 ? 1 : -1));
+      }
+
+      // Mouse
+      stage.addEventListener('mousedown',  e => onStart(e.clientX));
+      stage.addEventListener('mousemove',  e => onMove(e.clientX));
+      stage.addEventListener('mouseup',    e => onEnd(e.clientX));
+      stage.addEventListener('mouseleave', e => { if (dragging) onEnd(e.clientX); });
+
+      // Touch
+      stage.addEventListener('touchstart', e => onStart(e.touches[0].clientX), { passive: true });
+      stage.addEventListener('touchmove',  e => onMove(e.touches[0].clientX),  { passive: true });
+      stage.addEventListener('touchend',   e => onEnd(e.changedTouches[0].clientX));
+
+      // Prevent click after drag
+      cards.forEach(card => {
+        card.addEventListener('click', e => { if (dragMoved) { e.stopImmediatePropagation(); dragMoved = false; } });
+      });
+
+      // Keyboard
+      window.addEventListener('keydown', e => {
+        const rect = stage.getBoundingClientRect();
+        if (rect.bottom < 0 || rect.top > window.innerHeight) return;
+        if (e.key === 'ArrowRight') goTo(active + 1);
+        if (e.key === 'ArrowLeft')  goTo(active - 1);
+      });
+
+      window.addEventListener('resize', layout);
+      layout();
+    })();
+
+
+
+  </script>
+</body>
+</html>

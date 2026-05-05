@@ -32,6 +32,8 @@ import {
   PaginationPrevious,
 } from '@/components/ui/pagination'
 
+import { plainTextFromHtml } from '@/lib/safeHtml'
+
 const API_BASE = '/api'
 
 interface AccommodationType {
@@ -93,7 +95,8 @@ export default function BookingPage() {
   }, [])
 
   // Load availability
-  const loadAvailability = useCallback(() => {
+  const loadAvailability = useCallback(async () => {
+    await Promise.resolve()
     setLoading(true)
     const params = new URLSearchParams()
     params.set('page', String(page))
@@ -102,15 +105,16 @@ export default function BookingPage() {
     if (dateRange?.from) params.set('checkIn', format(dateRange.from, 'yyyy-MM-dd'))
     if (dateRange?.to) params.set('checkOut', format(dateRange.to, 'yyyy-MM-dd'))
 
-    fetch(`${API_BASE}/accommodation/availability?${params.toString()}`)
-      .then((r) => r.json())
-      .then((data: Accommodation[]) => {
-        setObjects(data)
-        // Approximate total pages from response length; backend doesn't return total count in this simplified setup
-        setTotalPages(Math.max(1, Math.ceil(data.length / pageSize) + (data.length === pageSize ? 1 : 0)))
-      })
-      .catch(() => setObjects([]))
-      .finally(() => setLoading(false))
+    try {
+      const res = await fetch(`${API_BASE}/accommodation/availability?${params.toString()}`)
+      const data: Accommodation[] = await res.json()
+      setObjects(data)
+      setTotalPages(Math.max(1, Math.ceil(data.length / pageSize) + (data.length === pageSize ? 1 : 0)))
+    } catch {
+      setObjects([])
+    } finally {
+      setLoading(false)
+    }
   }, [typeId, dateRange, page])
 
   useEffect(() => {
@@ -291,7 +295,9 @@ export default function BookingPage() {
                   <div className="p-5">
                     <h3 className="text-lg font-semibold text-dark mb-1">{obj.name}</h3>
                     {obj.description && (
-                      <p className="text-sm text-graytext mb-3 line-clamp-2">{obj.description}</p>
+                      <p className="text-sm text-graytext mb-3 line-clamp-2">
+                        {plainTextFromHtml(obj.description)}
+                      </p>
                     )}
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-4 text-sm text-graytext">
@@ -307,6 +313,18 @@ export default function BookingPage() {
                           </span>
                         )}
                       </div>
+                      <button
+                        onClick={() => {
+                          const params = new URLSearchParams()
+                          params.set('accommodationId', String(obj.id))
+                          if (dateRange?.from) params.set('checkIn', format(dateRange.from, 'yyyy-MM-dd'))
+                          if (dateRange?.to) params.set('checkOut', format(dateRange.to, 'yyyy-MM-dd'))
+                          window.location.href = `/booking/form?${params.toString()}`
+                        }}
+                        className="px-4 py-2 bg-brand hover:bg-brand-hover text-white text-sm font-semibold rounded-lg transition-colors"
+                      >
+                        Забронировать
+                      </button>
                     </div>
                   </div>
                 </div>

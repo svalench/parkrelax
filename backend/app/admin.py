@@ -1,4 +1,10 @@
+import os
+import uuid
+from pathlib import Path
+
 from fastapi import Request
+from PIL import Image as PILImage
+from starlette.datastructures import UploadFile
 from starlette.responses import Response
 from starlette_admin.auth import AuthProvider
 from starlette_admin.contrib.sqla import Admin, ModelView
@@ -7,9 +13,27 @@ from starlette_admin.fields import (
     IntegerField,
     StringField,
     TextAreaField,
+    TinyMCEEditorField,
     BooleanField,
     HasOne,
+    EnumField,
+    ImageField,
+    FileField,
+    DateField,
+    DateTimeField,
+    URLField,
 )
+
+
+class RelativeURLField(URLField):
+    """URLField that resolves relative paths against request base_url."""
+
+    async def serialize_value(self, request, value, action):
+        if value and isinstance(value, str) and value.startswith("/"):
+            base = str(request.base_url).rstrip("/")
+            value = base + value
+        return await super().serialize_value(request, value, action)
+from starlette_admin.i18n import I18nConfig
 
 from app.auth import verify_admin_token, sign_admin_token
 from app.database import async_engine, AsyncSessionLocal
@@ -21,14 +45,33 @@ from app.models import (
     Review,
     GalleryItem,
     Booking,
-    Rule,
-    Translation,
     AccommodationType,
     Accommodation,
     Admin as AdminModel,
     SiteSettings,
     LegalPage,
+    RentalItem,
+    SmtpSettings,
+    EmailTemplate,
+    EmailLog,
 )
+
+from app.html_sanitize import sanitize_rich_html
+
+
+def _apply_sanitized_rich_text(obj: object, *attr_names: str) -> None:
+    """Очищает HTML в полях rich text после отправки формы админки."""
+    for key in attr_names:
+        val = getattr(obj, key, None)
+        if val is not None:
+            setattr(obj, key, sanitize_rich_html(val))
+
+
+# TinyMCE: русский UI (версия langs совпадает с TinyMCEEditorField.version_tinymce по умолчанию)
+RICHTEXT_TINYMCE_EXTRA = {
+    "language": "ru",
+    "language_url": "https://cdn.jsdelivr.net/npm/tinymce@6.4/langs/ru.js",
+}
 
 
 class AdminAuthProvider(AuthProvider):
@@ -53,7 +96,7 @@ class AdminAuthProvider(AuthProvider):
             admin = result.scalar_one_or_none()
 
         if not admin or not verify_password(password, admin.passwordHash):
-            raise LoginFailed("Invalid username or password")
+            raise LoginFailed("Неверное имя пользователя или пароль")
 
         token = sign_admin_token(admin.id)
         cookie_settings = CookieSettings(request)
@@ -84,53 +127,481 @@ class AdminAuthProvider(AuthProvider):
         return response
 
 
-# ── Admin Setup ────────────────────────────────────────────────────
+def _get_public_root() -> Path:
+    env = os.getenv("NODE_ENV", "development")
+    if env == "production":
+        return Path(__file__).resolve().parent.parent.parent / "frontend" / "dist"
+    return Path(__file__).resolve().parent.parent.parent / "frontend" / "public"
 
-admin = Admin(
-    engine=async_engine,
-    title="Park Relax Admin",
-    base_url="/admin",
-    auth_provider=AdminAuthProvider(),
-)
 
-# ── Model Views ────────────────────────────────────────────────────
+def _convert_to_webp(upload_file: UploadFile, upload_subdir: str) -> str:
+    """Конвертирует загруженное изображение в WebP, сохраняет в public/uploads/{upload_subdir}/. Возвращает URL-путь."""
+    public_root = _get_public_root()
+    upload_dir = public_root / "uploads" / upload_subdir
+    upload_dir.mkdir(parents=True, exist_ok=True)
 
-admin.add_view(ModelView(User, icon="fa fa-user", label="Users", identity="users"))
-admin.add_view(ModelView(Contact, icon="fa fa-address-book", label="Contacts", identity="contacts"))
-admin.add_view(ModelView(Review, icon="fa fa-star", label="Reviews", identity="reviews"))
-admin.add_view(ModelView(GalleryItem, icon="fa fa-images", label="Gallery", identity="gallery"))
-class BookingView(ModelView):
+    file_name = f"{uuid.uuid4().hex}.webp"
+    file_path = upload_dir / file_name
+
+    # Перед чтением PIL указатель должен быть в начале файла
+    upload_file.file.seek(0)
+    pil_image = PILImage.open(upload_file.file)
+
+    if pil_image.mode in ("P", "PA"):
+        pil_image = pil_image.convert("RGBA")
+    elif pil_image.mode not in ("RGB", "RGBA"):
+        pil_image = pil_image.convert("RGB")
+
+    pil_image.save(file_path, format="WEBP", quality=85, method=6)
+
+    return f"/uploads/{upload_subdir}/{file_name}"
+
+
+def _delete_image_file(image_url: str | None) -> None:
+    """Удаляет файл изображения с диска, если он существует."""
+    if not image_url:
+        return
+    try:
+        public_root = _get_public_root()
+        file_path = public_root / image_url.lstrip("/")
+        if file_path.exists():
+            file_path.unlink()
+    except Exception:
+        pass
+
+
+# ── Варианты цвета бейджа (аренда) ──────────────────────────────────
+
+BADGE_COLOR_CHOICES = [
+    ("bg-[rgba(30,96,145,0.82)] text-[#caf0f8]", "Вода (синий)"),
+    ("bg-[rgba(45,106,79,0.82)] text-[#d8f3dc]", "Рыбалка (зелёный)"),
+    ("bg-[rgba(123,45,139,0.82)] text-[#f3e8ff]", "Актив (фиолетовый)"),
+    ("bg-[rgba(187,62,3,0.82)] text-[#ffe8d6]", "Вечер (оранжевый)"),
+    ("bg-[rgba(231,111,81,0.82)] text-[#fff1ec]", "Спорт (коралловый)"),
+    ("bg-[rgba(20,20,60,0.88)] text-[#e0d9ff]", "Ночь (тёмно-синий)"),
+    ("bg-[rgba(0,80,130,0.82)] text-[#bde8ff]", "Лодка (голубой)"),
+]
+
+class CustomImageField(ImageField):
+    """ImageField: сериализация в формат, который ожидает JS-рендерер starlette-admin."""
+
+    async def serialize_value(self, request, value, action):
+        if value is None:
+            return None
+        filename = value.split("/")[-1] if isinstance(value, str) else ""
+        base = str(request.base_url).rstrip("/")
+        url = f"{base}{value}" if value.startswith("/") else value
+        return {"url": url, "filename": filename}
+
+
+class RentalItemView(ModelView):
     fields = [
-        IntegerField("id"),
-        StringField("customerName"),
-        StringField("customerPhone"),
-        StringField("customerEmail"),
-        StringField("startDate"),
-        StringField("endDate"),
-        IntegerField("adults"),
-        IntegerField("children"),
-        IntegerField("accommodationId", label="Accommodation ID"),
-        StringField("status"),
-        TextAreaField("notes"),
+        IntegerField("id", read_only=True),
+        StringField("title", label="Название"),
+        StringField("info", label="Краткая информация"),
+        StringField("badge", label="Бейдж"),
+        EnumField("badgeColor", label="Цвет бейджа", choices=BADGE_COLOR_CHOICES),
+        StringField("eyebrow", label="Надзаголовок"),
+        TinyMCEEditorField(
+            "description",
+            label="Описание",
+            height=400,
+            extra_options=RICHTEXT_TINYMCE_EXTRA,
+        ),
+        StringField("duration", label="Длительность"),
+        StringField("capacity", label="Вместимость"),
+        CustomImageField("imageUrl", label="Изображение"),
+        BooleanField("isActive", label="Активно"),
+        IntegerField("sortOrder", label="Порядок сортировки"),
+        DateTimeField("createdAt", label="Создано", read_only=True),
+        DateTimeField("updatedAt", label="Обновлено", read_only=True),
     ]
 
-admin.add_view(BookingView(Booking, icon="fa fa-calendar-check", label="Bookings", identity="booking"))
-admin.add_view(ModelView(Rule, icon="fa fa-gavel", label="Rules", identity="rules"))
-admin.add_view(ModelView(Translation, icon="fa fa-language", label="Translations", identity="translations"))
-admin.add_view(ModelView(AccommodationType, icon="fa fa-bed", label="Accommodation Types", identity="accommodation-type"))
+    async def before_create(self, request: Request, data: dict, obj: RentalItem) -> None:
+        new_url = await self._process_image_upload(data)
+        if new_url is not None:
+            obj.imageUrl = new_url
+        _apply_sanitized_rich_text(obj, "description")
+
+    async def before_edit(self, request: Request, data: dict, obj: RentalItem) -> None:
+        old_image_url = obj.imageUrl if obj else None
+        new_url = await self._process_image_upload(data)
+        if new_url is not None:
+            obj.imageUrl = new_url
+            if new_url != old_image_url:
+                _delete_image_file(old_image_url)
+        _apply_sanitized_rich_text(obj, "description")
+
+    async def _process_image_upload(self, data: dict) -> str | None:
+        image_value = data.get("imageUrl")
+
+        file_value = image_value
+        if isinstance(image_value, tuple) and len(image_value) == 2:
+            file_value, _should_be_deleted = image_value
+
+        if isinstance(file_value, UploadFile) and file_value.filename:
+            new_url = _convert_to_webp(file_value, "rental")
+            data["imageUrl"] = new_url
+            return new_url
+        elif isinstance(image_value, str) and image_value.startswith("/uploads/"):
+            return None
+        else:
+            return None
+
+
+# ── Представления моделей с русскими подписями полей ─────────────────
+
+class UserAdminView(ModelView):
+    fields = [
+        IntegerField("id", read_only=True),
+        StringField("unionId", label="ID в системе"),
+        StringField("name", label="Имя"),
+        StringField("email", label="Email"),
+        TextAreaField("avatar", label="Аватар (URL)"),
+        StringField("role", label="Роль"),
+        BooleanField("emailVerified", label="Email подтверждён"),
+        DateTimeField("createdAt", label="Создан", read_only=True),
+        DateTimeField("updatedAt", label="Обновлён", read_only=True),
+        DateTimeField("lastSignInAt", label="Последний вход", read_only=True),
+    ]
+
+
+class ContactAdminView(ModelView):
+    fields = [
+        IntegerField("id", read_only=True),
+        TextAreaField("address", label="Адрес"),
+        StringField("phone", label="Телефон"),
+        StringField("email", label="Email"),
+        StringField("workHours", label="Часы работы"),
+        TextAreaField("mapUrl", label="Ссылка на карту"),
+        DateTimeField("createdAt", label="Создано", read_only=True),
+        DateTimeField("updatedAt", label="Обновлено", read_only=True),
+    ]
+
+
+class ReviewAdminView(ModelView):
+    fields = [
+        IntegerField("id", read_only=True),
+        StringField("name", label="Имя"),
+        IntegerField("rating", label="Оценка"),
+        TextAreaField("text", label="Текст отзыва"),
+        TextAreaField("avatarUrl", label="URL аватара"),
+        StringField("yandexReviewId", label="ID отзыва Яндекс"),
+        BooleanField("isActive", label="Активен"),
+        DateTimeField("createdAt", label="Создано", read_only=True),
+    ]
+
+
+class GalleryItemAdminView(ModelView):
+    fields = [
+        IntegerField("id", read_only=True),
+        StringField("title", label="Заголовок"),
+        CustomImageField("imageUrl", label="Изображение"),
+        StringField("category", label="Категория"),
+        IntegerField("sortOrder", label="Порядок сортировки"),
+        BooleanField("isActive", label="Активен"),
+        DateTimeField("createdAt", label="Создано", read_only=True),
+    ]
+
+    async def before_create(self, request: Request, data: dict, obj: GalleryItem) -> None:
+        new_url = await self._process_image_upload(data)
+        if new_url is not None:
+            obj.imageUrl = new_url
+
+    async def before_edit(self, request: Request, data: dict, obj: GalleryItem) -> None:
+        old_image_url = obj.imageUrl if obj else None
+        new_url = await self._process_image_upload(data)
+        if new_url is not None:
+            obj.imageUrl = new_url
+            if new_url != old_image_url:
+                _delete_image_file(old_image_url)
+
+    async def _process_image_upload(self, data: dict) -> str | None:
+        image_value = data.get("imageUrl")
+
+        file_value = image_value
+        if isinstance(image_value, tuple) and len(image_value) == 2:
+            file_value, _should_be_deleted = image_value
+
+        if isinstance(file_value, UploadFile) and file_value.filename:
+            new_url = _convert_to_webp(file_value, "gallery")
+            data["imageUrl"] = new_url
+            return new_url
+        if isinstance(image_value, str) and image_value.startswith("/uploads/"):
+            return None
+        return None
+
+
+class BookingView(ModelView):
+    fields = [
+        IntegerField("id", read_only=True),
+        StringField("customerName", label="Имя клиента"),
+        StringField("customerPhone", label="Телефон"),
+        StringField("customerEmail", label="Email"),
+        DateField("startDate", label="Дата заезда"),
+        DateField("endDate", label="Дата выезда"),
+        IntegerField("adults", label="Взрослые"),
+        IntegerField("children", label="Дети"),
+        IntegerField("accommodationId", label="ID размещения"),
+        IntegerField("userId", label="ID пользователя"),
+        StringField("status", label="Статус"),
+        TextAreaField("notes", label="Примечания"),
+        DateTimeField("createdAt", label="Создано", read_only=True),
+        DateTimeField("updatedAt", label="Обновлено", read_only=True),
+    ]
+
+
+class AccommodationTypeAdminView(ModelView):
+    fields = [
+        IntegerField("id", read_only=True),
+        StringField("name", label="Название"),
+        TinyMCEEditorField(
+            "description",
+            label="Описание",
+            height=400,
+            extra_options=RICHTEXT_TINYMCE_EXTRA,
+        ),
+        IntegerField("capacity", label="Вместимость"),
+        IntegerField("pricePerNight", label="Цена за ночь"),
+        CustomImageField("imageUrl", label="Изображение"),
+        BooleanField("isActive", label="Активно"),
+        IntegerField("sortOrder", label="Порядок сортировки"),
+        DateTimeField("createdAt", label="Создано", read_only=True),
+    ]
+
+    async def before_create(self, request: Request, data: dict, obj: AccommodationType) -> None:
+        new_url = await self._process_image_upload(data)
+        if new_url is not None:
+            obj.imageUrl = new_url
+        _apply_sanitized_rich_text(obj, "description")
+
+    async def before_edit(self, request: Request, data: dict, obj: AccommodationType) -> None:
+        old_image_url = obj.imageUrl if obj else None
+        new_url = await self._process_image_upload(data)
+        if new_url is not None:
+            obj.imageUrl = new_url
+            if new_url != old_image_url:
+                _delete_image_file(old_image_url)
+        _apply_sanitized_rich_text(obj, "description")
+
+    async def _process_image_upload(self, data: dict) -> str | None:
+        image_value = data.get("imageUrl")
+
+        file_value = image_value
+        if isinstance(image_value, tuple) and len(image_value) == 2:
+            file_value, _should_be_deleted = image_value
+
+        if isinstance(file_value, UploadFile) and file_value.filename:
+            new_url = _convert_to_webp(file_value, "accommodation-type")
+            data["imageUrl"] = new_url
+            return new_url
+        if isinstance(image_value, str) and image_value.startswith("/uploads/"):
+            return None
+        return None
+
 
 class AccommodationView(ModelView):
     fields = [
-        IntegerField("id"),
-        StringField("name"),
-        TextAreaField("description"),
-        HasOne("type", identity="accommodation-type", label="Type"),
-        StringField("imageUrl"),
-        BooleanField("isActive"),
-        IntegerField("sortOrder"),
+        IntegerField("id", read_only=True),
+        StringField("name", label="Название"),
+        TinyMCEEditorField(
+            "description",
+            label="Описание",
+            height=400,
+            extra_options=RICHTEXT_TINYMCE_EXTRA,
+        ),
+        HasOne("type", identity="accommodation-type", label="Тип размещения"),
+        CustomImageField("imageUrl", label="Изображение"),
+        IntegerField("capacity", label="Вместимость"),
+        IntegerField("pricePerNight", label="Цена за ночь"),
+        BooleanField("isActive", label="Активно"),
+        BooleanField("showOnMain", label="Показывать на главной"),
+        IntegerField("sortOrder", label="Порядок сортировки"),
+        DateTimeField("createdAt", label="Создано", read_only=True),
     ]
 
-admin.add_view(AccommodationView(Accommodation, icon="fa fa-home", label="Accommodations", identity="accommodations"))
-admin.add_view(ModelView(AdminModel, icon="fa fa-user-shield", label="Admins", identity="admins"))
-admin.add_view(ModelView(SiteSettings, icon="fa fa-cogs", label="Site Settings", identity="settings"))
-admin.add_view(ModelView(LegalPage, icon="fa fa-file-contract", label="Legal Pages", identity="legal-pages"))
+    async def before_create(self, request: Request, data: dict, obj: Accommodation) -> None:
+        new_url = await self._process_image_upload(data)
+        if new_url is not None:
+            obj.imageUrl = new_url
+        _apply_sanitized_rich_text(obj, "description")
+
+    async def before_edit(self, request: Request, data: dict, obj: Accommodation) -> None:
+        old_image_url = obj.imageUrl if obj else None
+        new_url = await self._process_image_upload(data)
+        if new_url is not None:
+            obj.imageUrl = new_url
+            if new_url != old_image_url:
+                _delete_image_file(old_image_url)
+        _apply_sanitized_rich_text(obj, "description")
+
+    async def _process_image_upload(self, data: dict) -> str | None:
+        image_value = data.get("imageUrl")
+
+        file_value = image_value
+        if isinstance(image_value, tuple) and len(image_value) == 2:
+            file_value, _should_be_deleted = image_value
+
+        if isinstance(file_value, UploadFile) and file_value.filename:
+            new_url = _convert_to_webp(file_value, "accommodation")
+            data["imageUrl"] = new_url
+            return new_url
+        if isinstance(image_value, str) and image_value.startswith("/uploads/"):
+            return None
+        return None
+
+
+class AdminAccountView(ModelView):
+    fields = [
+        IntegerField("id", read_only=True),
+        StringField("username", label="Логин"),
+        StringField("passwordHash", label="Хэш пароля (bcrypt)"),
+        StringField("name", label="Имя"),
+        DateTimeField("createdAt", label="Создан", read_only=True),
+        DateTimeField("updatedAt", label="Обновлён", read_only=True),
+    ]
+
+
+class SiteSettingsAdminView(ModelView):
+    fields = [
+        IntegerField("id", read_only=True),
+        TextAreaField("heroBackgroundUrl", label="Фон hero (URL)"),
+        DateTimeField("updatedAt", label="Обновлено", read_only=True),
+    ]
+
+
+class LegalPageAdminView(ModelView):
+    fields = [
+        IntegerField("id", read_only=True),
+        StringField("slug", label="Слаг"),
+        StringField("title", label="Заголовок"),
+        TinyMCEEditorField(
+            "content",
+            label="Содержание",
+            height=480,
+            extra_options=RICHTEXT_TINYMCE_EXTRA,
+        ),
+        BooleanField("isActive", label="Активна"),
+        DateTimeField("createdAt", label="Создана", read_only=True),
+        DateTimeField("updatedAt", label="Обновлена", read_only=True),
+    ]
+
+    async def before_create(self, request: Request, data: dict, obj: LegalPage) -> None:
+        _apply_sanitized_rich_text(obj, "content")
+
+    async def before_edit(self, request: Request, data: dict, obj: LegalPage) -> None:
+        _apply_sanitized_rich_text(obj, "content")
+
+
+class SmtpSettingsView(ModelView):
+    fields = [
+        IntegerField("id", read_only=True),
+        StringField("host", label="SMTP сервер"),
+        IntegerField("port", label="Порт"),
+        StringField("username", label="Логин"),
+        StringField("password", label="Пароль"),
+        BooleanField("useTls", label="Использовать TLS"),
+        StringField("fromEmail", label="Email отправителя"),
+        StringField("fromName", label="Имя отправителя"),
+        BooleanField("isActive", label="Активно"),
+        DateTimeField("updatedAt", label="Обновлено", read_only=True),
+    ]
+
+
+class EmailTemplateView(ModelView):
+    fields = [
+        IntegerField("id", read_only=True),
+        StringField("type", label="Тип шаблона"),
+        StringField("subject", label="Тема письма"),
+        FileField("uploadPath", label="HTML файл (импорт)"),
+        TextAreaField("bodyHtml", label="HTML шаблон"),
+        RelativeURLField("previewUrl", label="Предпросмотр"),
+        BooleanField("isActive", label="Активен"),
+        DateTimeField("createdAt", label="Создан", read_only=True),
+        DateTimeField("updatedAt", label="Обновлён", read_only=True),
+    ]
+
+    async def before_create(self, request: Request, data: dict, obj) -> None:
+        await self._process_file_upload(data, obj)
+
+    async def before_edit(self, request: Request, data: dict, obj) -> None:
+        await self._process_file_upload(data, obj)
+
+    async def _process_file_upload(self, data: dict, obj) -> None:
+        file_value = data.get("uploadPath")
+        if not file_value:
+            return
+        file = file_value
+        if isinstance(file_value, tuple) and len(file_value) == 2:
+            file, _should_be_deleted = file_value
+        if isinstance(file, UploadFile) and file.filename:
+            content = await file.read()
+            try:
+                text = content.decode("utf-8")
+            except UnicodeDecodeError:
+                text = content.decode("utf-8", errors="replace")
+            obj.bodyHtml = text
+            data["bodyHtml"] = text
+            # Do not store file path; keep uploadPath empty
+            obj.uploadPath = None
+            data["uploadPath"] = None
+
+
+class EmailLogView(ModelView):
+    fields = [
+        IntegerField("id", read_only=True),
+        StringField("toEmail", label="Получатель"),
+        StringField("subject", label="Тема"),
+        RelativeURLField("previewUrl", label="Предпросмотр"),
+        TextAreaField("bodyPreview", label="Предпросмотр (обрезано)"),
+        TextAreaField("bodyHtml", label="Полное HTML письма"),
+        StringField("templateType", label="Тип шаблона"),
+        StringField("status", label="Статус"),
+        TextAreaField("errorMessage", label="Ошибка"),
+        StringField("messageId", label="Message ID"),
+        DateTimeField("sentAt", label="Отправлено", read_only=True),
+    ]
+
+    def can_create(self, request) -> bool:
+        return False
+
+    def can_edit(self, request) -> bool:
+        return False
+
+    def can_delete(self, request) -> bool:
+        return False
+
+
+# ── Настройка админки ───────────────────────────────────────────────
+
+admin = Admin(
+    engine=async_engine,
+    title="Парк Relax — админка",
+    base_url="/admin",
+    auth_provider=AdminAuthProvider(),
+    i18n_config=I18nConfig(default_locale="ru"),
+)
+
+# ── Разделы ───────────────────────────────────────────────────────
+
+admin.add_view(UserAdminView(User, icon="fa fa-user", label="Пользователи", identity="users"))
+admin.add_view(ContactAdminView(Contact, icon="fa fa-address-book", label="Контакты", identity="contacts"))
+admin.add_view(ReviewAdminView(Review, icon="fa fa-star", label="Отзывы", identity="reviews"))
+admin.add_view(GalleryItemAdminView(GalleryItem, icon="fa fa-images", label="Галерея", identity="gallery"))
+admin.add_view(BookingView(Booking, icon="fa fa-calendar-check", label="Бронирования", identity="booking"))
+admin.add_view(
+    AccommodationTypeAdminView(
+        AccommodationType,
+        icon="fa fa-bed",
+        label="Типы размещения",
+        identity="accommodation-type",
+    )
+)
+admin.add_view(AccommodationView(Accommodation, icon="fa fa-home", label="Размещения", identity="accommodations"))
+admin.add_view(AdminAccountView(AdminModel, icon="fa fa-user-shield", label="Администраторы", identity="admins"))
+admin.add_view(SiteSettingsAdminView(SiteSettings, icon="fa fa-cogs", label="Настройки сайта", identity="settings"))
+admin.add_view(LegalPageAdminView(LegalPage, icon="fa fa-file-contract", label="Юридические страницы", identity="legal-pages"))
+admin.add_view(RentalItemView(RentalItem, icon="fa fa-bicycle", label="Аренда и услуги", identity="rental-items"))
+admin.add_view(SmtpSettingsView(SmtpSettings, icon="fa fa-envelope", label="SMTP настройки", identity="smtp-settings"))
+admin.add_view(EmailTemplateView(EmailTemplate, icon="fa fa-file-code", label="Шаблоны писем", identity="email-templates"))
+admin.add_view(EmailLogView(EmailLog, icon="fa fa-paper-plane", label="Отправленные письма", identity="email-logs"))

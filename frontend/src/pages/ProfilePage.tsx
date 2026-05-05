@@ -1,0 +1,141 @@
+import { useEffect, useState } from 'react'
+import { useNavigate } from 'react-router'
+import { useAuth } from '@/contexts/AuthContext'
+import { Button } from '@/components/ui/button'
+import { Loader2, Calendar, Home, Users, LogOut, Mail, User } from 'lucide-react'
+import { format, differenceInDays } from 'date-fns'
+
+const API_BASE = '/api'
+
+interface BookingItem {
+  id: number
+  startDate: string
+  endDate: string
+  status: string
+  adults: number
+  children: number
+  accommodation?: {
+    id: number
+    name: string
+    imageUrl?: string
+    type?: { name: string; capacity: number; pricePerNight: number }
+  }
+}
+
+export default function ProfilePage() {
+  const navigate = useNavigate()
+  const { user, loading: authLoading, logout } = useAuth()
+  const [bookings, setBookings] = useState<BookingItem[]>([])
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    if (authLoading) return
+    if (!user) {
+      navigate('/login')
+      return
+    }
+    fetch(`${API_BASE}/profile/bookings`, { credentials: 'include' })
+      .then((r) => r.json())
+      .then((data) => setBookings(data))
+      .catch(() => setBookings([]))
+      .finally(() => setLoading(false))
+  }, [user, authLoading, navigate])
+
+  const handleLogout = async () => {
+    await logout()
+    navigate('/')
+  }
+
+  if (authLoading || loading) {
+    return (
+      <div className="min-h-screen bg-lightgray flex items-center justify-center">
+        <Loader2 className="w-8 h-8 animate-spin text-brand" />
+      </div>
+    )
+  }
+
+  if (!user) return null
+
+  const statusLabels: Record<string, string> = {
+    pending: 'Ожидает оплаты',
+    paid: 'Оплачено',
+    confirmed: 'Подтверждено',
+    cancelled: 'Отменено',
+  }
+
+  return (
+    <div className="min-h-screen bg-lightgray pt-24 md:pt-28 pb-12">
+      <div className="container-main max-w-3xl">
+        <div className="bg-white rounded-2xl border shadow-sm p-6 md:p-8 mb-6">
+          <div className="flex items-start justify-between">
+            <div>
+              <h1 className="text-2xl font-bold text-dark mb-1">Личный кабинет</h1>
+              <div className="flex items-center gap-4 text-sm text-graytext mt-2">
+                <span className="flex items-center gap-1"><User className="w-4 h-4" />{user.name || 'Гость'}</span>
+                <span className="flex items-center gap-1"><Mail className="w-4 h-4" />{user.email}</span>
+              </div>
+            </div>
+            <Button variant="outline" onClick={handleLogout} className="rounded-xl">
+              <LogOut className="w-4 h-4 mr-2" />
+              Выйти
+            </Button>
+          </div>
+        </div>
+
+        <h2 className="text-xl font-bold text-dark mb-4">Мои бронирования</h2>
+
+        {bookings.length === 0 ? (
+          <div className="bg-white rounded-2xl border shadow-sm p-8 text-center">
+            <Home className="w-12 h-12 text-gray-300 mx-auto mb-4" />
+            <p className="text-graytext">У вас пока нет бронирований</p>
+            <Button
+              onClick={() => navigate('/booking')}
+              className="mt-4 bg-brand hover:bg-brand-hover text-white rounded-xl"
+            >
+              Забронировать проживание
+            </Button>
+          </div>
+        ) : (
+          <div className="space-y-4">
+            {bookings.map((b) => {
+              const nights = Math.max(1, differenceInDays(new Date(b.endDate), new Date(b.startDate)))
+              const total = b.accommodation?.type?.pricePerNight ? nights * b.accommodation.type.pricePerNight : 0
+              return (
+                <div key={b.id} className="bg-white rounded-2xl border shadow-sm p-5 flex flex-col md:flex-row gap-5">
+                  <img
+                    src={b.accommodation?.imageUrl || '/assets/asset_7.jpg'}
+                    alt={b.accommodation?.name}
+                    className="w-full md:w-40 h-32 object-cover rounded-xl"
+                  />
+                  <div className="flex-1">
+                    <div className="flex items-center justify-between mb-2">
+                      <h3 className="font-semibold text-dark text-lg">{b.accommodation?.name || 'Размещение'}</h3>
+                      <span className={`px-3 py-1 rounded-full text-xs font-semibold ${
+                        b.status === 'paid' ? 'bg-green-100 text-green-700' :
+                        b.status === 'pending' ? 'bg-yellow-100 text-yellow-700' :
+                        'bg-gray-100 text-gray-700'
+                      }`}>
+                        {statusLabels[b.status] || b.status}
+                      </span>
+                    </div>
+                    <div className="grid grid-cols-2 gap-y-2 gap-x-4 text-sm text-graytext">
+                      <span className="flex items-center gap-1.5"><Calendar className="w-4 h-4" />
+                        {format(new Date(b.startDate), 'dd.MM.yyyy')} — {format(new Date(b.endDate), 'dd.MM.yyyy')}
+                      </span>
+                      <span className="flex items-center gap-1.5"><Users className="w-4 h-4" />
+                        {b.adults + b.children} гостей ({nights} ночей)
+                      </span>
+                    </div>
+                    {total > 0 && (
+                      <p className="mt-3 text-brand font-bold">{total.toLocaleString('ru-RU')} ₽</p>
+                    )}
+                  </div>
+                </div>
+              )
+            })}
+          </div>
+        )}
+      </div>
+    </div>
+  )
+}

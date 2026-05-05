@@ -21,7 +21,15 @@ async def get_current_user(request: Request, db: AsyncSession = Depends(get_db))
     payload = verify_session_token(token)
     if not payload:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid authentication token")
-    result = await db.execute(select(models.User).where(models.User.unionId == payload["unionId"]))
+    # Support both unionId (OAuth) and user_id (email auth)
+    union_id = payload.get("unionId")
+    user_id = payload.get("user_id")
+    if union_id:
+        result = await db.execute(select(models.User).where(models.User.unionId == union_id))
+    elif user_id:
+        result = await db.execute(select(models.User).where(models.User.id == user_id))
+    else:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid token payload")
     user = result.scalar_one_or_none()
     if not user:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="User not found")

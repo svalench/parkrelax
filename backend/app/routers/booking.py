@@ -1,26 +1,118 @@
 from fastapi import APIRouter, Depends, HTTPException, status
-from sqlalchemy import select, desc
+from sqlalchemy import select, desc, and_, func
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import joinedload
 from fastapi_viewsets import AsyncBaseViewset
 
 from app.database import AsyncSessionLocal
-from app.dependencies import get_db, get_current_admin
-from app.models import Booking
-from app.schemas import BookingCreate, BookingResponse, BookingUpdate
+from app.dependencies import get_db, get_current_user
+from app.models import Booking, Accommodation, User
+from app.schemas import (
+    BookingCreate,
+    BookingResponse,
+    BookingUpdate,
+    BookingPublicResponse,
+)
+from app.email_service import generate_temp_password, send_email
+from app.routers.user_auth import _hash_password
 
 router = APIRouter(prefix="/booking", tags=["booking"])
 
 
-@router.post("", response_model=BookingResponse, status_code=status.HTTP_201_CREATED)
+async def _check_accommodation_availability(
+    db: AsyncSession,
+    accommodation_id: int,
+    start_date,
+    end_date,
+    exclude_booking_id: int | None = None,
+) -> bool:
+    stmt = select(Booking).where(
+        and_(
+            Booking.accommodationId == accommodation_id,
+            Booking.status.in_(["pending", "confirmed", "paid"]),
+            Booking.startDate < end_date,
+            Booking.endDate > start_date,
+        )
+    )
+    if exclude_booking_id:
+        stmt = stmt.where(Booking.id != exclude_booking_id)
+    result = await db.execute(stmt)
+    return result.scalar_one_or_none() is None
+
+
+@router.post("", response_model=BookingPublicResponse, status_code=status.HTTP_201_CREATED)
 async def create_booking(data: BookingCreate, db: AsyncSession = Depends(get_db)):
     if data.endDate <= data.startDate:
         raise HTTPException(status_code=400, detail="endDate must be after startDate")
+
+    if data.accommodationId:
+        # Verify accommodation exists and is active
+        acc_result = await db.execute(
+            select(Accommodation).where(Accommodation.id == data.accommodationId, Accommodation.isActive == True)
+        )
+        accommodation = acc_result.scalar_one_or_none()
+        if not accommodation:
+            raise HTTPException(status_code=404, detail="Accommodation not found or inactive")
+
+        available = await _check_accommodation_availability(
+            db, data.accommodationId, data.startDate, data.endDate
+        )
+        if not available:
+            raise HTTPException(status_code=409, detail="Данный дом занят на выбранный период")
+
     booking = Booking(**data.model_dump())
     db.add(booking)
+    await db.flush()
+
+    is_new_user = False
+    temp_password = None
+
+    if data.customerEmail:
+        email = data.customerEmail.strip().lower()
+        result = await db.execute(select(User).where(User.email == email))
+        user = result.scalar_one_or_none()
+        if not user:
+            is_new_user = True
+            temp_password = generate_temp_password()
+            user = User(
+                unionId=f"email:{email}",
+                email=email,
+                name=data.customerName,
+                passwordHash=_hash_password(temp_password),
+                emailVerified=False,
+            )
+            db.add(user)
+            await db.flush()
+            await send_email(
+                db,
+                to_email=email,
+                template_type="temp_password",
+                variables={
+                    "name": data.customerName or "Гость",
+                    "password": temp_password,
+                    "startDate": data.startDate.isoformat(),
+                    "endDate": data.endDate.isoformat(),
+                    "houseName": accommodation.name if data.accommodationId else "—",
+                },
+            )
+        booking.userId = user.id
+        await db.commit()
+        await db.refresh(booking)
+
     await db.commit()
-    await db.refresh(booking)
-    return booking
+
+    # Reload with relationships for serialization
+    result = await db.execute(
+        select(Booking)
+        .options(joinedload(Booking.accommodation).joinedload(Accommodation.type))
+        .where(Booking.id == booking.id)
+    )
+    booking = result.unique().scalar_one()
+
+    response_data = BookingPublicResponse.model_validate(booking)
+    response_data.isNewUser = is_new_user
+    response_data.tempPassword = temp_password
+    return response_data
 
 
 @router.get("/my-bookings", response_model=list[BookingResponse])
@@ -28,9 +120,28 @@ async def list_bookings(
     phone: str | None = None,
     db: AsyncSession = Depends(get_db),
 ):
-    stmt = select(Booking).options(joinedload(Booking.accommodation)).order_by(desc(Booking.createdAt))
+    stmt = (
+        select(Booking)
+        .options(joinedload(Booking.accommodation).joinedload(Accommodation.type))
+        .order_by(desc(Booking.createdAt))
+    )
     if phone:
         stmt = stmt.where(Booking.customerPhone == phone)
+    result = await db.execute(stmt)
+    return result.unique().scalars().all()
+
+
+@router.get("/my", response_model=list[BookingResponse])
+async def my_bookings(
+    user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    stmt = (
+        select(Booking)
+        .options(joinedload(Booking.accommodation))
+        .where(Booking.userId == user.id)
+        .order_by(desc(Booking.createdAt))
+    )
     result = await db.execute(stmt)
     return result.unique().scalars().all()
 

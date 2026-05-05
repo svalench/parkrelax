@@ -33,6 +33,7 @@ async def list_types(db: AsyncSession = Depends(get_db)):
 async def list_objects(
     type_id: Optional[int] = Query(None, alias="typeId"),
     active_only: bool = Query(True, alias="activeOnly"),
+    show_on_main: Optional[bool] = Query(None, alias="showOnMain"),
     db: AsyncSession = Depends(get_db),
 ):
     stmt = select(Accommodation).options(joinedload(Accommodation.type))
@@ -40,6 +41,8 @@ async def list_objects(
         stmt = stmt.where(Accommodation.isActive == True)
     if type_id:
         stmt = stmt.where(Accommodation.typeId == type_id)
+    if show_on_main is not None:
+        stmt = stmt.where(Accommodation.showOnMain == show_on_main)
     stmt = stmt.order_by(asc(Accommodation.sortOrder))
     result = await db.execute(stmt)
     return result.unique().scalars().all()
