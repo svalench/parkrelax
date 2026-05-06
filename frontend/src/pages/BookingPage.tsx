@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback } from 'react'
+import { useEffect, useState, useCallback, useMemo } from 'react'
 import { useSearchParams } from 'react-router'
 import { format, addDays, startOfToday, compareAsc, startOfDay, isSameDay, isAfter, isBefore } from 'date-fns'
 import { ru } from 'date-fns/locale'
@@ -38,6 +38,12 @@ import {
 import { plainTextFromHtml } from '@/lib/safeHtml'
 
 const API_BASE = '/api'
+const cabinToTypeName: Record<string, string> = {
+  cottage: 'Коттедж',
+  apartments: 'Апартаменты',
+  summer: 'Летние домики',
+  terrace: 'Терраса с баней',
+}
 
 interface AccommodationType {
   id: number
@@ -89,6 +95,8 @@ export default function BookingPage() {
   const [searchParams, setSearchParams] = useSearchParams()
 
   const [types, setTypes] = useState<AccommodationType[]>([])
+  /** После ответа /types (успех или ошибка) — иначе при ?cabin= нельзя бесконечно ждать пустой список. */
+  const [typesReady, setTypesReady] = useState(false)
   const [objects, setObjects] = useState<Accommodation[]>([])
   const [loading, setLoading] = useState(false)
   const [totalPages, setTotalPages] = useState(1)
@@ -123,13 +131,6 @@ export default function BookingPage() {
 
   const pageSize = 10
 
-  const cabinToTypeName: Record<string, string> = {
-    cottage: 'Коттедж',
-    apartments: 'Апартаменты',
-    summer: 'Летние домики',
-    terrace: 'Терраса с баней',
-  }
-
   // Load types
   useEffect(() => {
     fetch(`${API_BASE}/accommodation/types`)
@@ -138,7 +139,22 @@ export default function BookingPage() {
         setTypes(Array.isArray(data) ? data : [])
       })
       .catch(() => setTypes([]))
+      .finally(() => setTypesReady(true))
   }, [])
+
+  /** Пока типы не пришли, ?cabin= из Hero ещё не отражён в typeId — вычисляем id для запроса. */
+  const resolvedTypeId = useMemo(() => {
+    if (types.length === 0) return typeId
+    const cabin = searchParams.get('cabin')
+    if (cabin && cabinToTypeName[cabin]) {
+      const expectedName = cabinToTypeName[cabin]
+      const found = types.find(
+        (t: AccommodationType) => t.name.toLowerCase() === expectedName.toLowerCase(),
+      )
+      if (found) return String(found.id)
+    }
+    return typeId
+  }, [typeId, types, searchParams])
 
   // Синхронизация фильтра с ?cabin= / ?typeId= (в т.ч. переход с футера)
   useEffect(() => {
@@ -159,11 +175,15 @@ export default function BookingPage() {
   // Load availability
   const loadAvailability = useCallback(async () => {
     await Promise.resolve()
+    const cabin = searchParams.get('cabin')
+    if (cabin && cabinToTypeName[cabin] && !typesReady) {
+      return
+    }
     setLoading(true)
     const params = new URLSearchParams()
     params.set('page', String(page))
     params.set('pageSize', String(pageSize))
-    if (typeId && typeId !== 'all') params.set('typeId', typeId)
+    if (resolvedTypeId && resolvedTypeId !== 'all') params.set('typeId', resolvedTypeId)
     if (dateRange?.from) params.set('checkIn', format(dateRange.from, 'yyyy-MM-dd'))
     if (dateRange?.to) params.set('checkOut', format(dateRange.to, 'yyyy-MM-dd'))
     params.set('adults', String(adults))
@@ -179,22 +199,35 @@ export default function BookingPage() {
     } finally {
       setLoading(false)
     }
-  }, [typeId, dateRange, page, adults, children])
+  }, [resolvedTypeId, dateRange, page, adults, children, typesReady, searchParams])
 
   useEffect(() => {
     loadAvailability()
   }, [loadAvailability])
 
-  // Update URL params
+  // Update URL params (мержим с текущим query, чтобы не терять ?cabin= до загрузки типов)
   useEffect(() => {
-    const params = new URLSearchParams()
-    if (typeId && typeId !== 'all') params.set('typeId', typeId)
-    if (dateRange?.from) params.set('checkIn', format(dateRange.from, 'yyyy-MM-dd'))
-    if (dateRange?.to) params.set('checkOut', format(dateRange.to, 'yyyy-MM-dd'))
-    if (page > 1) params.set('page', String(page))
-    params.set('adults', String(adults))
-    params.set('children', String(children))
-    setSearchParams(params, { replace: true })
+    setSearchParams(
+      (prev) => {
+        const params = new URLSearchParams(prev)
+        if (typeId && typeId !== 'all') {
+          params.set('typeId', typeId)
+          params.delete('cabin')
+        } else {
+          params.delete('typeId')
+        }
+        if (dateRange?.from) params.set('checkIn', format(dateRange.from, 'yyyy-MM-dd'))
+        else params.delete('checkIn')
+        if (dateRange?.to) params.set('checkOut', format(dateRange.to, 'yyyy-MM-dd'))
+        else params.delete('checkOut')
+        if (page > 1) params.set('page', String(page))
+        else params.delete('page')
+        params.set('adults', String(adults))
+        params.set('children', String(children))
+        return params
+      },
+      { replace: true },
+    )
   }, [typeId, dateRange, page, adults, children, setSearchParams])
 
   const handleRangeSelect: OnSelectHandler<DateRange | undefined> = (

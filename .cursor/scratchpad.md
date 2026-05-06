@@ -28,4 +28,8 @@ Favicon: растеризация `public/images/logo.svg` → `public/favicon.p
 
 Футер: якоря Инфо → плавный скролл к `#about` / `#contacts` / `#gallery` (с любой страницы через `navigate` + эффект в `Home`); Размещение → `/booking?cabin=…` (как в Hero). Попутно Hero: `formatGuestsLabel`, убран неиспользуемый `Baby`.
 
+Favicon: вместо полного логотипа — отдельный читаемый василёк `public/favicon.svg`; PNG fallback `favicon.png` 32×32 и `apple-touch-icon.png` 180×180 пересобраны из той же композиции; `index.html` подключает SVG favicon первым.
+
+Hero: селектор типа жилья — `GET /api/accommodation/types` (как карточки размещения), переход на бронирование с `?typeId=…` вместо жёсткого `cabin`. Футер по-прежнему `?cabin=` для обратной совместимости.
+
 DONE

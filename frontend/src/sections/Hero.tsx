@@ -22,13 +22,13 @@ import {
 const MAX_ADULTS = 20
 const MAX_CHILDREN = 10
 
-const cabinOptions = [
-  { value: 'any', label: 'Любой' },
-  { value: 'cottage', label: 'Коттедж' },
-  { value: 'apartments', label: 'Апартаменты' },
-  { value: 'summer', label: 'Летние домики' },
-  { value: 'terrace', label: 'Терраса с баней' },
-]
+/** Типы размещения с бэка (как в секции «Размещение» и на странице бронирования). */
+interface AccommodationType {
+  id: number
+  name: string
+  isActive: boolean
+  sortOrder: number
+}
 
 /** Короткий формат даты как на макете: 25.06.2025 */
 function formatShortDate(d: Date | undefined): string {
@@ -77,7 +77,24 @@ export default function Hero() {
     : undefined
   const [adults, setAdults] = useState(2)
   const [childrenCount, setChildrenCount] = useState(0)
-  const [cabin, setCabin] = useState('any')
+  /** «Любой» или id типа из админки. */
+  const [typeFilterId, setTypeFilterId] = useState<string>('any')
+  const [accommodationTypes, setAccommodationTypes] = useState<AccommodationType[]>([])
+
+  // Типы жилья с API (активные, порядок как в админке)
+  useEffect(() => {
+    fetch('/api/accommodation/types')
+      .then((r) => r.json())
+      .then((data: unknown) => {
+        const list = Array.isArray(data) ? (data as AccommodationType[]) : []
+        setAccommodationTypes(list)
+        setTypeFilterId((prev) => {
+          if (prev === 'any') return prev
+          return list.some((t) => String(t.id) === prev) ? prev : 'any'
+        })
+      })
+      .catch(() => setAccommodationTypes([]))
+  }, [])
 
   // Два месяца рядом только на десктопе (lg ≥ 1024px); планшет/мобайл — один месяц
   const [calendarMonths, setCalendarMonths] = useState(1)
@@ -131,7 +148,7 @@ export default function Hero() {
     if (dateRange?.to) params.set('checkOut', format(dateRange.to, 'yyyy-MM-dd'))
     params.set('adults', String(adults))
     params.set('children', String(childrenCount))
-    if (cabin !== 'any') params.set('cabin', cabin)
+    if (typeFilterId !== 'any') params.set('typeId', typeFilterId)
     navigate({
       pathname: '/booking',
       search: `?${params.toString()}`,
@@ -394,14 +411,15 @@ export default function Hero() {
               <div className="flex items-center gap-3 lg:border-l border-gray-100 lg:pl-4 min-w-[160px]">
                 <div className="flex w-full flex-col">
                   <label className="text-sm text-white/90 font-semibold mb-0.5 drop-shadow-sm">Домик</label>
-                  <Select value={cabin} onValueChange={setCabin}>
+                  <Select value={typeFilterId} onValueChange={setTypeFilterId}>
                     <SelectTrigger className="w-full border-0 bg-transparent p-0 h-auto shadow-none focus:ring-0 text-lg font-extrabold text-white drop-shadow-md hover:bg-white/15 hover:shadow-[0_4px_20px_rgba(0,0,0,0.25),inset_0_1px_0_rgba(255,255,255,0.4)] hover:scale-[1.02] active:scale-[0.98] transition-all duration-200 cursor-pointer">
                       <SelectValue placeholder="Любой" />
                     </SelectTrigger>
                     <SelectContent>
-                      {cabinOptions.map((opt) => (
-                        <SelectItem key={opt.value} value={opt.value}>
-                          {opt.label}
+                      <SelectItem value="any">Любой</SelectItem>
+                      {accommodationTypes.map((t) => (
+                        <SelectItem key={t.id} value={String(t.id)}>
+                          {t.name}
                         </SelectItem>
                       ))}
                     </SelectContent>
