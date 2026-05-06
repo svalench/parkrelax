@@ -1,7 +1,7 @@
 import os
 from pathlib import Path
 from fastapi import FastAPI, Request, Depends
-from fastapi.responses import FileResponse, HTMLResponse
+from fastapi.responses import FileResponse, HTMLResponse, RedirectResponse
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 
@@ -200,6 +200,13 @@ iframe {{ width: 100%; height: calc(100vh - 80px); border: none; background: #ff
 # ── Starlette Admin ────────────────────────────────────────────────
 
 admin.mount_to(app)
+
+# Starlette Mount("/admin") совпадает только с /admin/... (есть {path:path}); без завершающего
+# слэша /admin попадает в mount("/") со статикой и отдаёт SPA вместо админки.
+@app.get("/admin", include_in_schema=False)
+async def admin_root_redirect():
+    return RedirectResponse(url="/admin/", status_code=307)
+
 
 # ── Health check ───────────────────────────────────────────────────
 

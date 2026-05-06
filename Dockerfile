@@ -45,6 +45,7 @@ WORKDIR /app/backend
 
 EXPOSE 8000
 
-# Run migrations then start uvicorn
+# Миграции в entrypoint; CMD можно переопределять — entrypoint всё равно отработает первым
 RUN chmod +x /app/backend/entrypoint.sh
-CMD ["/app/backend/entrypoint.sh"]
+ENTRYPOINT ["/app/backend/entrypoint.sh"]
+CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]

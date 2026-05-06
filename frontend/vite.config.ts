@@ -15,6 +15,11 @@ export default defineConfig({
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/api/, ''),
       },
+      // starlette-admin на бэкенде (/admin, /admin/...); иначе Vite отдаёт index.html
+      '/admin': {
+        target: 'http://127.0.0.1:8000',
+        changeOrigin: true,
+      },
     }
   },
   resolve: {
