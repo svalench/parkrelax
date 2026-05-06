@@ -8,7 +8,6 @@ Create Date: 2026-05-05 21:48:55.903109
 from typing import Sequence, Union
 
 from alembic import op
-import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
@@ -20,8 +19,9 @@ depends_on: Union[str, Sequence[str], None] = None
 
 def upgrade() -> None:
     """Seed accommodation types with descriptions, images and prices."""
+    # REPLACE INTO — MySQL и SQLite; INSERT OR REPLACE — только SQLite
     op.execute("""
-    INSERT OR REPLACE INTO accommodationTypes (id, name, description, capacity, pricePerNight, imageUrl, isActive, sortOrder)
+    REPLACE INTO accommodationTypes (id, name, description, capacity, pricePerNight, imageUrl, isActive, sortOrder)
     VALUES
     (1, 'Коттедж', 'Просторный двухэтажный коттедж с камином, террасой и панорамными окнами. Идеально для большой компании или семейного праздника.', 8, 15000, '/assets/asset_7.jpg', 1, 0),
     (2, 'Апартаменты', 'Современные апартаменты с балконом, полностью оборудованной кухней и уютной гостиной. Комфорт как дома, но среди природы.', 4, 8000, '/assets/asset_8.jpg', 1, 1),
