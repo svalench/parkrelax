@@ -30,8 +30,8 @@ export default function BookingFormPage() {
   const [name, setName] = useState('')
   const [phone, setPhone] = useState('')
   const [email, setEmail] = useState('')
-  const [adults, setAdults] = useState(2)
-  const [children, setChildren] = useState(0)
+  const [adults, setAdults] = useState(Number(searchParams.get('adults') || '2'))
+  const [children, setChildren] = useState(Number(searchParams.get('children') || '0'))
 
   useEffect(() => {
     if (!accommodationId || !checkIn || !checkOut) {

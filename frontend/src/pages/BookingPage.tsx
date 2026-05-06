@@ -7,6 +7,8 @@ import {
   CalendarIcon,
   Users,
   BedDouble,
+  Minus,
+  Plus,
 } from 'lucide-react'
 
 import { Calendar } from '@/components/ui/calendar'
@@ -81,6 +83,9 @@ export default function BookingPage() {
     const t = startOfToday()
     return { from: addDays(t, 1), to: addDays(t, 2) }
   })
+  const [adults, setAdults] = useState<number>(Number(searchParams.get('adults') || '2'))
+  const [children, setChildren] = useState<number>(Number(searchParams.get('children') || '0'))
+  const [guestsOpen, setGuestsOpen] = useState(false)
   const [datesOpen, setDatesOpen] = useState(false)
   const [hoverDate, setHoverDate] = useState<Date | undefined>(undefined)
   const [page, setPage] = useState(Number(searchParams.get('page') || '1'))
@@ -98,11 +103,33 @@ export default function BookingPage() {
 
   const pageSize = 10
 
+  const cabinToTypeName: Record<string, string> = {
+    cottage: 'Коттедж',
+    apartments: 'Апартаменты',
+    summer: 'Летние домики',
+    terrace: 'Терраса с баней',
+  }
+
   // Load types
   useEffect(() => {
     fetch(`${API_BASE}/accommodation/types`)
       .then((r) => r.json())
-      .then((data) => setTypes(data))
+      .then((data) => {
+        setTypes(data)
+        // Auto-select typeId from cabin param
+        const cabin = searchParams.get('cabin')
+        if (cabin && data.length > 0) {
+          const expectedName = cabinToTypeName[cabin]
+          if (expectedName) {
+            const found = data.find((t: AccommodationType) =>
+              t.name.toLowerCase() === expectedName.toLowerCase()
+            )
+            if (found) {
+              setTypeId(String(found.id))
+            }
+          }
+        }
+      })
       .catch(() => setTypes([]))
   }, [])
 
@@ -116,6 +143,8 @@ export default function BookingPage() {
     if (typeId && typeId !== 'all') params.set('typeId', typeId)
     if (dateRange?.from) params.set('checkIn', format(dateRange.from, 'yyyy-MM-dd'))
     if (dateRange?.to) params.set('checkOut', format(dateRange.to, 'yyyy-MM-dd'))
+    params.set('adults', String(adults))
+    params.set('children', String(children))
 
     try {
       const res = await fetch(`${API_BASE}/accommodation/availability?${params.toString()}`)
@@ -127,7 +156,7 @@ export default function BookingPage() {
     } finally {
       setLoading(false)
     }
-  }, [typeId, dateRange, page])
+  }, [typeId, dateRange, page, adults, children])
 
   useEffect(() => {
     loadAvailability()
@@ -140,8 +169,10 @@ export default function BookingPage() {
     if (dateRange?.from) params.set('checkIn', format(dateRange.from, 'yyyy-MM-dd'))
     if (dateRange?.to) params.set('checkOut', format(dateRange.to, 'yyyy-MM-dd'))
     if (page > 1) params.set('page', String(page))
+    params.set('adults', String(adults))
+    params.set('children', String(children))
     setSearchParams(params, { replace: true })
-  }, [typeId, dateRange, page, setSearchParams])
+  }, [typeId, dateRange, page, adults, children, setSearchParams])
 
   const handleRangeSelect: OnSelectHandler<DateRange | undefined> = (
     _range,
@@ -266,6 +297,95 @@ export default function BookingPage() {
               </Popover>
             </div>
 
+            {/* Guests */}
+            <div className="flex-1 min-w-[200px]">
+              <label className="text-sm font-medium text-dark mb-1.5 block">Гости</label>
+              <Popover open={guestsOpen} onOpenChange={setGuestsOpen}>
+                <PopoverTrigger asChild>
+                  <button
+                    type="button"
+                    className="flex w-full items-center gap-3 rounded-xl border border-input bg-transparent px-3 py-2.5 text-left outline-none transition-all hover:bg-accent focus-visible:ring-2 focus-visible:ring-ring"
+                  >
+                    <Users className="w-5 h-5 text-brand shrink-0" />
+                    <div className="flex items-center gap-2 text-sm">
+                      <span className="font-medium">{adults} взросл{adults % 10 === 1 && adults % 100 !== 11 ? 'ый' : 'ых'}</span>
+                      {children > 0 && (
+                        <>
+                          <span className="text-muted-foreground">+</span>
+                          <span className="font-medium">{children} дет{children % 10 === 1 && children % 100 !== 11 ? 'ёныш' : children % 10 >= 2 && children % 10 <= 4 && (children % 100 < 10 || children % 100 >= 20) ? 'ей' : 'ей'}</span>
+                        </>
+                      )}
+                    </div>
+                  </button>
+                </PopoverTrigger>
+                <PopoverContent
+                  align="end"
+                  side="bottom"
+                  sideOffset={8}
+                  className="w-72 rounded-2xl border border-border/70 p-4 shadow-2xl"
+                >
+                  <div className="space-y-4">
+                    <div className="flex items-center justify-between gap-3">
+                      <span className="text-sm text-dark">Взрослые</span>
+                      <div className="flex items-center gap-2">
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="icon"
+                          className="size-8"
+                          disabled={adults <= 1}
+                          onClick={() => { setAdults((a) => Math.max(1, a - 1)); setPage(1) }}
+                          aria-label="Уменьшить число взрослых"
+                        >
+                          <Minus className="size-4" />
+                        </Button>
+                        <span className="w-6 text-center text-sm font-medium tabular-nums">{adults}</span>
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="icon"
+                          className="size-8"
+                          disabled={adults >= 20}
+                          onClick={() => { setAdults((a) => Math.min(20, a + 1)); setPage(1) }}
+                          aria-label="Увеличить число взрослых"
+                        >
+                          <Plus className="size-4" />
+                        </Button>
+                      </div>
+                    </div>
+                    <div className="flex items-center justify-between gap-3">
+                      <span className="text-sm text-dark">Дети</span>
+                      <div className="flex items-center gap-2">
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="icon"
+                          className="size-8"
+                          disabled={children <= 0}
+                          onClick={() => { setChildren((c) => Math.max(0, c - 1)); setPage(1) }}
+                          aria-label="Уменьшить число детей"
+                        >
+                          <Minus className="size-4" />
+                        </Button>
+                        <span className="w-6 text-center text-sm font-medium tabular-nums">{children}</span>
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="icon"
+                          className="size-8"
+                          disabled={children >= 10}
+                          onClick={() => { setChildren((c) => Math.min(10, c + 1)); setPage(1) }}
+                          aria-label="Увеличить число детей"
+                        >
+                          <Plus className="size-4" />
+                        </Button>
+                      </div>
+                    </div>
+                  </div>
+                </PopoverContent>
+              </Popover>
+            </div>
+
             {/* Search button */}
             <Button
               className="h-11 px-8 bg-brand hover:bg-brand-hover text-white font-semibold rounded-xl"
@@ -342,6 +462,8 @@ export default function BookingPage() {
                           params.set('accommodationId', String(obj.id))
                           if (dateRange?.from) params.set('checkIn', format(dateRange.from, 'yyyy-MM-dd'))
                           if (dateRange?.to) params.set('checkOut', format(dateRange.to, 'yyyy-MM-dd'))
+                          params.set('adults', String(adults))
+                          params.set('children', String(children))
                           window.location.href = `/booking/form?${params.toString()}`
                         }}
                         className="px-4 py-2 bg-brand hover:bg-brand-hover text-white text-sm font-semibold rounded-lg transition-colors"

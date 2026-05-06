@@ -123,8 +123,7 @@ export default function Hero() {
     params.set('children', String(childrenCount))
     if (cabin !== 'any') params.set('cabin', cabin)
     navigate({
-      pathname: '/',
-      hash: '#accommodation',
+      pathname: '/booking',
       search: `?${params.toString()}`,
     })
   }

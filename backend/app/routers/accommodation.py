@@ -53,6 +53,8 @@ async def check_availability(
     type_id: Optional[int] = Query(None, alias="typeId"),
     check_in: Optional[date] = Query(None, alias="checkIn"),
     check_out: Optional[date] = Query(None, alias="checkOut"),
+    adults: Optional[int] = Query(None, ge=1),
+    children: Optional[int] = Query(None, ge=0),
     page: int = Query(1, ge=1),
     page_size: int = Query(10, ge=1, le=100, alias="pageSize"),
     db: AsyncSession = Depends(get_db),
@@ -64,6 +66,10 @@ async def check_availability(
     )
     if type_id:
         stmt = stmt.where(Accommodation.typeId == type_id)
+
+    total_guests = (adults or 0) + (children or 0)
+    if total_guests > 0:
+        stmt = stmt.where(Accommodation.capacity >= total_guests)
 
     if check_in and check_out:
         if check_out <= check_in:
