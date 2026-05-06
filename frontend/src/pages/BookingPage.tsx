@@ -55,6 +55,8 @@ interface Accommodation {
   description?: string
   typeId: number
   imageUrl?: string
+  capacity: number
+  pricePerNight: number
   isActive: boolean
   sortOrder: number
   type?: AccommodationType
@@ -444,15 +446,15 @@ export default function BookingPage() {
                     )}
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-4 text-sm text-graytext">
-                        {obj.type?.capacity && (
+                        {(obj.capacity || obj.type?.capacity) && (
                           <span className="flex items-center gap-1">
                             <Users className="w-4 h-4" />
-                            До {obj.type.capacity} чел.
+                            До {obj.capacity || obj.type?.capacity} чел.
                           </span>
                         )}
-                        {obj.type?.pricePerNight && (
+                        {(obj.pricePerNight || obj.type?.pricePerNight) && (
                           <span className="font-medium text-dark">
-                            {obj.type.pricePerNight.toLocaleString('ru-RU')} ₽/ночь
+                            {(obj.pricePerNight || obj.type?.pricePerNight || 0).toLocaleString('ru-RU')} Br/ночь
                           </span>
                         )}
                       </div>

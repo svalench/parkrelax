@@ -127,7 +127,7 @@ export default function ProfilePage() {
                       </span>
                     </div>
                     {total > 0 && (
-                      <p className="mt-3 text-brand font-bold">{total.toLocaleString('ru-RU')} ₽</p>
+                      <p className="mt-3 text-brand font-bold">{total.toLocaleString('ru-RU')} Br</p>
                     )}
                   </div>
                 </div>

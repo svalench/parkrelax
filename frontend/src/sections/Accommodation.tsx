@@ -108,7 +108,7 @@ export default function Accommodation() {
                 </p>
                 <div className="flex items-center justify-between">
                   <span className="text-brand font-bold">
-                    {type.pricePerNight.toLocaleString('ru-RU')} ₽{' '}
+                    {type.pricePerNight.toLocaleString('ru-RU')} Br{' '}
                     <span className="text-sm text-graytext font-normal">
                       / ночь
                     </span>

@@ -101,7 +101,7 @@ export default function PaymentPage() {
             <CreditCard className="w-8 h-8 text-brand" />
             <div>
               <p className="text-sm text-graytext">К оплате</p>
-              <p className="text-xl font-bold text-dark">{amount.toLocaleString('ru-RU')} ₽</p>
+              <p className="text-xl font-bold text-dark">{amount.toLocaleString('ru-RU')} Br</p>
             </div>
           </div>
 

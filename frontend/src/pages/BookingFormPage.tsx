@@ -141,7 +141,7 @@ export default function BookingFormPage() {
           {totalPrice > 0 && (
             <div className="mb-6 text-right">
               <p className="text-sm text-graytext">Итого за {nights} ночей</p>
-              <p className="text-2xl font-bold text-brand">{totalPrice.toLocaleString('ru-RU')} ₽</p>
+              <p className="text-2xl font-bold text-brand">{totalPrice.toLocaleString('ru-RU')} Br</p>
             </div>
           )}
 

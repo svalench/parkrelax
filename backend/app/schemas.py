@@ -504,7 +504,7 @@ class PaymentInitiateResponse(BaseModel):
     bookingId: int
     clientSecret: str
     amount: int
-    currency: str = "RUB"
+    currency: str = "BYN"
 
 
 class PaymentConfirmRequest(BaseModel):

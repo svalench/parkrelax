@@ -1,0 +1,187 @@
+- generic [ref=e2]:
+  - complementary [ref=e3]:
+    - generic [ref=e4]:
+      - heading "Парк Relax — админка" [level=1] [ref=e5]:
+        - link "Парк Relax — админка" [ref=e6] [cursor=pointer]:
+          - /url: http://127.0.0.1:8000/admin/
+          - heading "Парк Relax — админка" [level=3] [ref=e7]
+      - list [ref=e9]:
+        - listitem [ref=e10]:
+          - link " Дашборд" [ref=e11] [cursor=pointer]:
+            - /url: http://127.0.0.1:8000/admin/
+            - generic [ref=e13]: 
+            - generic [ref=e14]: Дашборд
+        - listitem [ref=e15]:
+          - link " Пользователи" [ref=e16] [cursor=pointer]:
+            - /url: http://127.0.0.1:8000/admin/users/list
+            - generic [ref=e18]: 
+            - generic [ref=e19]: Пользователи
+        - listitem [ref=e20]:
+          - link " Контакты" [ref=e21] [cursor=pointer]:
+            - /url: http://127.0.0.1:8000/admin/contacts/list
+            - generic [ref=e23]: 
+            - generic [ref=e24]: Контакты
+        - listitem [ref=e25]:
+          - link " Телефоны" [ref=e26] [cursor=pointer]:
+            - /url: http://127.0.0.1:8000/admin/phone-numbers/list
+            - generic [ref=e28]: 
+            - generic [ref=e29]: Телефоны
+        - listitem [ref=e30]:
+          - link " Email адреса" [ref=e31] [cursor=pointer]:
+            - /url: http://127.0.0.1:8000/admin/email-addresses/list
+            - generic [ref=e33]: 
+            - generic [ref=e34]: Email адреса
+        - listitem [ref=e35]:
+          - link " Отзывы" [ref=e36] [cursor=pointer]:
+            - /url: http://127.0.0.1:8000/admin/reviews/list
+            - generic [ref=e38]: 
+            - generic [ref=e39]: Отзывы
+        - listitem [ref=e40]:
+          - link " Галерея" [ref=e41] [cursor=pointer]:
+            - /url: http://127.0.0.1:8000/admin/gallery/list
+            - generic [ref=e43]: 
+            - generic [ref=e44]: Галерея
+        - listitem [ref=e45]:
+          - link " Бронирования" [ref=e46] [cursor=pointer]:
+            - /url: http://127.0.0.1:8000/admin/booking/list
+            - generic [ref=e48]: 
+            - generic [ref=e49]: Бронирования
+        - listitem [ref=e50]:
+          - link " Типы размещения" [ref=e51] [cursor=pointer]:
+            - /url: http://127.0.0.1:8000/admin/accommodation-type/list
+            - generic [ref=e53]: 
+            - generic [ref=e54]: Типы размещения
+        - listitem [ref=e55]:
+          - link " Размещения" [ref=e56] [cursor=pointer]:
+            - /url: http://127.0.0.1:8000/admin/accommodations/list
+            - generic [ref=e58]: 
+            - generic [ref=e59]: Размещения
+        - listitem [ref=e60]:
+          - link " Администраторы" [ref=e61] [cursor=pointer]:
+            - /url: http://127.0.0.1:8000/admin/admins/list
+            - generic [ref=e63]: 
+            - generic [ref=e64]: Администраторы
+        - listitem [ref=e65]:
+          - link " Настройки сайта" [ref=e66] [cursor=pointer]:
+            - /url: http://127.0.0.1:8000/admin/settings/list
+            - generic [ref=e68]: 
+            - generic [ref=e69]: Настройки сайта
+        - listitem [ref=e70]:
+          - link " Юридические страницы" [ref=e71] [cursor=pointer]:
+            - /url: http://127.0.0.1:8000/admin/legal-pages/list
+            - generic [ref=e73]: 
+            - generic [ref=e74]: Юридические страницы
+        - listitem [ref=e75]:
+          - link " Аренда и услуги" [ref=e76] [cursor=pointer]:
+            - /url: http://127.0.0.1:8000/admin/rental-items/list
+            - generic [ref=e78]: 
+            - generic [ref=e79]: Аренда и услуги
+        - listitem [ref=e80]:
+          - link " SMTP настройки" [ref=e81] [cursor=pointer]:
+            - /url: http://127.0.0.1:8000/admin/smtp-settings/list
+            - generic [ref=e83]: 
+            - generic [ref=e84]: SMTP настройки
+        - listitem [ref=e85]:
+          - link " Шаблоны писем" [ref=e86] [cursor=pointer]:
+            - /url: http://127.0.0.1:8000/admin/email-templates/list
+            - generic [ref=e88]: 
+            - generic [ref=e89]: Шаблоны писем
+        - listitem [ref=e90]:
+          - link " Отправленные письма" [ref=e91] [cursor=pointer]:
+            - /url: http://127.0.0.1:8000/admin/email-logs/list
+            - generic [ref=e93]: 
+            - generic [ref=e94]: Отправленные письма
+        - link " Выйти" [ref=e95] [cursor=pointer]:
+          - /url: http://127.0.0.1:8000/admin/logout
+          - generic [ref=e96]: 
+          - generic [ref=e97]: Выйти
+  - generic [ref=e98]:
+    - generic [ref=e101]:
+      - heading "Галерея" [level=1] [ref=e102]
+      - list [ref=e103]:
+        - listitem [ref=e104]:
+          - link "Админ" [ref=e105] [cursor=pointer]:
+            - /url: http://127.0.0.1:8000/admin/
+        - listitem [ref=e106]: / Галерея
+    - generic [ref=e113]:
+      - generic [ref=e114]:
+        - generic [ref=e116]:
+          - button " Экспорт" [ref=e118] [cursor=pointer]:
+            - generic [ref=e119]:
+              - generic [ref=e120]: 
+              - text: Экспорт
+          - button " Видимость столбцов" [ref=e122] [cursor=pointer]:
+            - generic [ref=e123]:
+              - generic [ref=e124]: 
+              - text: Видимость столбцов
+          - button " Конструктор поиска" [ref=e125] [cursor=pointer]:
+            - generic [ref=e126]:
+              - generic [ref=e127]: 
+              - text: Конструктор поиска
+        - link "+ Добавить Gallery Item" [ref=e130] [cursor=pointer]:
+          - /url: http://127.0.0.1:8000/admin/gallery/create
+          - generic [ref=e131]: +
+          - text: Добавить Gallery Item
+      - generic [ref=e133]:
+        - button "Показать 10 строк" [ref=e137] [cursor=pointer]:
+          - generic [ref=e138]: Показать 10 строк
+        - generic [ref=e141]:
+          - generic:
+            - img
+          - searchbox "Search in list" [ref=e142]
+      - generic [ref=e143]:
+        - table [ref=e145]:
+          - rowgroup [ref=e146]:
+            - 'row "Id: активировать для сортировки столбца по убыванию Заголовок: активировать для сортировки столбца по возрастанию Изображение Категория: активировать для сортировки столбца по возрастанию Порядок сортировки: активировать для сортировки столбца по возрастанию Активен: активировать для сортировки столбца по возрастанию Создано: активировать для сортировки столбца по возрастанию" [ref=e147]':
+              - columnheader [ref=e148] [cursor=pointer]:
+                - checkbox [ref=e149]
+              - columnheader [ref=e150]
+              - 'columnheader "Id: активировать для сортировки столбца по убыванию" [ref=e151] [cursor=pointer]': ▲ Id ▼
+              - 'columnheader "Заголовок: активировать для сортировки столбца по возрастанию" [ref=e152] [cursor=pointer]': ▲ Заголовок ▼
+              - columnheader "Изображение" [ref=e153]
+              - 'columnheader "Категория: активировать для сортировки столбца по возрастанию" [ref=e154] [cursor=pointer]': ▲ Категория ▼
+              - 'columnheader "Порядок сортировки: активировать для сортировки столбца по возрастанию" [ref=e155] [cursor=pointer]': ▲ Порядок сортировки ▼
+              - 'columnheader "Активен: активировать для сортировки столбца по возрастанию" [ref=e156] [cursor=pointer]': ▲ Активен ▼
+              - 'columnheader "Создано: активировать для сортировки столбца по возрастанию" [ref=e157] [cursor=pointer]': ▲ Создано ▼
+          - rowgroup [ref=e158]:
+            - row "   1 Тестовое фото 1 general 0  6 мая 2026 г., 19:25:11" [ref=e159] [cursor=pointer]:
+              - cell [ref=e160]:
+                - checkbox [ref=e161]
+              - cell "  " [ref=e162]:
+                - generic [ref=e164]:
+                  - link "" [ref=e165]:
+                    - /url: http://127.0.0.1:8000/admin/gallery/detail/1
+                    - generic [ref=e167]: 
+                  - link "" [ref=e168]:
+                    - /url: http://127.0.0.1:8000/admin/gallery/edit/1
+                    - generic [ref=e170]: 
+                  - link "" [ref=e171]:
+                    - /url: "#"
+                    - generic [ref=e173]: 
+              - cell "1" [ref=e174]:
+                - generic "1" [ref=e175]
+              - cell "Тестовое фото 1" [ref=e176]:
+                - generic "Тестовое фото 1" [ref=e177]
+              - cell [ref=e178]
+              - cell "general" [ref=e182]:
+                - generic "general" [ref=e183]
+              - cell "0" [ref=e184]:
+                - generic "0" [ref=e185]
+              - cell "" [ref=e186]:
+                - generic [ref=e190]: 
+              - cell "6 мая 2026 г., 19:25:11" [ref=e191]:
+                - generic "6 мая 2026 г., 19:25:11" [ref=e192]
+        - generic [ref=e193]:
+          - status [ref=e195]: Записи с 1 до 1 из 1 записей
+          - list [ref=e198]:
+            - listitem [ref=e199]:
+              - generic: Первая
+            - listitem [ref=e200]:
+              - generic: Предыдущая
+            - listitem [ref=e201]:
+              - link "1" [ref=e202] [cursor=pointer]:
+                - /url: "#"
+            - listitem [ref=e203]:
+              - generic: Следующая
+            - listitem [ref=e204]:
+              - generic: Последняя

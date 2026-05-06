@@ -41,7 +41,7 @@ export default function Reviews() {
         <SectionHeader
           label="ОТЗЫВЫ ГОСТЕЙ"
           title="Что говорят о Парк Relax"
-          subtitle="Реальные отзывы с Яндекс.Карт — только 5 звёзд"
+          subtitle="Мы заботимся о Вашем отдыхе"
         />
 
         {loading ? (

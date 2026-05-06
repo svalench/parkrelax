@@ -2,7 +2,16 @@ import { useState, useRef, useCallback, useEffect } from 'react'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
 import SectionHeader from '../components/SectionHeader'
 
-const galleryImages = [
+interface GalleryItem {
+  id: number
+  imageUrl: string | null
+  title: string | null
+  category: string
+  sortOrder: number
+  isActive: boolean
+}
+
+const fallbackImages = [
   '/assets/asset_17.jpg',
   '/assets/asset_18.jpg',
   '/assets/asset_19.jpg',
@@ -12,28 +21,42 @@ const galleryImages = [
 ]
 
 export default function Gallery() {
+  const [items, setItems] = useState<GalleryItem[]>([])
+  const [loading, setLoading] = useState(true)
   const [current, setCurrent] = useState(0)
   const touchStartX = useRef(0)
   const touchEndX = useRef(0)
   const thumbContainerRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    fetch('/api/gallery')
+      .then((r) => r.json())
+      .then((data: GalleryItem[]) => {
+        const active = Array.isArray(data) ? data.filter((i) => i.isActive) : []
+        setItems(active)
+        setLoading(false)
+      })
+      .catch(() => {
+        setItems([])
+        setLoading(false)
+      })
+  }, [])
+
+  const images = items.length > 0
+    ? items.map((i) => i.imageUrl || '/assets/asset_17.jpg')
+    : fallbackImages
 
   const goTo = useCallback((i: number) => {
     setCurrent(i)
   }, [])
 
   const prev = useCallback(() => {
-    setCurrent((c) => {
-      const nextC = c === 0 ? galleryImages.length - 1 : c - 1
-      return nextC
-    })
-  }, [])
+    setCurrent((c) => (c === 0 ? images.length - 1 : c - 1))
+  }, [images.length])
 
   const next = useCallback(() => {
-    setCurrent((c) => {
-      const nextC = c === galleryImages.length - 1 ? 0 : c + 1
-      return nextC
-    })
-  }, [])
+    setCurrent((c) => (c === images.length - 1 ? 0 : c + 1))
+  }, [images.length])
 
   // Scroll active thumbnail into view
   useEffect(() => {
@@ -69,6 +92,40 @@ export default function Gallery() {
     }
   }
 
+  if (loading) {
+    return (
+      <section id="gallery" className="py-12 sm:py-16 md:py-20 bg-white">
+        <div className="container-main">
+          <SectionHeader
+            label="ГАЛЕРЕЯ"
+            title="Атмосфера, в которую хочется вернуться"
+            subtitle="Тёплые вечера, лес, озёра и уютные — всё для вашего идеального отдыха"
+            buttonText=""
+            variant="outline"
+          />
+          <div className="aspect-[16/9] bg-gray-100 rounded-2xl animate-pulse" />
+        </div>
+      </section>
+    )
+  }
+
+  if (images.length === 0) {
+    return (
+      <section id="gallery" className="py-12 sm:py-16 md:py-20 bg-white">
+        <div className="container-main">
+          <SectionHeader
+            label="ГАЛЕРЕЯ"
+            title="Атмосфера, в которую хочется вернуться"
+            subtitle="Тёплые вечера, лес, озёра и уютные — всё для вашего идеального отдыха"
+            buttonText=""
+            variant="outline"
+          />
+          <div className="text-center text-graytext py-12">Пока нет фотографий</div>
+        </div>
+      </section>
+    )
+  }
+
   return (
     <section id="gallery" className="py-12 sm:py-16 md:py-20 bg-white">
       <div className="container-main">
@@ -76,7 +133,7 @@ export default function Gallery() {
           label="ГАЛЕРЕЯ"
           title="Атмосфера, в которую хочется вернуться"
           subtitle="Тёплые вечера, лес, озёра и уютные — всё для вашего идеального отдыха"
-          buttonText="Смотреть все фото"
+          buttonText=""
           variant="outline"
         />
 
@@ -87,9 +144,9 @@ export default function Gallery() {
           onTouchEnd={onTouchEnd}
         >
           <div className="aspect-[4/3] sm:aspect-[3/2] md:aspect-[16/9]">
-            {galleryImages.map((img, i) => (
+            {images.map((img, i) => (
               <img
-                key={img}
+                key={img + i}
                 src={img}
                 alt={`Галерея Парк Relax — фото ${i + 1}`}
                 className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-500 ${
@@ -118,7 +175,7 @@ export default function Gallery() {
 
           {/* Dot indicators (mobile only) */}
           <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-1.5 sm:hidden">
-            {galleryImages.map((_, i) => (
+            {images.map((_, i) => (
               <button
                 key={i}
                 onClick={() => goTo(i)}
@@ -136,7 +193,7 @@ export default function Gallery() {
           ref={thumbContainerRef}
           className="hidden sm:flex gap-2 md:gap-3 overflow-x-auto pb-2 scrollbar-hide"
         >
-          {galleryImages.map((thumb, i) => (
+          {images.map((thumb, i) => (
             <button
               key={i}
               onClick={() => goTo(i)}

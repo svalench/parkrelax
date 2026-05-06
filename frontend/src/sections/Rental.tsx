@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect, useCallback } from 'react'
+import { useState, useRef, useEffect, useCallback, useMemo } from 'react'
 import { X, Clock, Users, ArrowRight } from 'lucide-react'
 import { sanitizeRichHtml } from '../lib/safeHtml'
 
@@ -62,6 +62,9 @@ const fallbackRentals: RentalItem[] = [
   },
 ]
 
+/** Максимум полос «шторки» на главной (остальные только в админке). */
+const MAX_RENTAL_PANELS = 10
+
 export default function Rental() {
   const [rentals, setRentals] = useState<RentalItem[]>(fallbackRentals)
   const [activeIndex, setActiveIndex] = useState<number | null>(null)
@@ -124,6 +127,12 @@ export default function Rental() {
     return () => document.removeEventListener('keydown', onKey)
   }, [])
 
+  const visibleRentals = useMemo(
+    () => rentals.slice(0, MAX_RENTAL_PANELS),
+    [rentals]
+  )
+  const panelCount = visibleRentals.length
+
   return (
     <section id="rental" className="py-20 bg-white overflow-hidden">
       {/* Header — внутри контейнера */}
@@ -131,7 +140,7 @@ export default function Rental() {
         <div className="max-w-xl">
           <span className="section-label mb-3 block">ПРОКАТ</span>
           <h2 className="text-3xl md:text-4xl font-bold text-dark mb-3">
-            Выбирай <span className="text-brand">активность</span> на любой вкус
+            Участвуй в <span className="text-brand">активности</span> на любой вкус
           </h2>
         </div>
       </div>
@@ -141,10 +150,11 @@ export default function Rental() {
         <div
           ref={stageRef}
           className={`rental-stage w-full rounded-2xl md:rounded-3xl ${activeIndex !== null ? 'rental-stage-active' : ''}`}
+          data-panel-count={panelCount}
         >
-        {rentals.slice(0, 5).map((item, i) => (
+        {visibleRentals.map((item, i) => (
           <div
-            key={item.title + i}
+            key={item.id != null ? `rental-${item.id}` : `rental-${item.title}-${i}`}
             className={`rental-panel ${activeIndex === i ? 'rental-panel-active' : ''}`}
             role="button"
             tabIndex={0}

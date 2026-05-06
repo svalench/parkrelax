@@ -1384,7 +1384,7 @@ function StatsTab() {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm text-graytext">Оценка выручки</p>
-                  <p className="text-3xl font-bold text-dark mt-1">{data.estimatedRevenue.toLocaleString('ru-RU')} ₽</p>
+                  <p className="text-3xl font-bold text-dark mt-1">{data.estimatedRevenue.toLocaleString('ru-RU')} Br</p>
                 </div>
                 <div className="w-10 h-10 rounded-xl bg-blue-100 flex items-center justify-center text-blue-600">
                   <CreditCard className="w-5 h-5" />

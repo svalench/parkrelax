@@ -124,6 +124,43 @@
   cursor: default;
 }
 
+/* Много панелей (6–10): без min-width:100px все колонки не помещаются в ряд */
+.rental-stage[data-panel-count="6"] .rental-panel,
+.rental-stage[data-panel-count="7"] .rental-panel,
+.rental-stage[data-panel-count="8"] .rental-panel,
+.rental-stage[data-panel-count="9"] .rental-panel,
+.rental-stage[data-panel-count="10"] .rental-panel {
+  min-width: 0;
+}
+
+/* При открытой панели — сужаем свёрнутые полосы (только desktop, см. mobile ниже) */
+.rental-stage[data-panel-count="6"].rental-stage-active .rental-panel:not(.rental-panel-active) {
+  flex: 0 0 88px;
+  min-width: 88px;
+}
+.rental-stage[data-panel-count="7"].rental-stage-active .rental-panel:not(.rental-panel-active) {
+  flex: 0 0 80px;
+  min-width: 80px;
+}
+.rental-stage[data-panel-count="8"].rental-stage-active .rental-panel:not(.rental-panel-active) {
+  flex: 0 0 70px;
+  min-width: 70px;
+}
+.rental-stage[data-panel-count="9"].rental-stage-active .rental-panel:not(.rental-panel-active) {
+  flex: 0 0 62px;
+  min-width: 62px;
+}
+.rental-stage[data-panel-count="10"].rental-stage-active .rental-panel:not(.rental-panel-active) {
+  flex: 0 0 54px;
+  min-width: 54px;
+}
+
+.rental-stage[data-panel-count="9"] .rental-panel-label-vertical,
+.rental-stage[data-panel-count="10"] .rental-panel-label-vertical {
+  font-size: clamp(0.75rem, 0.55rem + 0.7vw, 1.15rem);
+  letter-spacing: 0.08em;
+}
+
 /* Background image */
 .rental-panel-bg {
   position: absolute;

@@ -1,0 +1,238 @@
+- generic [ref=e1]:
+  - generic [ref=e2]:
+    - banner [ref=e3]:
+      - generic [ref=e4]:
+        - link "+375 (29) 500-50-29" [ref=e6] [cursor=pointer]:
+          - /url: tel:+375295005029
+          - img [ref=e7]
+          - text: +375 (29) 500-50-29
+        - navigation [ref=e9]:
+          - link "Главная" [ref=e10] [cursor=pointer]:
+            - /url: /
+          - link "О комплексе" [ref=e11] [cursor=pointer]:
+            - /url: /#about
+          - link "Проживание" [ref=e12] [cursor=pointer]:
+            - /url: /#accommodation
+          - link "Услуги" [ref=e13] [cursor=pointer]:
+            - /url: /#rental
+          - link "Галерея" [ref=e14] [cursor=pointer]:
+            - /url: /#gallery
+          - link "Контакты" [ref=e15] [cursor=pointer]:
+            - /url: /#contacts
+        - generic [ref=e16]:
+          - button "Пинский район, д. Кончицы — открыть на Яндекс.Картах" [ref=e17] [cursor=pointer]:
+            - img [ref=e18]
+          - button "Вход" [ref=e21] [cursor=pointer]:
+            - img [ref=e22]
+            - text: Вход
+    - main [ref=e26]:
+      - generic [ref=e27]:
+        - heading "Бронирование проживания" [level=1] [ref=e28]
+        - paragraph [ref=e29]: Выберите даты и тип размещения, чтобы найти свободные варианты
+      - generic [ref=e31]:
+        - generic [ref=e32]:
+          - generic [ref=e33]: Тип проживания
+          - combobox [ref=e34] [cursor=pointer]:
+            - generic: Все типы
+            - img
+        - generic [ref=e35]:
+          - generic [ref=e36]: Даты проживания
+          - button "07.05.2026 — 08.05.2026" [expanded] [ref=e37] [cursor=pointer]:
+            - img [ref=e38]
+            - generic [ref=e40]:
+              - generic [ref=e41]: 07.05.2026
+              - generic [ref=e42]: —
+              - generic [ref=e43]: 08.05.2026
+        - generic [ref=e44]:
+          - generic [ref=e45]: Гости
+          - button "2 взрослых" [ref=e46] [cursor=pointer]:
+            - img [ref=e47]
+            - generic [ref=e53]: 2 взрослых
+        - button "Найти" [ref=e54] [cursor=pointer]
+      - generic [ref=e55]:
+        - img [ref=e56]
+        - heading "Нет доступных вариантов" [level=3] [ref=e59]
+        - paragraph [ref=e60]: Попробуйте изменить даты или тип проживания
+  - dialog [ref=e62]:
+    - generic [ref=e64]:
+      - navigation "Navigation bar" [ref=e65]:
+        - button "Go to the Previous Month" [active] [ref=e66] [cursor=pointer]:
+          - img
+        - button "Go to the Next Month" [ref=e67] [cursor=pointer]:
+          - img
+      - generic [ref=e68]:
+        - status [ref=e70]: май 2026
+        - grid "май 2026" [ref=e71]:
+          - rowgroup [ref=e72]:
+            - row [ref=e73]:
+              - columnheader [ref=e74]: пн
+              - columnheader [ref=e75]: вт
+              - columnheader [ref=e76]: ср
+              - columnheader [ref=e77]: чт
+              - columnheader [ref=e78]: пт
+              - columnheader [ref=e79]: сб
+              - columnheader [ref=e80]: вс
+          - rowgroup [ref=e81]:
+            - row "понедельник, 27 апреля 2026 г. вторник, 28 апреля 2026 г. среда, 29 апреля 2026 г. четверг, 30 апреля 2026 г. пятница, 1 мая 2026 г. суббота, 2 мая 2026 г. воскресенье, 3 мая 2026 г." [ref=e82]:
+              - gridcell "понедельник, 27 апреля 2026 г." [ref=e83]:
+                - button "понедельник, 27 апреля 2026 г." [disabled]: "27"
+              - gridcell "вторник, 28 апреля 2026 г." [ref=e84]:
+                - button "вторник, 28 апреля 2026 г." [disabled]: "28"
+              - gridcell "среда, 29 апреля 2026 г." [ref=e85]:
+                - button "среда, 29 апреля 2026 г." [disabled]: "29"
+              - gridcell "четверг, 30 апреля 2026 г." [ref=e86]:
+                - button "четверг, 30 апреля 2026 г." [disabled]: "30"
+              - gridcell "пятница, 1 мая 2026 г." [ref=e87]:
+                - button "пятница, 1 мая 2026 г." [disabled]: "1"
+              - gridcell "суббота, 2 мая 2026 г." [ref=e88]:
+                - button "суббота, 2 мая 2026 г." [disabled]: "2"
+              - gridcell "воскресенье, 3 мая 2026 г." [ref=e89]:
+                - button "воскресенье, 3 мая 2026 г." [disabled]: "3"
+            - row "понедельник, 4 мая 2026 г. вторник, 5 мая 2026 г. Today, среда, 6 мая 2026 г. четверг, 7 мая 2026 г., selected пятница, 8 мая 2026 г., selected суббота, 9 мая 2026 г. воскресенье, 10 мая 2026 г." [ref=e90]:
+              - gridcell "понедельник, 4 мая 2026 г." [ref=e91]:
+                - button "понедельник, 4 мая 2026 г." [disabled]: "4"
+              - gridcell "вторник, 5 мая 2026 г." [ref=e92]:
+                - button "вторник, 5 мая 2026 г." [disabled]: "5"
+              - gridcell "Today, среда, 6 мая 2026 г." [ref=e93]:
+                - button "Today, среда, 6 мая 2026 г." [ref=e94] [cursor=pointer]: "6"
+              - gridcell "четверг, 7 мая 2026 г., selected" [selected] [ref=e95]:
+                - button "четверг, 7 мая 2026 г., selected" [ref=e96] [cursor=pointer]: "7"
+              - gridcell "пятница, 8 мая 2026 г., selected" [selected] [ref=e97]:
+                - button "пятница, 8 мая 2026 г., selected" [ref=e98] [cursor=pointer]: "8"
+              - gridcell "суббота, 9 мая 2026 г." [ref=e99]:
+                - button "суббота, 9 мая 2026 г." [ref=e100] [cursor=pointer]: "9"
+              - gridcell "воскресенье, 10 мая 2026 г." [ref=e101]:
+                - button "воскресенье, 10 мая 2026 г." [ref=e102] [cursor=pointer]: "10"
+            - row "понедельник, 11 мая 2026 г. вторник, 12 мая 2026 г. среда, 13 мая 2026 г. четверг, 14 мая 2026 г. пятница, 15 мая 2026 г. суббота, 16 мая 2026 г. воскресенье, 17 мая 2026 г." [ref=e103]:
+              - gridcell "понедельник, 11 мая 2026 г." [ref=e104]:
+                - button "понедельник, 11 мая 2026 г." [ref=e105] [cursor=pointer]: "11"
+              - gridcell "вторник, 12 мая 2026 г." [ref=e106]:
+                - button "вторник, 12 мая 2026 г." [ref=e107] [cursor=pointer]: "12"
+              - gridcell "среда, 13 мая 2026 г." [ref=e108]:
+                - button "среда, 13 мая 2026 г." [ref=e109] [cursor=pointer]: "13"
+              - gridcell "четверг, 14 мая 2026 г." [ref=e110]:
+                - button "четверг, 14 мая 2026 г." [ref=e111] [cursor=pointer]: "14"
+              - gridcell "пятница, 15 мая 2026 г." [ref=e112]:
+                - button "пятница, 15 мая 2026 г." [ref=e113] [cursor=pointer]: "15"
+              - gridcell "суббота, 16 мая 2026 г." [ref=e114]:
+                - button "суббота, 16 мая 2026 г." [ref=e115] [cursor=pointer]: "16"
+              - gridcell "воскресенье, 17 мая 2026 г." [ref=e116]:
+                - button "воскресенье, 17 мая 2026 г." [ref=e117] [cursor=pointer]: "17"
+            - row "понедельник, 18 мая 2026 г. вторник, 19 мая 2026 г. среда, 20 мая 2026 г. четверг, 21 мая 2026 г. пятница, 22 мая 2026 г. суббота, 23 мая 2026 г. воскресенье, 24 мая 2026 г." [ref=e118]:
+              - gridcell "понедельник, 18 мая 2026 г." [ref=e119]:
+                - button "понедельник, 18 мая 2026 г." [ref=e120] [cursor=pointer]: "18"
+              - gridcell "вторник, 19 мая 2026 г." [ref=e121]:
+                - button "вторник, 19 мая 2026 г." [ref=e122] [cursor=pointer]: "19"
+              - gridcell "среда, 20 мая 2026 г." [ref=e123]:
+                - button "среда, 20 мая 2026 г." [ref=e124] [cursor=pointer]: "20"
+              - gridcell "четверг, 21 мая 2026 г." [ref=e125]:
+                - button "четверг, 21 мая 2026 г." [ref=e126] [cursor=pointer]: "21"
+              - gridcell "пятница, 22 мая 2026 г." [ref=e127]:
+                - button "пятница, 22 мая 2026 г." [ref=e128] [cursor=pointer]: "22"
+              - gridcell "суббота, 23 мая 2026 г." [ref=e129]:
+                - button "суббота, 23 мая 2026 г." [ref=e130] [cursor=pointer]: "23"
+              - gridcell "воскресенье, 24 мая 2026 г." [ref=e131]:
+                - button "воскресенье, 24 мая 2026 г." [ref=e132] [cursor=pointer]: "24"
+            - row "понедельник, 25 мая 2026 г. вторник, 26 мая 2026 г. среда, 27 мая 2026 г. четверг, 28 мая 2026 г. пятница, 29 мая 2026 г. суббота, 30 мая 2026 г. воскресенье, 31 мая 2026 г." [ref=e133]:
+              - gridcell "понедельник, 25 мая 2026 г." [ref=e134]:
+                - button "понедельник, 25 мая 2026 г." [ref=e135] [cursor=pointer]: "25"
+              - gridcell "вторник, 26 мая 2026 г." [ref=e136]:
+                - button "вторник, 26 мая 2026 г." [ref=e137] [cursor=pointer]: "26"
+              - gridcell "среда, 27 мая 2026 г." [ref=e138]:
+                - button "среда, 27 мая 2026 г." [ref=e139] [cursor=pointer]: "27"
+              - gridcell "четверг, 28 мая 2026 г." [ref=e140]:
+                - button "четверг, 28 мая 2026 г." [ref=e141] [cursor=pointer]: "28"
+              - gridcell "пятница, 29 мая 2026 г." [ref=e142]:
+                - button "пятница, 29 мая 2026 г." [ref=e143] [cursor=pointer]: "29"
+              - gridcell "суббота, 30 мая 2026 г." [ref=e144]:
+                - button "суббота, 30 мая 2026 г." [ref=e145] [cursor=pointer]: "30"
+              - gridcell "воскресенье, 31 мая 2026 г." [ref=e146]:
+                - button "воскресенье, 31 мая 2026 г." [ref=e147] [cursor=pointer]: "31"
+      - generic [ref=e148]:
+        - status [ref=e150]: июнь 2026
+        - grid "июнь 2026" [ref=e151]:
+          - rowgroup [ref=e152]:
+            - row [ref=e153]:
+              - columnheader [ref=e154]: пн
+              - columnheader [ref=e155]: вт
+              - columnheader [ref=e156]: ср
+              - columnheader [ref=e157]: чт
+              - columnheader [ref=e158]: пт
+              - columnheader [ref=e159]: сб
+              - columnheader [ref=e160]: вс
+          - rowgroup [ref=e161]:
+            - row "понедельник, 1 июня 2026 г. вторник, 2 июня 2026 г. среда, 3 июня 2026 г. четверг, 4 июня 2026 г. пятница, 5 июня 2026 г. суббота, 6 июня 2026 г. воскресенье, 7 июня 2026 г." [ref=e162]:
+              - gridcell "понедельник, 1 июня 2026 г." [ref=e163]:
+                - button "понедельник, 1 июня 2026 г." [ref=e164] [cursor=pointer]: "1"
+              - gridcell "вторник, 2 июня 2026 г." [ref=e165]:
+                - button "вторник, 2 июня 2026 г." [ref=e166] [cursor=pointer]: "2"
+              - gridcell "среда, 3 июня 2026 г." [ref=e167]:
+                - button "среда, 3 июня 2026 г." [ref=e168] [cursor=pointer]: "3"
+              - gridcell "четверг, 4 июня 2026 г." [ref=e169]:
+                - button "четверг, 4 июня 2026 г." [ref=e170] [cursor=pointer]: "4"
+              - gridcell "пятница, 5 июня 2026 г." [ref=e171]:
+                - button "пятница, 5 июня 2026 г." [ref=e172] [cursor=pointer]: "5"
+              - gridcell "суббота, 6 июня 2026 г." [ref=e173]:
+                - button "суббота, 6 июня 2026 г." [ref=e174] [cursor=pointer]: "6"
+              - gridcell "воскресенье, 7 июня 2026 г." [ref=e175]:
+                - button "воскресенье, 7 июня 2026 г." [ref=e176] [cursor=pointer]: "7"
+            - row "понедельник, 8 июня 2026 г. вторник, 9 июня 2026 г. среда, 10 июня 2026 г. четверг, 11 июня 2026 г. пятница, 12 июня 2026 г. суббота, 13 июня 2026 г. воскресенье, 14 июня 2026 г." [ref=e177]:
+              - gridcell "понедельник, 8 июня 2026 г." [ref=e178]:
+                - button "понедельник, 8 июня 2026 г." [ref=e179] [cursor=pointer]: "8"
+              - gridcell "вторник, 9 июня 2026 г." [ref=e180]:
+                - button "вторник, 9 июня 2026 г." [ref=e181] [cursor=pointer]: "9"
+              - gridcell "среда, 10 июня 2026 г." [ref=e182]:
+                - button "среда, 10 июня 2026 г." [ref=e183] [cursor=pointer]: "10"
+              - gridcell "четверг, 11 июня 2026 г." [ref=e184]:
+                - button "четверг, 11 июня 2026 г." [ref=e185] [cursor=pointer]: "11"
+              - gridcell "пятница, 12 июня 2026 г." [ref=e186]:
+                - button "пятница, 12 июня 2026 г." [ref=e187] [cursor=pointer]: "12"
+              - gridcell "суббота, 13 июня 2026 г." [ref=e188]:
+                - button "суббота, 13 июня 2026 г." [ref=e189] [cursor=pointer]: "13"
+              - gridcell "воскресенье, 14 июня 2026 г." [ref=e190]:
+                - button "воскресенье, 14 июня 2026 г." [ref=e191] [cursor=pointer]: "14"
+            - row "понедельник, 15 июня 2026 г. вторник, 16 июня 2026 г. среда, 17 июня 2026 г. четверг, 18 июня 2026 г. пятница, 19 июня 2026 г. суббота, 20 июня 2026 г. воскресенье, 21 июня 2026 г." [ref=e192]:
+              - gridcell "понедельник, 15 июня 2026 г." [ref=e193]:
+                - button "понедельник, 15 июня 2026 г." [ref=e194] [cursor=pointer]: "15"
+              - gridcell "вторник, 16 июня 2026 г." [ref=e195]:
+                - button "вторник, 16 июня 2026 г." [ref=e196] [cursor=pointer]: "16"
+              - gridcell "среда, 17 июня 2026 г." [ref=e197]:
+                - button "среда, 17 июня 2026 г." [ref=e198] [cursor=pointer]: "17"
+              - gridcell "четверг, 18 июня 2026 г." [ref=e199]:
+                - button "четверг, 18 июня 2026 г." [ref=e200] [cursor=pointer]: "18"
+              - gridcell "пятница, 19 июня 2026 г." [ref=e201]:
+                - button "пятница, 19 июня 2026 г." [ref=e202] [cursor=pointer]: "19"
+              - gridcell "суббота, 20 июня 2026 г." [ref=e203]:
+                - button "суббота, 20 июня 2026 г." [ref=e204] [cursor=pointer]: "20"
+              - gridcell "воскресенье, 21 июня 2026 г." [ref=e205]:
+                - button "воскресенье, 21 июня 2026 г." [ref=e206] [cursor=pointer]: "21"
+            - row "понедельник, 22 июня 2026 г. вторник, 23 июня 2026 г. среда, 24 июня 2026 г. четверг, 25 июня 2026 г. пятница, 26 июня 2026 г. суббота, 27 июня 2026 г. воскресенье, 28 июня 2026 г." [ref=e207]:
+              - gridcell "понедельник, 22 июня 2026 г." [ref=e208]:
+                - button "понедельник, 22 июня 2026 г." [ref=e209] [cursor=pointer]: "22"
+              - gridcell "вторник, 23 июня 2026 г." [ref=e210]:
+                - button "вторник, 23 июня 2026 г." [ref=e211] [cursor=pointer]: "23"
+              - gridcell "среда, 24 июня 2026 г." [ref=e212]:
+                - button "среда, 24 июня 2026 г." [ref=e213] [cursor=pointer]: "24"
+              - gridcell "четверг, 25 июня 2026 г." [ref=e214]:
+                - button "четверг, 25 июня 2026 г." [ref=e215] [cursor=pointer]: "25"
+              - gridcell "пятница, 26 июня 2026 г." [ref=e216]:
+                - button "пятница, 26 июня 2026 г." [ref=e217] [cursor=pointer]: "26"
+              - gridcell "суббота, 27 июня 2026 г." [ref=e218]:
+                - button "суббота, 27 июня 2026 г." [ref=e219] [cursor=pointer]: "27"
+              - gridcell "воскресенье, 28 июня 2026 г." [ref=e220]:
+                - button "воскресенье, 28 июня 2026 г." [ref=e221] [cursor=pointer]: "28"
+            - row "понедельник, 29 июня 2026 г. вторник, 30 июня 2026 г. среда, 1 июля 2026 г. четверг, 2 июля 2026 г. пятница, 3 июля 2026 г. суббота, 4 июля 2026 г. воскресенье, 5 июля 2026 г." [ref=e222]:
+              - gridcell "понедельник, 29 июня 2026 г." [ref=e223]:
+                - button "понедельник, 29 июня 2026 г." [ref=e224] [cursor=pointer]: "29"
+              - gridcell "вторник, 30 июня 2026 г." [ref=e225]:
+                - button "вторник, 30 июня 2026 г." [ref=e226] [cursor=pointer]: "30"
+              - gridcell "среда, 1 июля 2026 г." [ref=e227]:
+                - button "среда, 1 июля 2026 г." [ref=e228] [cursor=pointer]: "1"
+              - gridcell "четверг, 2 июля 2026 г." [ref=e229]:
+                - button "четверг, 2 июля 2026 г." [ref=e230] [cursor=pointer]: "2"
+              - gridcell "пятница, 3 июля 2026 г." [ref=e231]:
+                - button "пятница, 3 июля 2026 г." [ref=e232] [cursor=pointer]: "3"
+              - gridcell "суббота, 4 июля 2026 г." [ref=e233]:
+                - button "суббота, 4 июля 2026 г." [ref=e234] [cursor=pointer]: "4"
+              - gridcell "воскресенье, 5 июля 2026 г." [ref=e235]:
+                - button "воскресенье, 5 июля 2026 г." [ref=e236] [cursor=pointer]: "5"

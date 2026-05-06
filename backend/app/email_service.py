@@ -44,7 +44,7 @@ DEFAULT_TEMPLATES = {
 <p>Ваша оплата прошла успешно. Бронирование подтверждено!</p>
 <p><strong>Даты:</strong> {{startDate}} — {{endDate}}</p>
 <p><strong>Дом:</strong> {{houseName}}</p>
-<p><strong>Сумма:</strong> {{amount}} ₽</p>
+<p><strong>Сумма:</strong> {{amount}} Br</p>
 <p>Ждём вас в Парк Relax!</p>
 <hr>
 <p>С уважением, команда Парк Relax</p>

@@ -41,7 +41,7 @@ async def initiate_payment(
         bookingId=booking.id,
         clientSecret=client_secret,
         amount=amount,
-        currency="RUB",
+        currency="BYN",
     )
 
 
