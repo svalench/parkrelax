@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect, useCallback, useMemo } from 'react'
+import { Link } from 'react-router'
 import { X, Clock, Users, ArrowRight } from 'lucide-react'
 import { sanitizeRichHtml } from '../lib/safeHtml'
 
@@ -211,10 +212,14 @@ export default function Rental() {
                   <Users className="w-3.5 h-3.5" />
                   {item.capacity}
                 </span>
-                <button className="rental-panel-cta">
-                  Забронировать
+                <Link
+                  to="/booking"
+                  className="rental-panel-cta"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  Выбрать жильё
                   <ArrowRight className="w-4 h-4" />
-                </button>
+                </Link>
               </div>
             </div>
           </div>

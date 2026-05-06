@@ -3,10 +3,9 @@ import { useNavigate } from 'react-router'
 import { addDays, compareAsc, format, isAfter, isBefore, isSameDay, startOfDay, startOfToday } from 'date-fns'
 import { ru } from 'date-fns/locale'
 import type { DateRange, OnSelectHandler } from 'react-day-picker'
-import { Calendar as CalendarIcon, ChevronDown, Minus, Plus, Users } from 'lucide-react'
+import { Baby, Calendar as CalendarIcon, ChevronDown, Minus, Plus, Users } from 'lucide-react'
 
 import { Calendar } from '@/components/ui/calendar'
-import { Button } from '@/components/ui/button'
 import {
   Popover,
   PopoverContent,
@@ -37,10 +36,21 @@ function formatShortDate(d: Date | undefined): string {
   return format(d, 'dd.MM.yyyy')
 }
 
-/** Склонение для строки «N взрослых». */
-function formatAdultsLabel(n: number): string {
-  if (n % 10 === 1 && n % 100 !== 11) return `${n} взрослый`
-  return `${n} взрослых`
+/** Склонение для строки гостей «N взрослых, M детей». */
+function formatGuestsLabel(adults: number, children: number): string {
+  const adultWord = adults % 10 === 1 && adults % 100 !== 11 ? 'взрослый' : 'взрослых'
+  if (children === 0) {
+    return `${adults} ${adultWord}`
+  }
+  let childWord: string
+  if (children % 10 === 1 && children % 100 !== 11) {
+    childWord = 'ребёнок'
+  } else if (children % 10 >= 2 && children % 10 <= 4 && (children % 100 < 10 || children % 100 >= 20)) {
+    childWord = 'ребёнка'
+  } else {
+    childWord = 'детей'
+  }
+  return `${adults} ${adultWord}, ${children} ${childWord}`
 }
 
 export default function Hero() {
@@ -292,10 +302,10 @@ export default function Hero() {
                       <div className="flex-1">
                         <div className="text-sm text-white/90 font-semibold mb-0.5 drop-shadow-sm">Гости</div>
                         <div className="text-lg font-extrabold text-white drop-shadow-md">
-                          {formatAdultsLabel(adults)}
+                          {formatGuestsLabel(adults, childrenCount)}
                         </div>
                       </div>
-                      <ChevronDown className="w-4 h-4 text-gray-600 shrink-0" />
+                      <ChevronDown className="w-4 h-4 text-white/70 shrink-0" />
                     </button>
                   </PopoverTrigger>
                 </div>
@@ -303,71 +313,77 @@ export default function Hero() {
                   align="end"
                   side="top"
                   sideOffset={12}
-                  className="w-72 rounded-2xl border border-border/70 p-4 shadow-2xl shadow-black/15 ring-1 ring-black/5"
+                  className="w-80 rounded-2xl border border-border/70 bg-white p-5 shadow-2xl shadow-black/15 ring-1 ring-black/5"
                 >
-                  <div className="space-y-4">
+                  <div className="text-sm font-semibold text-dark mb-4">Количество гостей</div>
+                  <div className="space-y-5">
                     <div className="flex items-center justify-between gap-3">
-                      <span className="text-sm text-dark">Взрослые</span>
-                      <div className="flex items-center gap-2">
-                        <Button
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-xl bg-brand/10 flex items-center justify-center">
+                          <Users className="w-5 h-5 text-brand" />
+                        </div>
+                        <div>
+                          <div className="text-sm font-medium text-dark">Взрослые</div>
+                          <div className="text-xs text-graytext">от 18 лет</div>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-3">
+                        <button
                           type="button"
-                          variant="outline"
-                          size="icon"
-                          className="size-8"
+                          className="w-8 h-8 rounded-full bg-brand/10 flex items-center justify-center text-brand hover:bg-brand hover:text-white transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
                           disabled={adults <= 1}
                           onClick={() => setAdults((a) => Math.max(1, a - 1))}
                           aria-label="Уменьшить число взрослых"
                         >
-                          <Minus className="size-4" />
-                        </Button>
-                        <span className="w-6 text-center text-sm font-medium tabular-nums">
+                          <Minus className="w-4 h-4" />
+                        </button>
+                        <span className="w-6 text-center text-sm font-semibold tabular-nums">
                           {adults}
                         </span>
-                        <Button
+                        <button
                           type="button"
-                          variant="outline"
-                          size="icon"
-                          className="size-8"
+                          className="w-8 h-8 rounded-full bg-brand/10 flex items-center justify-center text-brand hover:bg-brand hover:text-white transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
                           disabled={adults >= MAX_ADULTS}
                           onClick={() => setAdults((a) => Math.min(MAX_ADULTS, a + 1))}
                           aria-label="Увеличить число взрослых"
                         >
-                          <Plus className="size-4" />
-                        </Button>
+                          <Plus className="w-4 h-4" />
+                        </button>
                       </div>
                     </div>
+                    <div className="h-px bg-gray-100" />
                     <div className="flex items-center justify-between gap-3">
-                      <span className="text-sm text-dark">Дети</span>
-                      <div className="flex items-center gap-2">
-                        <Button
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-xl bg-brand/10 flex items-center justify-center">
+                          <Baby className="w-5 h-5 text-brand" />
+                        </div>
+                        <div>
+                          <div className="text-sm font-medium text-dark">Дети</div>
+                          <div className="text-xs text-graytext">до 18 лет</div>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-3">
+                        <button
                           type="button"
-                          variant="outline"
-                          size="icon"
-                          className="size-8"
+                          className="w-8 h-8 rounded-full bg-brand/10 flex items-center justify-center text-brand hover:bg-brand hover:text-white transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
                           disabled={childrenCount <= 0}
-                          onClick={() =>
-                            setChildrenCount((c) => Math.max(0, c - 1))
-                          }
+                          onClick={() => setChildrenCount((c) => Math.max(0, c - 1))}
                           aria-label="Уменьшить число детей"
                         >
-                          <Minus className="size-4" />
-                        </Button>
-                        <span className="w-6 text-center text-sm font-medium tabular-nums">
+                          <Minus className="w-4 h-4" />
+                        </button>
+                        <span className="w-6 text-center text-sm font-semibold tabular-nums">
                           {childrenCount}
                         </span>
-                        <Button
+                        <button
                           type="button"
-                          variant="outline"
-                          size="icon"
-                          className="size-8"
+                          className="w-8 h-8 rounded-full bg-brand/10 flex items-center justify-center text-brand hover:bg-brand hover:text-white transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
                           disabled={childrenCount >= MAX_CHILDREN}
-                          onClick={() =>
-                            setChildrenCount((c) => Math.min(MAX_CHILDREN, c + 1))
-                          }
+                          onClick={() => setChildrenCount((c) => Math.min(MAX_CHILDREN, c + 1))}
                           aria-label="Увеличить число детей"
                         >
-                          <Plus className="size-4" />
-                        </Button>
+                          <Plus className="w-4 h-4" />
+                        </button>
                       </div>
                     </div>
                   </div>

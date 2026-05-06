@@ -316,10 +316,15 @@
   box-shadow: 0 4px 20px rgba(0,0,0,0.4);
   border: none;
   cursor: pointer;
+  text-decoration: none;
 }
 .rental-panel-cta:hover {
   transform: scale(1.04);
   box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+  color: #fff;
+}
+.rental-panel-cta:visited {
+  color: #fff;
 }
 .rental-panel-cta:active {
   transform: scale(0.98);

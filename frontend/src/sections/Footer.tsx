@@ -1,20 +1,65 @@
-import { Link } from 'react-router'
+import type { ReactNode } from 'react'
+import { Link, useLocation, useNavigate } from 'react-router'
 
-const footerColumns = [
+type FooterHashLink = { label: string; sectionId: string }
+type FooterRouteLink = { label: string; to: string }
+type FooterLinkItem = FooterHashLink | FooterRouteLink
+
+function isHashLink(link: FooterLinkItem): link is FooterHashLink {
+  return 'sectionId' in link
+}
+
+function FooterSectionLink({
+  sectionId,
+  className,
+  children,
+}: {
+  sectionId: string
+  className: string
+  children: ReactNode
+}) {
+  const navigate = useNavigate()
+  const { pathname } = useLocation()
+
+  return (
+    <a
+      href={`/#${sectionId}`}
+      className={className}
+      onClick={(e) => {
+        e.preventDefault()
+        if (pathname !== '/') {
+          navigate({ pathname: '/', hash: `#${sectionId}` })
+        } else {
+          document.getElementById(sectionId)?.scrollIntoView({
+            behavior: 'smooth',
+            block: 'start',
+          })
+        }
+      }}
+    >
+      {children}
+    </a>
+  )
+}
+
+const linkClass =
+  'text-sm text-white/60 hover:text-white transition-colors duration-200 cursor-pointer'
+
+const footerColumns: { title: string; links: FooterLinkItem[] }[] = [
   {
     title: 'Инфо',
     links: [
-      { label: 'О базе отдыха', to: '/#about' },
-      { label: 'Контакты', to: '/#contacts' },
-      { label: 'Галерея', to: '/#gallery' },
+      { label: 'О базе отдыха', sectionId: 'about' },
+      { label: 'Контакты', sectionId: 'contacts' },
+      { label: 'Галерея', sectionId: 'gallery' },
     ],
   },
   {
     title: 'Размещение',
     links: [
-      { label: 'Коттедж', to: '/#accommodation' },
-      { label: 'Апартаменты', to: '/#accommodation' },
-      { label: 'Летние домики', to: '/#accommodation' },
+      { label: 'Коттедж', to: '/booking?cabin=cottage' },
+      { label: 'Апартаменты', to: '/booking?cabin=apartments' },
+      { label: 'Летние домики', to: '/booking?cabin=summer' },
     ],
   },
   {
@@ -39,12 +84,15 @@ export default function Footer() {
               <ul className="space-y-2.5">
                 {col.links.map((link) => (
                   <li key={link.label}>
-                    <Link
-                      to={link.to}
-                      className="text-sm text-white/60 hover:text-white transition-colors duration-200"
-                    >
-                      {link.label}
-                    </Link>
+                    {isHashLink(link) ? (
+                      <FooterSectionLink sectionId={link.sectionId} className={linkClass}>
+                        {link.label}
+                      </FooterSectionLink>
+                    ) : (
+                      <Link to={link.to} className={linkClass}>
+                        {link.label}
+                      </Link>
+                    )}
                   </li>
                 ))}
               </ul>
