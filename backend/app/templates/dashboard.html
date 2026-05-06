@@ -1,0 +1,23 @@
+{% extends "layout.html" %}
+
+{% block header %}
+    <div class="row align-items-center">
+        <div class="col">
+            <h2 class="page-title">Дашборд</h2>
+        </div>
+    </div>
+{% endblock %}
+
+{% block content %}
+    <div class="col-12">
+        <div class="card" style="border: none; box-shadow: none;">
+            <div class="card-body p-0">
+                <iframe
+                    src="/admin-panel"
+                    style="width: 100%; height: calc(100vh - 140px); border: none; display: block;"
+                    title="Dashboard"
+                ></iframe>
+            </div>
+        </div>
+    </div>
+{% endblock %}

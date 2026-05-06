@@ -24,6 +24,7 @@ from app.routers import (
     user_auth,
     payment,
     profile,
+    admin_dashboard,
 )
 
 from contextlib import asynccontextmanager
@@ -85,6 +86,7 @@ app.include_router(rental.router)
 app.include_router(user_auth.router)
 app.include_router(payment.router)
 app.include_router(profile.router)
+app.include_router(admin_dashboard.router)
 
 # OAuth callback at legacy path
 @app.get("/api/oauth/callback")
@@ -209,6 +211,21 @@ async def ping():
 # ── Static files (production) ──────────────────────────────────────
 
 FRONTEND_DIST = Path(__file__).resolve().parent.parent.parent / "frontend" / "dist"
+
+# Serve static assets (always, so iframe at /admin-panel can load them)
+if FRONTEND_DIST.exists():
+    assets_dir = FRONTEND_DIST / "assets"
+    if assets_dir.exists():
+        app.mount("/assets", StaticFiles(directory=str(assets_dir)), name="assets")
+
+@app.get("/admin-panel")
+@app.get("/admin-panel/{path:path}")
+async def admin_panel_page(request: Request):
+    """Serve React admin dashboard for iframe inside starlette-admin."""
+    index_file = FRONTEND_DIST / "index.html"
+    if index_file.exists():
+        return FileResponse(str(index_file))
+    return HTMLResponse("Frontend not built. Run <code>npm run build</code>.", status_code=404)
 
 if os.getenv("NODE_ENV") == "production" and FRONTEND_DIST.exists():
     app.mount("/", StaticFiles(directory=str(FRONTEND_DIST), html=True), name="static")

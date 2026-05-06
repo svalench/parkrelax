@@ -1,4 +1,4 @@
-import { Routes, Route } from 'react-router'
+import { Routes, Route, useLocation } from 'react-router'
 import Navbar from './sections/Navbar'
 import Home from './pages/Home'
 import LegalPage from './pages/LegalPage'
@@ -7,11 +7,15 @@ import BookingFormPage from './pages/BookingFormPage'
 import PaymentPage from './pages/PaymentPage'
 import LoginPage from './pages/LoginPage'
 import ProfilePage from './pages/ProfilePage'
+import AdminDashboardPage from './pages/AdminDashboardPage'
 
-export default function App() {
+function AppContent() {
+  const location = useLocation()
+  const hideNavbar = location.pathname === '/admin-panel'
+
   return (
     <>
-      <Navbar />
+      {!hideNavbar && <Navbar />}
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/booking" element={<BookingPage />} />
@@ -20,7 +24,12 @@ export default function App() {
         <Route path="/login" element={<LoginPage />} />
         <Route path="/profile" element={<ProfilePage />} />
         <Route path="/legal/:slug" element={<LegalPage />} />
+        <Route path="/admin-panel" element={<AdminDashboardPage />} />
       </Routes>
     </>
   )
+}
+
+export default function App() {
+  return <AppContent />
 }

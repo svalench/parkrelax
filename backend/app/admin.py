@@ -8,6 +8,7 @@ from starlette.datastructures import UploadFile
 from starlette.responses import Response
 from starlette_admin.auth import AuthProvider
 from starlette_admin.contrib.sqla import Admin, ModelView
+from starlette_admin.views import CustomView
 from starlette_admin.exceptions import LoginFailed
 from starlette_admin.fields import (
     IntegerField,
@@ -595,12 +596,21 @@ class EmailLogView(ModelView):
 
 # ── Настройка админки ───────────────────────────────────────────────
 
+_templates_dir = str(Path(__file__).resolve().parent / "templates")
+
 admin = Admin(
     engine=async_engine,
     title="Парк Relax — админка",
     base_url="/admin",
     auth_provider=AdminAuthProvider(),
     i18n_config=I18nConfig(default_locale="ru"),
+    templates_dir=_templates_dir,
+    index_view=CustomView(
+        label="Дашборд",
+        icon="fa fa-dashboard",
+        path="/",
+        template_path="dashboard.html",
+    ),
 )
 
 # ── Разделы ───────────────────────────────────────────────────────
