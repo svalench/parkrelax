@@ -13,7 +13,7 @@ services:
       - .env
     environment:
       NODE_ENV: production
-      DATABASE_URL: mysql+pymysql://parkrelax:fddfd342dsmkl34dsfklsf3d23dklfds@db:3306/parkrelax?charset=utf8mb4
+      DATABASE_URL: mysql+pymysql://parkrelax:${MYSQL_PASSWORD:-parkrelax_password}@db:3306/parkrelax?charset=utf8mb4
     volumes:
       - app_uploads:/app/frontend/dist/uploads
     depends_on:
@@ -28,13 +28,13 @@ services:
       MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-ruutpaswwordspetial}
       MYSQL_DATABASE: parkrelax
       MYSQL_USER: parkrelax
-      MYSQL_PASSWORD: parkrelax_password
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-parkrelax_password}
     volumes:
       - mysql_data:/var/lib/mysql
     ports:
       - "3306:3306"
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-p${MYSQL_ROOT_PASSWORD:-root_password}"]
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-p${MYSQL_ROOT_PASSWORD:-ruutpaswwordspetial}"]
       interval: 10s
       timeout: 5s
       retries: 5
