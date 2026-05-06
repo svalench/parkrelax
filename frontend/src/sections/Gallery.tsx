@@ -99,7 +99,7 @@ export default function Gallery() {
           <SectionHeader
             label="ГАЛЕРЕЯ"
             title="Атмосфера, в которую хочется вернуться"
-            subtitle="Тёплые вечера, лес, озёра и уютные — всё для вашего идеального отдыха"
+            subtitle="Тёплые вечера, лес, озёро и уютные доимки — всё для вашего идеального отдыха"
             buttonText=""
             variant="outline"
           />
@@ -116,7 +116,7 @@ export default function Gallery() {
           <SectionHeader
             label="ГАЛЕРЕЯ"
             title="Атмосфера, в которую хочется вернуться"
-            subtitle="Тёплые вечера, лес, озёра и уютные — всё для вашего идеального отдыха"
+            subtitle="Тёплые вечера, лес, озёро и уютные доимки — всё для вашего идеального отдыха"
             buttonText=""
             variant="outline"
           />
@@ -132,7 +132,7 @@ export default function Gallery() {
         <SectionHeader
           label="ГАЛЕРЕЯ"
           title="Атмосфера, в которую хочется вернуться"
-          subtitle="Тёплые вечера, лес, озёра и уютные — всё для вашего идеального отдыха"
+          subtitle="Тёплые вечера, лес, озёро и уютные доимки — всё для вашего идеального отдыха"
           buttonText=""
           variant="outline"
         />
