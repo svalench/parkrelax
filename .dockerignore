@@ -1,0 +1,15 @@
+node_modules
+backend/venv
+frontend/node_modules
+frontend/dist
+.git
+.idea
+.cursor
+.playwright-mcp
+__pycache__
+*.pyc
+*.pyo
+*.pyd
+.DS_Store
+local.db
+.env

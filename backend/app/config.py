@@ -38,6 +38,8 @@ class Settings(BaseSettings):
                 url = url.replace("mysql://", "mysql+asyncmy://", 1)
             elif url.startswith("mysql+mysqlconnector://"):
                 url = url.replace("mysql+mysqlconnector://", "mysql+asyncmy://", 1)
+            elif url.startswith("mysql+pymysql://"):
+                url = url.replace("mysql+pymysql://", "mysql+asyncmy://", 1)
             return url
         # Default to SQLite in project root
         db_path = PROJECT_ROOT / "local.db"
@@ -49,7 +51,7 @@ class Settings(BaseSettings):
         if url.startswith("sqlite+aiosqlite://"):
             return url.replace("sqlite+aiosqlite://", "sqlite://", 1)
         if url.startswith("mysql+asyncmy://"):
-            return url.replace("mysql+asyncmy://", "mysql://", 1)
+            return url.replace("mysql+asyncmy://", "mysql+pymysql://", 1)
         return url
 
 

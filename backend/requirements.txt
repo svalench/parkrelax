@@ -19,3 +19,4 @@ Pillow
 aiosmtplib
 passlib[bcrypt]
 nh3>=0.2.0
+pymysql

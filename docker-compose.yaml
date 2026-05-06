@@ -1,0 +1,46 @@
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        VITE_KIMI_AUTH_URL: ${VITE_KIMI_AUTH_URL:-}
+        VITE_APP_ID: ${VITE_APP_ID:-}
+    container_name: parkrelax_app
+    ports:
+      - "8489:8000"
+    env_file:
+      - .env
+    environment:
+      NODE_ENV: production
+      DATABASE_URL: mysql+pymysql://parkrelax:fddfd342dsmkl34dsfklsf3d23dklfds@db:3306/parkrelax?charset=utf8mb4
+    volumes:
+      - app_uploads:/app/frontend/dist/uploads
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: unless-stopped
+
+  db:
+    image: mysql:8.0
+    container_name: parkrelax_db
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-ruutpaswwordspetial}
+      MYSQL_DATABASE: parkrelax
+      MYSQL_USER: parkrelax
+      MYSQL_PASSWORD: parkrelax_password
+    volumes:
+      - mysql_data:/var/lib/mysql
+    ports:
+      - "3306:3306"
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-p${MYSQL_ROOT_PASSWORD:-root_password}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    restart: unless-stopped
+
+volumes:
+  mysql_data:
+  app_uploads:
