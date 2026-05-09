@@ -31,9 +31,9 @@ export default function Home() {
       <main>
         <Hero />
         <About />
-        <Amenities />
         <Accommodation />
         <Rental />
+        <Amenities />
 
         <Gallery />
         <Contacts />

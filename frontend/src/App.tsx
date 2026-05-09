@@ -8,6 +8,7 @@ import PaymentPage from './pages/PaymentPage'
 import LoginPage from './pages/LoginPage'
 import ProfilePage from './pages/ProfilePage'
 import AdminDashboardPage from './pages/AdminDashboardPage'
+import PriceListPage from './pages/PriceListPage'
 
 function AppContent() {
   const location = useLocation()
@@ -25,6 +26,7 @@ function AppContent() {
         <Route path="/profile" element={<ProfilePage />} />
         <Route path="/legal/:slug" element={<LegalPage />} />
         <Route path="/admin-panel" element={<AdminDashboardPage />} />
+        <Route path="/prices" element={<PriceListPage />} />
       </Routes>
     </>
   )

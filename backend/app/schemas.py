@@ -516,3 +516,10 @@ class PaymentConfirmResponse(BaseModel):
     success: bool
     bookingId: int
     status: str
+
+
+class PriceListDataResponse(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+    id: int
+    data: list[dict] = []
+    updatedAt: datetime | None = None

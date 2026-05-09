@@ -213,6 +213,13 @@ export default function Rental() {
                   {item.capacity}
                 </span>
                 <Link
+                  to="/prices"
+                  className="rental-panel-cta-outline"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  Узнать цену
+                </Link>
+                <Link
                   to="/booking"
                   className="rental-panel-cta"
                   onClick={(e) => e.stopPropagation()}

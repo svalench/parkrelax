@@ -9,6 +9,7 @@ const navLinks = [
   { label: 'О комплексе', href: '/#about' },
   { label: 'Аренда', href: '/#accommodation' },
   { label: 'Услуги', href: '/#rental' },
+  { label: 'Прайс', href: '/prices' },
   { label: 'Галерея', href: '/#gallery' },
   { label: 'Контакты', href: '/#contacts' },
 ]

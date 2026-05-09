@@ -270,3 +270,11 @@ class EmailLog(Base):
     @property
     def previewUrl(self) -> str:
         return f"/admin/email-preview/{self.id}"
+
+
+class PriceListData(Base):
+    __tablename__ = "price_list_data"
+
+    id = Column(Integer, primary_key=True, autoincrement=False, default=1)
+    data = Column(Text, default="[]", nullable=False)
+    updatedAt = Column(DateTime, default=func.now(), onupdate=func.now(), nullable=True)

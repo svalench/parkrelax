@@ -1,3 +1,4 @@
+import { useState, useEffect } from 'react'
 import {
   MapPin,
   TreePine,
@@ -12,6 +13,11 @@ import {
   Leaf,
   Flame,
 } from 'lucide-react'
+import { Swiper, SwiperSlide } from 'swiper/react'
+import { Autoplay, EffectCoverflow, Pagination } from 'swiper/modules'
+import 'swiper/css'
+import 'swiper/css/effect-coverflow'
+import 'swiper/css/pagination'
 
 const categories = [
   {
@@ -46,6 +52,23 @@ const categories = [
   },
 ]
 
+interface GalleryItem {
+  id: number
+  imageUrl: string | null
+  title: string | null
+  category: string
+  sortOrder: number
+  isActive: boolean
+}
+
+const fallbackImages = [
+  '/assets/asset_2.jpg',
+  '/assets/asset_17.jpg',
+  '/assets/asset_18.jpg',
+  '/assets/asset_19.jpg',
+  '/assets/asset_20.jpg',
+]
+
 const polesieFeatures = [
   {
     icon: Wind,
@@ -70,6 +93,30 @@ const polesieFeatures = [
 ]
 
 export default function About() {
+  const [galleryItems, setGalleryItems] = useState<GalleryItem[]>([])
+  const [galleryLoading, setGalleryLoading] = useState(true)
+
+  useEffect(() => {
+    fetch('/api/gallery')
+      .then((r) => r.json())
+      .then((data: GalleryItem[]) => {
+        const active = Array.isArray(data)
+          ? data.filter((i) => i.isActive).sort((a, b) => a.sortOrder - b.sortOrder)
+          : []
+        setGalleryItems(active)
+        setGalleryLoading(false)
+      })
+      .catch(() => {
+        setGalleryItems([])
+        setGalleryLoading(false)
+      })
+  }, [])
+
+  const images =
+    galleryItems.length > 0
+      ? galleryItems.map((i) => i.imageUrl || '/assets/asset_2.jpg')
+      : fallbackImages
+
   return (
     <>
       {/* ─── About / О нас ─── */}
@@ -130,16 +177,49 @@ export default function About() {
               </div>
             </div>
 
-            {/* Image */}
-            <div className="relative rounded-2xl overflow-hidden shadow-xl">
-              <img
-                src="/assets/asset_2.jpg"
-                alt="Коттеджи и домики у озера в Комплексе отдыха Парк Relax — база отдыха в Пинском районе"
-                className="w-full h-[360px] md:h-[420px] object-cover"
-              />
-              <div className="absolute bottom-4 left-4 bg-black/60 text-white text-sm font-semibold px-4 py-2 rounded-full backdrop-blur-sm">
-                Комплекс отдыха Парк Relax
-              </div>
+            {/* 3D Slider */}
+            <div className="relative rounded-2xl overflow-hidden shadow-xl h-[460px] md:h-[580px]">
+              {galleryLoading ? (
+                <div className="w-full h-full bg-gray-100 animate-pulse rounded-2xl" />
+              ) : images.length === 0 ? (
+                <div className="w-full h-full bg-gray-100 rounded-2xl flex items-center justify-center text-gray-400">
+                  Нет фотографий
+                </div>
+              ) : (
+                <Swiper
+                  effect={'coverflow'}
+                  grabCursor={true}
+                  centeredSlides={true}
+                  slidesPerView={'auto'}
+                  spaceBetween={20}
+                  coverflowEffect={{
+                    rotate: 30,
+                    stretch: 0,
+                    depth: 200,
+                    modifier: 1,
+                    slideShadows: false,
+                  }}
+                  pagination={{ clickable: true }}
+                  autoplay={{ delay: 3000, disableOnInteraction: false }}
+                  loop={images.length > 1}
+                  modules={[EffectCoverflow, Pagination, Autoplay]}
+                  className="w-full h-full about-3d-slider"
+                >
+                  {images.map((img, i) => (
+                    <SwiperSlide
+                      key={i}
+                      className="!w-[280px] md:!w-[360px]"
+                    >
+                      <img
+                        src={img}
+                        alt={`Фото базы отдыха ${i + 1}`}
+                        className="w-full h-full object-cover rounded-2xl"
+                        draggable={false}
+                      />
+                    </SwiperSlide>
+                  ))}
+                </Swiper>
+              )}
             </div>
           </div>
 

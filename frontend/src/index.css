@@ -49,6 +49,21 @@
     @apply max-w-[1200px] mx-auto px-6;
   }
 
+  /* ─── About 3D Slider (Swiper) ─── */
+  .about-3d-slider .swiper-pagination {
+    bottom: 20px !important;
+  }
+  .about-3d-slider .swiper-pagination-bullet {
+    background: white;
+    opacity: 0.5;
+    width: 8px;
+    height: 8px;
+  }
+  .about-3d-slider .swiper-pagination-bullet-active {
+    opacity: 1;
+    background: white;
+  }
+
   .section-label {
     @apply text-xs font-medium uppercase tracking-[0.08em] text-graytext;
   }
@@ -327,6 +342,35 @@
   color: #fff;
 }
 .rental-panel-cta:active {
+  transform: scale(0.98);
+}
+.rental-panel-cta-outline {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.6rem 1.2rem;
+  border-radius: 0.75rem;
+  border: 1.5px solid rgba(255,255,255,0.6);
+  background: rgba(255,255,255,0.1);
+  backdrop-filter: blur(8px);
+  color: #fff;
+  font-weight: 600;
+  font-size: 0.875rem;
+  transition: all 0.2s ease;
+  cursor: pointer;
+  text-decoration: none;
+  white-space: nowrap;
+}
+.rental-panel-cta-outline:hover {
+  transform: scale(1.04);
+  background: rgba(255,255,255,0.2);
+  border-color: #fff;
+  color: #fff;
+}
+.rental-panel-cta-outline:visited {
+  color: #fff;
+}
+.rental-panel-cta-outline:active {
   transform: scale(0.98);
 }
 

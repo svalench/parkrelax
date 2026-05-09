@@ -57,6 +57,7 @@ from app.models import (
     SmtpSettings,
     EmailTemplate,
     EmailLog,
+    PriceListData,
 )
 
 from app.html_sanitize import sanitize_rich_html
@@ -594,6 +595,47 @@ class EmailLogView(ModelView):
         return False
 
 
+class PriceListDataView(ModelView):
+    fields = [
+        IntegerField("id", read_only=True),
+        FileField("uploadFile", label="Excel файл (загрузить новый прайс)"),
+        TextAreaField("data", label="Данные (JSON)", read_only=True),
+        DateTimeField("updatedAt", label="Обновлено", read_only=True),
+    ]
+
+    async def before_create(self, request: Request, data: dict, obj: PriceListData) -> None:
+        await self._process_upload(data, obj)
+
+    async def before_edit(self, request: Request, data: dict, obj: PriceListData) -> None:
+        await self._process_upload(data, obj)
+
+    async def _process_upload(self, data: dict, obj: PriceListData) -> None:
+        import json
+        from starlette.datastructures import UploadFile
+
+        file_value = data.get("uploadFile")
+        if not file_value:
+            return
+
+        file = file_value
+        if isinstance(file_value, tuple) and len(file_value) == 2:
+            file, _should_be_deleted = file_value
+
+        if isinstance(file, UploadFile) and file.filename:
+            content = await file.read()
+            try:
+                from app.price_parser import parse_price_excel
+                parsed = parse_price_excel(content)
+                obj.data = json.dumps(parsed, ensure_ascii=False)
+                data["data"] = obj.data
+            except Exception as exc:
+                raise Exception(f"Ошибка парсинга Excel: {exc}")
+            finally:
+                # Clear upload field
+                obj.uploadFile = None
+                data["uploadFile"] = None
+
+
 # ── Настройка админки ───────────────────────────────────────────────
 
 _templates_dir = str(Path(__file__).resolve().parent / "templates")
@@ -638,3 +680,4 @@ admin.add_view(RentalItemView(RentalItem, icon="fa fa-bicycle", label="Арен�
 admin.add_view(SmtpSettingsView(SmtpSettings, icon="fa fa-envelope", label="SMTP настройки", identity="smtp-settings"))
 admin.add_view(EmailTemplateView(EmailTemplate, icon="fa fa-file-code", label="Шаблоны писем", identity="email-templates"))
 admin.add_view(EmailLogView(EmailLog, icon="fa fa-paper-plane", label="Отправленные письма", identity="email-logs"))
+admin.add_view(PriceListDataView(PriceListData, icon="fa fa-table", label="Прайс-лист", identity="price-list"))

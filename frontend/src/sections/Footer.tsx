@@ -1,3 +1,4 @@
+import { useEffect, useState } from 'react'
 import type { ReactNode } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router'
 
@@ -7,6 +8,13 @@ type FooterLinkItem = FooterHashLink | FooterRouteLink
 
 function isHashLink(link: FooterLinkItem): link is FooterHashLink {
   return 'sectionId' in link
+}
+
+interface AccommodationType {
+  id: number
+  name: string
+  isActive: boolean
+  sortOrder: number
 }
 
 function FooterSectionLink({
@@ -45,21 +53,13 @@ function FooterSectionLink({
 const linkClass =
   'text-sm text-white/60 hover:text-white transition-colors duration-200 cursor-pointer'
 
-const footerColumns: { title: string; links: FooterLinkItem[] }[] = [
+const staticColumns: { title: string; links: FooterLinkItem[] }[] = [
   {
     title: 'Инфо',
     links: [
       { label: 'О базе отдыха', sectionId: 'about' },
       { label: 'Контакты', sectionId: 'contacts' },
       { label: 'Галерея', sectionId: 'gallery' },
-    ],
-  },
-  {
-    title: 'Аренда',
-    links: [
-      { label: 'Коттедж', to: '/booking?cabin=cottage' },
-      { label: 'Апартаменты', to: '/booking?cabin=apartments' },
-      { label: 'Летние домики', to: '/booking?cabin=summer' },
     ],
   },
   {
@@ -74,11 +74,28 @@ const footerColumns: { title: string; links: FooterLinkItem[] }[] = [
 ]
 
 export default function Footer() {
+  const [rentalTypes, setRentalTypes] = useState<AccommodationType[]>([])
+
+  useEffect(() => {
+    fetch('/api/accommodation/types')
+      .then((r) => r.json())
+      .then((data: AccommodationType[]) => {
+        if (Array.isArray(data)) {
+          setRentalTypes(
+            data
+              .filter((t) => t.isActive)
+              .sort((a, b) => a.sortOrder - b.sortOrder)
+          )
+        }
+      })
+      .catch(() => setRentalTypes([]))
+  }, [])
+
   return (
     <footer className="bg-dark text-white">
       <div className="container-main py-16">
         <div className="grid grid-cols-2 md:grid-cols-3 gap-10 mb-12">
-          {footerColumns.map((col) => (
+          {staticColumns.map((col) => (
             <div key={col.title}>
               <h4 className="text-sm font-semibold mb-4">{col.title}</h4>
               <ul className="space-y-2.5">
@@ -98,6 +115,24 @@ export default function Footer() {
               </ul>
             </div>
           ))}
+
+          {/* Аренда — динамически из БД */}
+          <div>
+            <h4 className="text-sm font-semibold mb-4">Аренда</h4>
+            <ul className="space-y-2.5">
+              {rentalTypes.length > 0 ? (
+                rentalTypes.map((type) => (
+                  <li key={type.id}>
+                    <Link to={`/booking?typeId=${type.id}`} className={linkClass}>
+                      {type.name}
+                    </Link>
+                  </li>
+                ))
+              ) : (
+                <li className="text-sm text-white/40">Загрузка...</li>
+              )}
+            </ul>
+          </div>
         </div>
 
         {/* Payment icons */}
