@@ -600,7 +600,7 @@ _templates_dir = str(Path(__file__).resolve().parent / "templates")
 
 admin = Admin(
     engine=async_engine,
-    title="Парк Relax — админка",
+    title="Комплекс отдыха Парк Relax — админка",
     base_url="/admin",
     auth_provider=AdminAuthProvider(),
     i18n_config=I18nConfig(default_locale="ru"),

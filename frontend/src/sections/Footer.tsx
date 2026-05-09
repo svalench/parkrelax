@@ -55,7 +55,7 @@ const footerColumns: { title: string; links: FooterLinkItem[] }[] = [
     ],
   },
   {
-    title: 'Размещение',
+    title: 'Аренда',
     links: [
       { label: 'Коттедж', to: '/booking?cabin=cottage' },
       { label: 'Апартаменты', to: '/booking?cabin=apartments' },
@@ -127,7 +127,7 @@ export default function Footer() {
 
         {/* Copyright */}
         <div className="text-center text-xs text-white/40">
-          ООО «Парк Relax» — © 2024
+          ООО «Комплекс отдыха Парк Relax» — © 2024
         </div>
       </div>
     </footer>

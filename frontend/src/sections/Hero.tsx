@@ -161,7 +161,7 @@ export default function Hero() {
       <div className="absolute inset-0">
         <img
           src="/assets/hero.webp"
-          alt="Озеро с деревянным мостком в Парк Relax"
+          alt="Озеро с деревянным мостком в Комплексе отдыха Парк Relax"
           className="w-full h-full object-cover"
         />
         <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-black/40 to-transparent" />
@@ -171,7 +171,7 @@ export default function Hero() {
       <div className="hidden lg:block absolute top-16 right-6 xl:right-12 z-10 pointer-events-none">
         <img
           src="/images/logo.svg"
-          alt="Парк Relax"
+          alt="Комплекс отдыха Парк Relax"
           className="w-[260px] xl:w-[340px] h-auto object-contain animate-sun-glow opacity-90"
         />
       </div>
@@ -191,28 +191,28 @@ export default function Hero() {
                   />
                   <img
                     src="/images/logo.svg"
-                    alt="Парк Relax — лучший комплекс отдыха и проживания на природе"
+                    alt="Комплекс отдыха Парк Relax — лучший комплекс отдыха и аренды на природе"
                     className="relative w-full max-w-[min(100%,420px)] h-auto object-contain drop-shadow-[0_2px_10px_rgba(0,0,0,0.45)] mx-auto md:mx-0"
                   />
                 </span>
                 <span className="hidden md:block text-4xl md:text-5xl lg:text-[56px] font-bold leading-[1.15]">
+                  Комплекс отдыха
+                  <br />
                   Парк Relax —
                   <br />
-                  лучший комплекс
-                  <br />
-                  отдыха и проживания
+                  все для отдыха
                   <br />
                   на природе
                 </span>
               </h1>
               <p className="md:hidden text-xl sm:text-2xl font-extrabold text-white leading-snug sm:leading-tight mb-4 max-w-[min(100%,28rem)] mx-auto md:mx-0 drop-shadow-[0_2px_10px_rgba(0,0,0,0.9)] text-center sm:text-left tracking-tight">
-                Отдохните от городской суеты — наслаждайтесь природой в Парк Relax!
+                Отдохните от городской суеты — наслаждайтесь природой в Комплексе отдыха Парк Relax!
               </p>
               <p className="hidden md:block text-base md:text-lg text-white/90 leading-relaxed mb-3 max-w-[520px] mx-auto md:mx-0 text-center sm:text-left">
-                Комфортные домики, чистый воздух, живописная природа и всё для незабываемого отдыха с семьёй и друзьями.
+                Чистый воздух, мягкий белоснежный песок и живописная природа — идеальные условия для незабываемого отдыха у воды вместе с семьёй и друзьями.
               </p>
               <p className="hidden md:block text-base md:text-lg text-white/90 leading-relaxed max-w-[520px]">
-                Отдохните от городской суеты — наслаждайтесь природой в Парк Relax!
+                Отдохните от городской суеты — наслаждайтесь природой в Комплексе отдыха Парк Relax!
               </p>
             </div>
 
@@ -225,7 +225,7 @@ export default function Hero() {
         <div className="container-main">
           <div className="bg-white/20 backdrop-blur-2xl backdrop-blur-[20px] backdrop-saturate-[1.8] backdrop-contrast-125 rounded-2xl border border-white/25 shadow-inner p-5 md:p-6 animate-in fade-in slide-in-from-bottom-4 duration-700">
             <h3 className="text-xl md:text-2xl font-extrabold text-white mb-4 drop-shadow-lg">
-              Бронирование проживания
+              Бронирование аренды
             </h3>
             <div className="flex flex-col lg:flex-row items-stretch lg:items-center gap-4">
               {/* Даты */}

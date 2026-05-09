@@ -59,7 +59,7 @@ const categories = [
   },
   {
     icon: Bed,
-    title: 'Размещение',
+    title: 'Аренда',
     items: [
       'Коттедж',
       'Домик',
@@ -144,7 +144,7 @@ export default function Amenities() {
           <h2 className="text-3xl md:text-4xl font-bold text-dark mb-4">
             Всё для комфортного отдыха:
             <br />
-            инфраструктура Парк Relax
+            инфраструктура Комплекса отдыха Парк Relax
           </h2>
           <p className="text-graytext leading-relaxed">
             На территории базы отдыха в Пинском районе есть всё необходимое: от <strong className="text-dark font-medium">бани на дровах</strong> и <strong className="text-dark font-medium">бассейна на улице</strong> до <strong className="text-dark font-medium">проката лодок</strong>, <strong className="text-dark font-medium">собственного пляжа</strong> и <strong className="text-dark font-medium">детской площадки</strong>. Рыбалка, велосипеды, мангалы, спутниковое TV — отдыхайте с комфортом среди природы.

@@ -44,7 +44,7 @@ export default function BookingFormPage() {
       .then((data: Accommodation[]) => {
         const found = data.find((a) => a.id === accommodationId)
         if (found) setAccommodation(found)
-        else setError('Размещение не найдено')
+        else setError('Аренда не найдена')
       })
       .catch(() => setError('Не удалось загрузить данные'))
       .finally(() => setLoading(false))

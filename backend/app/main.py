@@ -126,7 +126,7 @@ async def email_preview(
 <html lang="ru">
 <head>
 <meta charset="utf-8">
-<title>Предпросмотр письма — Парк Relax</title>
+<title>Предпросмотр письма — Комплекс отдыха Парк Relax</title>
 <style>
 body {{ margin: 0; padding: 0; background: #eef2f5; font-family: system-ui, -apple-system, sans-serif; }}
 .header {{ background: #1e6091; color: #fff; padding: 12px 20px; font-size: 14px; display: flex; justify-content: space-between; align-items: center; }}
@@ -177,7 +177,7 @@ async def email_template_preview(
 <html lang="ru">
 <head>
 <meta charset="utf-8">
-<title>Предпросмотр шаблона — Парк Relax</title>
+<title>Предпросмотр шаблона — Комплекс отдыха Парк Relax</title>
 <style>
 body {{ margin: 0; padding: 0; background: #eef2f5; font-family: system-ui, -apple-system, sans-serif; }}
 .header {{ background: #1e6091; color: #fff; padding: 12px 20px; font-size: 14px; display: flex; justify-content: space-between; align-items: center; }}

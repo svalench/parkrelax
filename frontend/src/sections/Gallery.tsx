@@ -148,7 +148,7 @@ export default function Gallery() {
               <img
                 key={img + i}
                 src={img}
-                alt={`Галерея Парк Relax — фото ${i + 1}`}
+                alt={`Галерея Комплекса отдыха Парк Relax — фото ${i + 1}`}
                 className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-500 ${
                   i === current ? 'opacity-100' : 'opacity-0'
                 }`}
@@ -215,7 +215,7 @@ export default function Gallery() {
 
         {/* Caption */}
         <p className="text-center text-sm text-graytext mt-4 sm:mt-6 italic">
-          Каждый уголок Парк Relax создан для вашего комфорта и вдохновения
+          Каждый уголок Комплекса отдыха Парк Relax создан для вашего комфорта и вдохновения
         </p>
       </div>
     </section>

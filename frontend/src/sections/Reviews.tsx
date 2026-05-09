@@ -40,7 +40,7 @@ export default function Reviews() {
       <div className="container-main">
         <SectionHeader
           label="ОТЗЫВЫ ГОСТЕЙ"
-          title="Что говорят о Парк Relax"
+          title="Что говорят о Комплексе отдыха Парк Relax"
           subtitle="Мы заботимся о Вашем отдыхе"
         />
 

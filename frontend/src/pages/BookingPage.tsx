@@ -281,7 +281,7 @@ export default function BookingPage() {
     <div className="min-h-screen bg-lightgray">
         <main className="container-main py-8 md:py-12 pt-24 md:pt-28">
         <div className="mb-8">
-          <h1 className="text-3xl md:text-4xl font-bold text-dark mb-2">Бронирование проживания</h1>
+          <h1 className="text-3xl md:text-4xl font-bold text-dark mb-2">Бронирование аренды</h1>
           <p className="text-graytext">Выберите даты и тип размещения, чтобы найти свободные варианты</p>
         </div>
 
@@ -290,7 +290,7 @@ export default function BookingPage() {
           <div className="flex flex-col lg:flex-row items-stretch lg:items-end gap-4">
             {/* Type selector */}
             <div className="flex-1 min-w-[200px]">
-              <label className="text-sm font-medium text-dark mb-1.5 block">Тип проживания</label>
+              <label className="text-sm font-medium text-dark mb-1.5 block">Тип аренды</label>
               <Select value={typeId} onValueChange={(v) => { setTypeId(v); setPage(1) }}>
                 <SelectTrigger className="w-full h-11">
                   <SelectValue placeholder="Все типы" />
@@ -308,7 +308,7 @@ export default function BookingPage() {
 
             {/* Dates */}
             <div className="flex-1 min-w-[280px]">
-              <label className="text-sm font-medium text-dark mb-1.5 block">Даты проживания</label>
+              <label className="text-sm font-medium text-dark mb-1.5 block">Даты аренды</label>
               <Popover open={datesOpen} onOpenChange={setDatesOpen}>
                 <PopoverTrigger asChild>
                   <button
@@ -473,7 +473,7 @@ export default function BookingPage() {
           <div className="text-center py-16">
             <BedDouble className="w-12 h-12 text-gray-300 mx-auto mb-4" />
             <h3 className="text-xl font-semibold text-dark mb-2">Нет доступных вариантов</h3>
-            <p className="text-graytext">Попробуйте изменить даты или тип проживания</p>
+            <p className="text-graytext">Попробуйте изменить даты или тип аренды</p>
           </div>
         ) : (
           <>
@@ -491,7 +491,7 @@ export default function BookingPage() {
                     />
                     <div className="absolute top-3 left-3">
                       <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold text-white bg-black/40 backdrop-blur-md border border-white/20">
-                        {obj.type?.name || 'Проживание'}
+                        {obj.type?.name || 'Аренда'}
                       </span>
                     </div>
                   </div>

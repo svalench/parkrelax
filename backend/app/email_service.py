@@ -15,43 +15,43 @@ from app.models import SmtpSettings, EmailTemplate, EmailLog
 
 DEFAULT_TEMPLATES = {
     "temp_password": {
-        "subject": "Ваш временный пароль — Парк Relax",
+        "subject": "Ваш временный пароль — Комплекс отдыха Парк Relax",
         "bodyHtml": """
 <h2>Здравствуйте, {{name}}!</h2>
-<p>Вы забронировали проживание в <strong>Парк Relax</strong>.</p>
+<p>Вы забронировали аренду в <strong>Комплексе отдыха Парк Relax</strong>.</p>
 <p><strong>Ваш временный пароль:</strong> {{password}}</p>
 <p>Даты бронирования: {{startDate}} — {{endDate}}</p>
 <p>Дом: {{houseName}}</p>
 <p>Вы можете войти в личный кабинет, используя свою почту и этот пароль.</p>
 <hr>
-<p>С уважением, команда Парк Relax</p>
+<p>С уважением, команда Комплекса отдыха Парк Relax</p>
 """.strip(),
     },
     "welcome": {
-        "subject": "Добро пожаловать в Парк Relax",
+        "subject": "Добро пожаловать в Комплекс отдыха Парк Relax",
         "bodyHtml": """
 <h2>Добро пожаловать, {{name}}!</h2>
-<p>Вы зарегистрировались на сайте <strong>Парк Relax</strong>.</p>
-<p>Теперь вы можете бронировать проживание и управлять своими бронями в личном кабинете.</p>
+<p>Вы зарегистрировались на сайте <strong>Комплекса отдыха Парк Relax</strong>.</p>
+<p>Теперь вы можете бронировать аренду и управлять своими бронями в личном кабинете.</p>
 <hr>
-<p>С уважением, команда Парк Relax</p>
+<p>С уважением, команда Комплекса отдыха Парк Relax</p>
 """.strip(),
     },
     "payment_success": {
-        "subject": "Бронирование подтверждено — Парк Relax",
+        "subject": "Бронирование подтверждено — Комплекс отдыха Парк Relax",
         "bodyHtml": """
 <h2>Здравствуйте, {{name}}!</h2>
 <p>Ваша оплата прошла успешно. Бронирование подтверждено!</p>
 <p><strong>Даты:</strong> {{startDate}} — {{endDate}}</p>
 <p><strong>Дом:</strong> {{houseName}}</p>
 <p><strong>Сумма:</strong> {{amount}} Br</p>
-<p>Ждём вас в Парк Relax!</p>
+<p>Ждём вас в Комплексе отдыха Парк Relax!</p>
 <hr>
-<p>С уважением, команда Парк Relax</p>
+<p>С уважением, команда Комплекса отдыха Парк Relax</p>
 """.strip(),
     },
     "booking_reminder": {
-        "subject": "Напоминание о бронировании — Парк Relax",
+        "subject": "Напоминание о бронировании — Комплекс отдыха Парк Relax",
         "bodyHtml": """
 <h2>Здравствуйте, {{name}}!</h2>
 <p>Напоминаем, что ваш заезд запланирован на <strong>{{startDate}}</strong>.</p>
@@ -59,7 +59,7 @@ DEFAULT_TEMPLATES = {
 <p><strong>Даты проживания:</strong> {{startDate}} — {{endDate}}</p>
 <p>Если у вас есть вопросы, просто ответьте на это письмо.</p>
 <hr>
-<p>С уважением, команда Парк Relax</p>
+<p>С уважением, команда Комплекса отдыха Парк Relax</p>
 """.strip(),
     },
 }
@@ -165,7 +165,7 @@ async def send_email(
 
     msg = MIMEMultipart("alternative")
     msg["Subject"] = subject
-    msg["From"] = f"{smtp.fromName or 'Парк Relax'} <{smtp.fromEmail or smtp.username}>"
+    msg["From"] = f"{smtp.fromName or 'Комплекс отдыха Парк Relax'} <{smtp.fromEmail or smtp.username}>"
     msg["To"] = to_email
     msg.attach(MIMEText(body, "html", "utf-8"))
 

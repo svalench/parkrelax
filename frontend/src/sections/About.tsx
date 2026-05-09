@@ -10,18 +10,29 @@ import {
   Sun,
   Wind,
   Leaf,
+  Flame,
 } from 'lucide-react'
 
 const categories = [
   {
     icon: Home,
     title: 'Размещение и комфорт',
-    desc: 'Уютные коттеджи, апартаменты и летние домики у озера с современным оснащением для комфортного проживания',
+    desc: 'Уютные коттеджи, апартаменты и летние домики у озера с современным оснащением для комфортной аренды',
+  },
+  {
+    icon: WavesIcon,
+    title: 'Озеро и пляж',
+    desc: 'Чистое озеро с белым песчаным пляжем, обустроенная зона для купания и отдыха у воды',
   },
   {
     icon: Bike,
     title: 'Отдых и активность',
     desc: 'Прокат лодок, катамаранов и SUP, велосипеды, рыбалка, спортивные площадки и батуты для всей семьи',
+  },
+  {
+    icon: Flame,
+    title: 'Терасса с баней',
+    desc: 'Баня на дровах с терассой и бассейном на свежем воздухе',
   },
   {
     icon: TreePine,
@@ -123,17 +134,17 @@ export default function About() {
             <div className="relative rounded-2xl overflow-hidden shadow-xl">
               <img
                 src="/assets/asset_2.jpg"
-                alt="Коттеджи и домики у озера в Парк Relax — база отдыха в Пинском районе"
+                alt="Коттеджи и домики у озера в Комплексе отдыха Парк Relax — база отдыха в Пинском районе"
                 className="w-full h-[360px] md:h-[420px] object-cover"
               />
               <div className="absolute bottom-4 left-4 bg-black/60 text-white text-sm font-semibold px-4 py-2 rounded-full backdrop-blur-sm">
-                Парк Relax
+                Комплекс отдыха Парк Relax
               </div>
             </div>
           </div>
 
           {/* Categories */}
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="grid grid-cols-2 lg:grid-cols-3 gap-6">
             {categories.map((cat, i) => (
               <div
                 key={cat.title}
