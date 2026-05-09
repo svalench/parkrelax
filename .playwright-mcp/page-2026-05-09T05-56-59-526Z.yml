@@ -1,0 +1,254 @@
+- generic [active] [ref=e1]:
+  - navigation "Main navigation" [ref=e2]:
+    - list [ref=e3]:
+      - listitem [ref=e4]:
+        - link "Home" [ref=e5] [cursor=pointer]:
+          - /url: /
+      - listitem [ref=e6]:
+        - link "Pricing" [ref=e7] [cursor=pointer]:
+          - /url: /pricing
+      - listitem [ref=e8]:
+        - link "FAQ" [ref=e9] [cursor=pointer]:
+          - /url: /faq
+      - listitem [ref=e10]:
+        - link "Download" [ref=e11] [cursor=pointer]:
+          - /url: /download
+      - listitem [ref=e12]:
+        - link "Blog" [ref=e13] [cursor=pointer]:
+          - /url: /blog
+      - listitem [ref=e14]:
+        - link "DTC Codes" [ref=e15] [cursor=pointer]:
+          - /url: /dtc
+      - listitem [ref=e16]:
+        - link "Contacts" [ref=e17] [cursor=pointer]:
+          - /url: /contacts
+      - listitem [ref=e18]:
+        - link "Terms" [ref=e19] [cursor=pointer]:
+          - /url: /terms
+      - listitem [ref=e20]:
+        - link "Privacy" [ref=e21] [cursor=pointer]:
+          - /url: /privacy
+  - generic [ref=e23]:
+    - generic [ref=e24]:
+      - navigation [ref=e25]:
+        - generic [ref=e26]:
+          - link "AIscanAuto AIscanAuto" [ref=e27] [cursor=pointer]:
+            - /url: /
+            - img "AIscanAuto" [ref=e28]
+            - generic [ref=e29]: AIscanAuto
+          - generic [ref=e30]:
+            - link "Home" [ref=e31] [cursor=pointer]:
+              - /url: /
+            - link "Pricing" [ref=e32] [cursor=pointer]:
+              - /url: /pricing
+            - link "FAQ" [ref=e33] [cursor=pointer]:
+              - /url: /faq
+            - link "Download" [ref=e34] [cursor=pointer]:
+              - /url: /download
+            - link "Blog" [ref=e35] [cursor=pointer]:
+              - /url: /blog
+            - link "DTC Codes" [ref=e36] [cursor=pointer]:
+              - /url: /dtc
+          - generic [ref=e37]:
+            - button "Switch language (EN)" [ref=e39] [cursor=pointer]:
+              - img [ref=e40]
+              - generic [ref=e44]: EN
+              - img [ref=e45]
+            - link "Login" [ref=e47] [cursor=pointer]:
+              - /url: /login
+            - link "Download" [ref=e48] [cursor=pointer]:
+              - /url: /download
+      - main [ref=e49]:
+        - generic [ref=e50]:
+          - paragraph [ref=e51]: "AIscanAuto: OBD2 scanner for PC, OBD2 scanner for Windows, OBD2 scanner for Mac, OBD2 scanner for Linux. ELM327 desktop app, free OBD2 scanner desktop, AI car diagnostics app, check engine light AI. Read DTC codes on a laptop: P0420 code, P0171 code, P0300 code, and thousands of other OBD2 diagnostic trouble codes with articles. OBD-II scanner software, live PID data, fuel trim, oxygen sensors, EVAP, misfire, catalyst efficiency, automotive diagnostic tool, ECU reader, vehicle fault code reader."
+          - paragraph [ref=e52]: "Long-tail: OBD2 scanner app without subscription (free tier), local AI car diagnostics offline where supported, ELM327 USB Windows software free download, read DTC codes laptop, free OBD2 software for PC, best OBD2 scanner app comparison, best OBD2 app for desktop. ELM327 Bluetooth, ELM327 Wi-Fi, OBD2 for Ubuntu, car diagnostic software Windows Mac Linux, vehicle diagnostics AI repair guidance."
+          - paragraph [ref=e53]: "Comparison and research queries: AiScanAuto vs Torque Pro, AiScanAuto vs OBD Auto Doctor, Torque Pro alternative on desktop, OBD Auto Doctor alternative, best OBD2 scanner app for PC 2025, free OBD2 scanner AI, elm327 app for pc, check engine light reader AI, automotive scan tool desktop."
+          - paragraph [ref=e54]: "High-intent searches: ELM327 compatible vehicles, ELM327 OBD2 scanner, ELM327 scanner, ELM327 Windows, OBD2 AI, OBD2 AI car scanner, AI car diagnostics, AI vehicle diagnostics, AI car scanner app, OBD2 scanner sale, free OBD2 scanner with AI."
+          - paragraph [ref=e55]: "Popular DTC searches: P0323, P0242, P2188, P0315, P0451, GM P0315-00, P0301, P0302, P0303, P0304, P0305, P0306, P0135, P0141, P0155, P0401, P0440, P0442, P0446, P0455, P0456, P0011, P0021, P0113, P0128, P0507, P0705, P2096, P2097, P1128, P0730, P0740. obd2 elm327 app, elm327 windows, elm327 software, obd2 scanner app, free obd2 software, obd2 code reader, check engine light codes."
+        - generic [ref=e56]:
+          - img [ref=e58]
+          - generic [ref=e63]:
+            - generic [ref=e64]:
+              - generic [ref=e65]: OBD2 · ELM327 · Real-time scan
+              - heading "Free AI car diagnostics in seconds" [level=1] [ref=e66]
+              - paragraph [ref=e67]: Plug in any ELM327 adapter, read live ECU data, and get plain-language AI explanations for fault codes.
+              - paragraph [ref=e68]: Fits ~99% of cars on the road — standard OBD2 (1996+)
+              - generic [ref=e69]:
+                - link "Download for Windows" [ref=e70] [cursor=pointer]:
+                  - /url: /download
+                  - img [ref=e71]
+                  - text: Download for Windows
+                - link "Download for macOS" [ref=e73] [cursor=pointer]:
+                  - /url: /download
+                  - img [ref=e74]
+                  - text: Download for macOS
+              - generic [ref=e77]:
+                - generic [ref=e78]:
+                  - img [ref=e79]
+                  - text: Windows .exe
+                - generic [ref=e81]: ·
+                - generic [ref=e82]:
+                  - img [ref=e83]
+                  - text: macOS .dmg
+                - generic [ref=e86]: ·
+                - generic [ref=e87]:
+                  - img [ref=e88]
+                  - text: Linux .AppImage
+            - generic [ref=e90]:
+              - img "AIscanAuto OBD2 diagnostics with DTC codes and AI assistant" [ref=e92]
+              - generic [ref=e93]: Free to use
+        - generic [ref=e96]:
+          - generic [ref=e97]:
+            - generic [ref=e98]:
+              - generic [ref=e99]: AI · OBD2
+              - heading "OBD2 scanner, ELM327, and AI car diagnostics on desktop" [level=2] [ref=e100]
+              - paragraph [ref=e101]: Most petrol and diesel cars since 1996 expose a standard OBD-II port. With a compatible ELM327 USB, Bluetooth, or Wi‑Fi adapter, AIscanAuto reads stored and pending DTC codes, shows readiness monitors, and helps you interpret Check Engine warnings without guesswork. Live data (PID) streams let you watch fuel trims, oxygen sensors, coolant temperature, RPM, and more while the engine runs. That context matters when a code is intermittent or when you need to confirm a repair after clearing faults.
+              - generic [ref=e102]:
+                - paragraph [ref=e103]:
+                  - strong [ref=e104]: ELM327
+                  - text: — $10-$30 adapter. Plug in, launch, diagnose in 60s.
+                - generic [ref=e105]:
+                  - generic [ref=e106]: $10
+                  - generic [ref=e107]: 60s
+            - img "AIscanAuto Diagnostics & AI Assistant with GearMind chat and Trouble Codes" [ref=e109]
+          - generic [ref=e110]:
+            - generic [ref=e111]:
+              - img [ref=e112]
+              - heading "DTC error scanning" [level=3] [ref=e114]
+              - paragraph [ref=e115]: Read stored & pending fault codes from your ECU.
+            - generic [ref=e116]:
+              - img [ref=e117]
+              - heading "AI repair guidance" [level=3] [ref=e119]
+              - paragraph [ref=e120]: Plain-language explanations & repair steps.
+            - generic [ref=e121]:
+              - img [ref=e122]
+              - heading "Live data monitoring" [level=3] [ref=e125]
+              - paragraph [ref=e126]: Fuel trims, O2 sensors, coolant temp, RPM.
+            - generic [ref=e127]:
+              - img [ref=e128]
+              - heading "ELM327 compatible" [level=3] [ref=e132]
+              - paragraph [ref=e133]: USB, Bluetooth, or Wi-Fi adapters. 60s setup.
+            - generic [ref=e134]:
+              - img [ref=e135]
+              - heading "Privacy first" [level=3] [ref=e137]
+              - paragraph [ref=e138]: All data stays local. Offline AI mode.
+            - generic [ref=e139]:
+              - img [ref=e140]
+              - heading "10,000+ models" [level=3] [ref=e144]
+              - paragraph [ref=e145]: Petrol & diesel cars since 1996.
+            - generic [ref=e146]:
+              - img [ref=e147]
+              - heading "PDF reports" [level=3] [ref=e150]
+              - paragraph [ref=e151]: Export and share professional diagnostic reports.
+            - generic [ref=e152]:
+              - img [ref=e153]
+              - heading "Cross-platform" [level=3] [ref=e155]
+              - paragraph [ref=e156]: Native apps for Windows, macOS and Linux.
+            - generic [ref=e157]:
+              - img [ref=e158]
+              - heading "Multi-language" [level=3] [ref=e161]
+              - paragraph [ref=e162]: UI and AI answers in your language.
+            - generic [ref=e163]:
+              - img [ref=e164]
+              - heading "Scan history" [level=3] [ref=e168]
+              - paragraph [ref=e169]: Save and compare previous diagnostic sessions.
+            - generic [ref=e170]:
+              - img [ref=e171]
+              - heading "Repair steps" [level=3] [ref=e173]
+              - paragraph [ref=e174]: Step-by-step maintenance instructions.
+            - generic [ref=e175]:
+              - img [ref=e176]
+              - heading "Custom PIDs" [level=3] [ref=e179]
+              - paragraph [ref=e180]: Monitor any sensor parameter you need.
+      - contentinfo [ref=e192]:
+        - generic [ref=e193]:
+          - generic [ref=e194]:
+            - generic [ref=e195]:
+              - link "AI · OBD2" [ref=e196] [cursor=pointer]:
+                - /url: /
+              - paragraph [ref=e197]: AI-powered OBD2 diagnostics, live data, and repair guidance for drivers and shops.
+            - generic [ref=e198]:
+              - heading "Explore" [level=3] [ref=e199]
+              - list [ref=e200]:
+                - listitem [ref=e201]:
+                  - link "Home" [ref=e202] [cursor=pointer]:
+                    - /url: /
+                - listitem [ref=e203]:
+                  - link "Blog" [ref=e204] [cursor=pointer]:
+                    - /url: /blog
+                - listitem [ref=e205]:
+                  - link "DTC Codes" [ref=e206] [cursor=pointer]:
+                    - /url: /dtc
+                - listitem [ref=e207]:
+                  - link "Download" [ref=e208] [cursor=pointer]:
+                    - /url: /download
+                - listitem [ref=e209]:
+                  - link "Pricing" [ref=e210] [cursor=pointer]:
+                    - /url: /pricing
+                - listitem [ref=e211]:
+                  - link "FAQ" [ref=e212] [cursor=pointer]:
+                    - /url: /faq
+            - generic [ref=e213]:
+              - heading "Legal" [level=3] [ref=e214]
+              - list [ref=e215]:
+                - listitem [ref=e216]:
+                  - link "Terms of Use" [ref=e217] [cursor=pointer]:
+                    - /url: /terms
+                - listitem [ref=e218]:
+                  - link "Privacy Policy" [ref=e219] [cursor=pointer]:
+                    - /url: /privacy
+                - listitem [ref=e220]:
+                  - link "Disclaimer" [ref=e221] [cursor=pointer]:
+                    - /url: /terms#disclaimer
+            - generic [ref=e222]:
+              - heading "Popular codes" [level=3] [ref=e223]
+              - list [ref=e224]:
+                - listitem [ref=e225]:
+                  - link "P0420" [ref=e226] [cursor=pointer]:
+                    - /url: /dtc/P0420
+                - listitem [ref=e227]:
+                  - link "P0430" [ref=e228] [cursor=pointer]:
+                    - /url: /dtc/P0430
+                - listitem [ref=e229]:
+                  - link "P0300" [ref=e230] [cursor=pointer]:
+                    - /url: /dtc/P0300
+                - listitem [ref=e231]:
+                  - link "P0171" [ref=e232] [cursor=pointer]:
+                    - /url: /dtc/P0171
+                - listitem [ref=e233]:
+                  - link "P0172" [ref=e234] [cursor=pointer]:
+                    - /url: /dtc/P0172
+                - listitem [ref=e235]:
+                  - link "P0442" [ref=e236] [cursor=pointer]:
+                    - /url: /dtc/P0442
+                - listitem [ref=e237]:
+                  - link "P0455" [ref=e238] [cursor=pointer]:
+                    - /url: /dtc/P0455
+                - listitem [ref=e239]:
+                  - link "P0128" [ref=e240] [cursor=pointer]:
+                    - /url: /dtc/P0128
+          - generic [ref=e241]:
+            - paragraph [ref=e242]: © 2026 AIscanAuto. All rights reserved.
+            - generic [ref=e243]:
+              - link "Terms" [ref=e244] [cursor=pointer]:
+                - /url: /terms
+              - link "Privacy" [ref=e245] [cursor=pointer]:
+                - /url: /privacy
+              - link "Disclaimer" [ref=e246] [cursor=pointer]:
+                - /url: /terms#disclaimer
+    - dialog "Cookie and privacy choices" [ref=e247]:
+      - generic [ref=e249]:
+        - generic [ref=e250]:
+          - paragraph [ref=e251]: We use cookies and similar technologies
+          - paragraph [ref=e252]: We use essential cookies to run the site (for example, login and security). With your permission we may use additional cookies for analytics and marketing.
+          - paragraph [ref=e253]: If you are in the European Economic Area or UK, we only enable non-essential cookies after you opt in. You can change your choice at any time.
+          - paragraph [ref=e254]: If you are in the United States, including California, you can limit certain uses of personal information as described in our privacy notice. See also the option below regarding sale or sharing.
+          - link "Privacy policy" [ref=e255] [cursor=pointer]:
+            - /url: /privacy
+        - generic [ref=e256]:
+          - button "Accept all" [ref=e257] [cursor=pointer]:
+            - generic [ref=e259]: Accept all
+          - button "Reject non-essential" [ref=e260] [cursor=pointer]:
+            - generic [ref=e262]: Reject non-essential
+          - button "Customize" [ref=e263] [cursor=pointer]:
+            - generic [ref=e265]: Customize

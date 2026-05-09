@@ -2,6 +2,7 @@ import { useEffect } from 'react'
 import { useLocation } from 'react-router'
 import Hero from '../sections/Hero'
 import About from '../sections/About'
+import Amenities from '../sections/Amenities'
 import Accommodation from '../sections/Accommodation'
 import Rental from '../sections/Rental'
 
@@ -30,6 +31,7 @@ export default function Home() {
       <main>
         <Hero />
         <About />
+        <Amenities />
         <Accommodation />
         <Rental />
 

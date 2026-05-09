@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+body { margin: 0; background: white; }
+img { width: 1367px; height: 768px; }
+</style>
+</head>
+<body>
+<img src="" id="img">
+<script>
+const num = new URLSearchParams(location.search).get('n') || 0;
+document.getElementById('img').src = 'path_' + num + '.svg';
+</script>
+</body>
+</html>
