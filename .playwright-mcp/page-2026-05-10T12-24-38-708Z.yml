@@ -1,0 +1,15 @@
+- generic [ref=e11]:
+  - heading "Войти в свой аккаунт" [level=2] [ref=e12]
+  - alert [ref=e13]:
+    - generic [ref=e15]: Неверное имя пользователя или пароль
+    - generic "close" [ref=e16] [cursor=pointer]
+  - generic [ref=e17]:
+    - generic [ref=e18]: Имя пользователя
+    - textbox "Имя пользователя" [ref=e19]
+  - generic [ref=e20]:
+    - generic [ref=e21]: Пароль
+    - textbox "Пароль" [ref=e22]
+  - generic [ref=e24]:
+    - checkbox "Запомнить меня" [ref=e25]
+    - generic [ref=e26]: Запомнить меня
+  - button "Войти" [ref=e28] [cursor=pointer]

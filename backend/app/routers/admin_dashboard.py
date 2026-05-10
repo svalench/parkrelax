@@ -1,14 +1,16 @@
 from datetime import date, datetime, timedelta
 from typing import Optional
-from fastapi import APIRouter, Depends, Query
-from sqlalchemy import select, func, and_, desc
+from pydantic import BaseModel
+from fastapi import APIRouter, Depends, Query, HTTPException, UploadFile, File
+from sqlalchemy import select, func, and_, desc, asc
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import joinedload
 
 from app.dependencies import get_db, get_current_admin
-from app.models import Booking, Accommodation, AccommodationType
+from app.models import Booking, Accommodation, AccommodationType, AccommodationImage
 from app.schemas import BookingCreate, BookingUpdate, BookingResponse
 from app.routers.booking import _check_accommodation_availability
+from app.admin import _convert_to_webp, _delete_image_file
 
 router = APIRouter(prefix="/admin/dashboard", tags=["admin-dashboard"])
 
@@ -18,6 +20,16 @@ def _week_bounds(d: date):
     monday = d - timedelta(days=d.weekday())
     sunday = monday + timedelta(days=6)
     return monday, sunday
+
+
+def _overlap_days(start1: date, end1: date, start2: date, end2: date) -> int:
+    """Calculate inclusive overlapping days between two date intervals.
+    Matches frontend isWithinInterval inclusive behaviour."""
+    overlap_start = max(start1, start2)
+    overlap_end = min(end1, end2)
+    if overlap_start > overlap_end:
+        return 0
+    return (overlap_end - overlap_start).days + 1
 
 
 @router.get("/week")
@@ -61,14 +73,16 @@ async def week_dashboard(
 
     # Build house list
     houses = []
-    occupied_count = 0
+    total_occupied_days = 0
     for a in accommodations:
         house_bookings = acc_bookings.get(a.id, [])
-        if house_bookings:
-            occupied_count += 1
+        house_occupied_days = 0
         hb = []
         for b in house_bookings:
             days_left = (b.endDate - date.today()).days
+            house_occupied_days += _overlap_days(
+                b.startDate, b.endDate, monday, sunday
+            )
             hb.append({
                 "id": b.id,
                 "customerName": b.customerName,
@@ -81,25 +95,30 @@ async def week_dashboard(
                 "status": b.status,
                 "daysLeft": days_left,
             })
+        total_occupied_days += house_occupied_days
         houses.append({
             "id": a.id,
             "name": a.name,
             "typeName": a.type.name if a.type else None,
             "bookings": hb,
             "isOccupied": len(hb) > 0,
+            "occupiedDays": house_occupied_days,
         })
 
     total = len(houses)
-    free = total - occupied_count
-    free_percentage = round((free / total) * 100, 1) if total else 0.0
+    days_in_week = 7
+    total_days = total * days_in_week
+    free_days = total_days - total_occupied_days
+    occupancy_rate = round((total_occupied_days / total_days) * 100, 1) if total_days else 0.0
 
     return {
         "weekStart": monday.isoformat(),
         "weekEnd": sunday.isoformat(),
         "totalHouses": total,
-        "occupiedHouses": occupied_count,
-        "freeHouses": free,
-        "freePercentage": free_percentage,
+        "totalDays": total_days,
+        "occupiedDays": total_occupied_days,
+        "freeDays": free_days,
+        "occupancyRate": occupancy_rate,
         "houses": houses,
     }
 
@@ -363,10 +382,9 @@ async def occupancy_by_type(
     )
     houses_by_type = {row[0]: row[1] for row in houses_result.all()}
 
-    # Bookings per type in period
+    # Fetch all overlapping bookings with accommodation info to calculate real occupied days
     bookings_result = await db.execute(
-        select(Accommodation.typeId, func.count())
-        .select_from(Booking)
+        select(Booking, Accommodation.typeId)
         .join(Accommodation, Booking.accommodationId == Accommodation.id)
         .where(
             and_(
@@ -375,27 +393,27 @@ async def occupancy_by_type(
                 Booking.endDate >= start,
             )
         )
-        .group_by(Accommodation.typeId)
     )
-    bookings_by_type = {row[0]: row[1] for row in bookings_result.all()}
+    bookings_rows = bookings_result.all()
 
-    # Calculate occupancy: simple ratio of bookings to houses
-    # For a better metric we could calculate nights, but bookings count is a good proxy
     days_in_period = (end - start).days + 1
+    occupied_days_by_type: dict[int, int] = {}
+    for b, type_id in bookings_rows:
+        overlap = _overlap_days(b.startDate, b.endDate, start, end)
+        occupied_days_by_type[type_id] = occupied_days_by_type.get(type_id, 0) + overlap
+
     data = []
     for t in types:
         total_houses = houses_by_type.get(t.id, 0)
-        total_bookings = bookings_by_type.get(t.id, 0)
-        # occupancy rate: (bookings / houses) as percentage
-        # If 1 house and 1 booking in period = 100%
-        occupancy = round((total_bookings / max(total_houses, 1)) * 100, 1)
-        # Cap at 100 for display
-        occupancy = min(occupancy, 100.0)
+        occupied_days = occupied_days_by_type.get(t.id, 0)
+        total_days = total_houses * days_in_period
+        occupancy = round((occupied_days / max(total_days, 1)) * 100, 1)
         data.append({
             "typeId": t.id,
             "typeName": t.name,
             "totalHouses": total_houses,
-            "bookingsCount": total_bookings,
+            "totalDays": total_days,
+            "occupiedDays": occupied_days,
             "occupancyRate": occupancy,
         })
 
@@ -500,3 +518,118 @@ async def admin_delete_booking(
     await db.delete(booking)
     await db.commit()
     return None
+
+
+# ── Accommodation Gallery Admin Endpoints ───────────────────────────
+
+class AccommodationImageReorderItem(BaseModel):
+    id: int
+    sortOrder: int
+
+
+@router.get("/accommodations")
+async def admin_list_accommodations(
+    db: AsyncSession = Depends(get_db),
+    _admin=Depends(get_current_admin),
+):
+    result = await db.execute(
+        select(Accommodation)
+        .options(joinedload(Accommodation.type))
+        .order_by(asc(Accommodation.sortOrder))
+    )
+    return result.unique().scalars().all()
+
+
+@router.get("/accommodations/{accommodation_id}/images")
+async def admin_list_accommodation_images(
+    accommodation_id: int,
+    db: AsyncSession = Depends(get_db),
+    _admin=Depends(get_current_admin),
+):
+    result = await db.execute(
+        select(AccommodationImage)
+        .where(AccommodationImage.accommodationId == accommodation_id)
+        .order_by(asc(AccommodationImage.sortOrder))
+    )
+    return result.scalars().all()
+
+
+@router.post("/accommodations/{accommodation_id}/images")
+async def admin_upload_accommodation_images(
+    accommodation_id: int,
+    files: list[UploadFile] = File(...),
+    db: AsyncSession = Depends(get_db),
+    _admin=Depends(get_current_admin),
+):
+    # Verify accommodation exists
+    acc_result = await db.execute(
+        select(Accommodation).where(Accommodation.id == accommodation_id)
+    )
+    accommodation = acc_result.scalar_one_or_none()
+    if not accommodation:
+        raise HTTPException(status_code=404, detail="Размещение не найдено")
+
+    # Get current max sortOrder
+    max_result = await db.execute(
+        select(func.max(AccommodationImage.sortOrder))
+        .where(AccommodationImage.accommodationId == accommodation_id)
+    )
+    max_sort = max_result.scalar() or 0
+
+    created_images = []
+    for idx, upload_file in enumerate(files):
+        if upload_file.filename:
+            new_url = _convert_to_webp(upload_file, "accommodation")
+            image = AccommodationImage(
+                accommodationId=accommodation_id,
+                imageUrl=new_url,
+                sortOrder=max_sort + idx + 1,
+            )
+            db.add(image)
+            created_images.append(image)
+
+    await db.commit()
+    for img in created_images:
+        await db.refresh(img)
+    return created_images
+
+
+@router.delete("/accommodations/{accommodation_id}/images/{image_id}", status_code=204)
+async def admin_delete_accommodation_image(
+    accommodation_id: int,
+    image_id: int,
+    db: AsyncSession = Depends(get_db),
+    _admin=Depends(get_current_admin),
+):
+    result = await db.execute(
+        select(AccommodationImage)
+        .where(AccommodationImage.id == image_id)
+        .where(AccommodationImage.accommodationId == accommodation_id)
+    )
+    image = result.scalar_one_or_none()
+    if not image:
+        raise HTTPException(status_code=404, detail="Фото не найдено")
+    _delete_image_file(image.imageUrl)
+    await db.delete(image)
+    await db.commit()
+    return None
+
+
+@router.patch("/accommodations/{accommodation_id}/images/reorder")
+async def admin_reorder_accommodation_images(
+    accommodation_id: int,
+    items: list[AccommodationImageReorderItem],
+    db: AsyncSession = Depends(get_db),
+    _admin=Depends(get_current_admin),
+):
+    for item in items:
+        result = await db.execute(
+            select(AccommodationImage)
+            .where(AccommodationImage.id == item.id)
+            .where(AccommodationImage.accommodationId == accommodation_id)
+        )
+        image = result.scalar_one_or_none()
+        if image:
+            image.sortOrder = item.sortOrder
+    await db.commit()
+    return {"ok": True}

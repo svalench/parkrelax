@@ -433,7 +433,7 @@ export default function Hero() {
                 className="w-full lg:w-auto inline-flex items-center justify-center px-6 py-2.5 rounded-xl text-sm font-semibold text-white bg-[#2563EB] hover:bg-[#1D4ED8] transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] whitespace-nowrap"
                 onClick={handleBook}
               >
-                Найти доступные
+                Забронировать
               </button>
             </div>
           </div>

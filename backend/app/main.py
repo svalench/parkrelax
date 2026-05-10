@@ -26,6 +26,7 @@ from app.routers import (
     profile,
     admin_dashboard,
     price_list,
+    about_slider,
 )
 
 from contextlib import asynccontextmanager
@@ -89,6 +90,7 @@ app.include_router(payment.router)
 app.include_router(profile.router)
 app.include_router(admin_dashboard.router)
 app.include_router(price_list.router)
+app.include_router(about_slider.router)
 
 # OAuth callback at legacy path
 @app.get("/api/oauth/callback")

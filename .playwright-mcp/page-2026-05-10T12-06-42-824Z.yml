@@ -1,0 +1,253 @@
+- generic [ref=e2]:
+  - complementary [ref=e3]:
+    - generic [ref=e4]:
+      - heading "Комплекс отдыха Парк Relax — админка" [level=1] [ref=e5]:
+        - link "Комплекс отдыха Парк Relax — админка" [ref=e6] [cursor=pointer]:
+          - /url: http://127.0.0.1:8000/admin/
+          - heading "Комплекс отдыха Парк Relax — админка" [level=3] [ref=e7]
+      - list [ref=e9]:
+        - listitem [ref=e10]:
+          - link " Дашборд" [ref=e11] [cursor=pointer]:
+            - /url: http://127.0.0.1:8000/admin/
+            - generic [ref=e13]: 
+            - generic [ref=e14]: Дашборд
+        - listitem [ref=e15]:
+          - link " Пользователи" [ref=e16] [cursor=pointer]:
+            - /url: http://127.0.0.1:8000/admin/users/list
+            - generic [ref=e18]: 
+            - generic [ref=e19]: Пользователи
+        - listitem [ref=e20]:
+          - link " Контакты" [ref=e21] [cursor=pointer]:
+            - /url: http://127.0.0.1:8000/admin/contacts/list
+            - generic [ref=e23]: 
+            - generic [ref=e24]: Контакты
+        - listitem [ref=e25]:
+          - link " Телефоны" [ref=e26] [cursor=pointer]:
+            - /url: http://127.0.0.1:8000/admin/phone-numbers/list
+            - generic [ref=e28]: 
+            - generic [ref=e29]: Телефоны
+        - listitem [ref=e30]:
+          - link " Email адреса" [ref=e31] [cursor=pointer]:
+            - /url: http://127.0.0.1:8000/admin/email-addresses/list
+            - generic [ref=e33]: 
+            - generic [ref=e34]: Email адреса
+        - listitem [ref=e35]:
+          - link " Отзывы" [ref=e36] [cursor=pointer]:
+            - /url: http://127.0.0.1:8000/admin/reviews/list
+            - generic [ref=e38]: 
+            - generic [ref=e39]: Отзывы
+        - listitem [ref=e40]:
+          - button " Слайдер" [ref=e41] [cursor=pointer]:
+            - generic [ref=e43]: 
+            - generic [ref=e44]: Слайдер
+          - generic [ref=e47]:
+            - link "Галерея" [ref=e48] [cursor=pointer]:
+              - /url: http://127.0.0.1:8000/admin/gallery/list
+            - link "Слайдер О нас" [ref=e49] [cursor=pointer]:
+              - /url: http://127.0.0.1:8000/admin/about-slider/list
+        - listitem [ref=e50]:
+          - link " Бронирования" [ref=e51] [cursor=pointer]:
+            - /url: http://127.0.0.1:8000/admin/booking/list
+            - generic [ref=e53]: 
+            - generic [ref=e54]: Бронирования
+        - listitem [ref=e55]:
+          - link " Типы размещения" [ref=e56] [cursor=pointer]:
+            - /url: http://127.0.0.1:8000/admin/accommodation-type/list
+            - generic [ref=e58]: 
+            - generic [ref=e59]: Типы размещения
+        - listitem [ref=e60]:
+          - link " Размещения" [ref=e61] [cursor=pointer]:
+            - /url: http://127.0.0.1:8000/admin/accommodations/list
+            - generic [ref=e63]: 
+            - generic [ref=e64]: Размещения
+        - listitem [ref=e65]:
+          - link " Администраторы" [ref=e66] [cursor=pointer]:
+            - /url: http://127.0.0.1:8000/admin/admins/list
+            - generic [ref=e68]: 
+            - generic [ref=e69]: Администраторы
+        - listitem [ref=e70]:
+          - link " Юридические страницы" [ref=e71] [cursor=pointer]:
+            - /url: http://127.0.0.1:8000/admin/legal-pages/list
+            - generic [ref=e73]: 
+            - generic [ref=e74]: Юридические страницы
+        - listitem [ref=e75]:
+          - link " Аренда и услуги" [ref=e76] [cursor=pointer]:
+            - /url: http://127.0.0.1:8000/admin/rental-items/list
+            - generic [ref=e78]: 
+            - generic [ref=e79]: Аренда и услуги
+        - listitem [ref=e80]:
+          - button " Почта" [ref=e81] [cursor=pointer]:
+            - generic [ref=e83]: 
+            - generic [ref=e84]: Почта
+          - generic [ref=e87]:
+            - link "SMTP настройки" [ref=e88] [cursor=pointer]:
+              - /url: http://127.0.0.1:8000/admin/smtp-settings/list
+            - link "Шаблоны писем" [ref=e89] [cursor=pointer]:
+              - /url: http://127.0.0.1:8000/admin/email-templates/list
+            - link "Отправленные письма" [ref=e90] [cursor=pointer]:
+              - /url: http://127.0.0.1:8000/admin/email-logs/list
+        - listitem [ref=e91]:
+          - link " Прайс-лист" [ref=e92] [cursor=pointer]:
+            - /url: http://127.0.0.1:8000/admin/price-list/list
+            - generic [ref=e94]: 
+            - generic [ref=e95]: Прайс-лист
+        - link " Выйти" [ref=e96] [cursor=pointer]:
+          - /url: http://127.0.0.1:8000/admin/logout
+          - generic [ref=e97]: 
+          - generic [ref=e98]: Выйти
+  - generic [ref=e99]:
+    - heading "Дашборд" [level=2] [ref=e104]
+    - iframe [ref=e111]:
+      - generic [ref=f1e4]:
+        - generic [ref=f1e5]:
+          - generic [ref=f1e6]:
+            - heading "Админ-панель" [level=1] [ref=f1e7]:
+              - img [ref=f1e8]
+              - text: Админ-панель
+            - paragraph [ref=f1e13]: Управление бронированиями и статистика
+          - generic [ref=f1e14]:
+            - generic [ref=f1e15]: Test
+            - button "Выйти" [ref=f1e16] [cursor=pointer]:
+              - img
+              - text: Выйти
+        - generic [ref=f1e17]:
+          - tablist [ref=f1e18]:
+            - tab "Месяц" [ref=f1e19] [cursor=pointer]:
+              - img
+              - text: Месяц
+            - tab "Неделя" [selected] [ref=f1e20] [cursor=pointer]:
+              - img
+              - text: Неделя
+            - tab "История" [ref=f1e21] [cursor=pointer]:
+              - img
+              - text: История
+            - tab "Статистика" [ref=f1e22] [cursor=pointer]:
+              - img
+              - text: Статистика
+            - tab "Загрузка" [ref=f1e23] [cursor=pointer]:
+              - img
+              - text: Загрузка
+          - tabpanel "Неделя" [ref=f1e24]:
+            - generic [ref=f1e25]:
+              - generic [ref=f1e26]:
+                - generic [ref=f1e27]:
+                  - button [ref=f1e28] [cursor=pointer]:
+                    - img
+                  - generic [ref=f1e29]: 04.05.2026 — 10.05.2026
+                  - button [ref=f1e30] [cursor=pointer]:
+                    - img
+                - generic [ref=f1e31]:
+                  - button "Новое бронирование" [ref=f1e32] [cursor=pointer]:
+                    - img
+                    - text: Новое бронирование
+                  - generic [ref=f1e33]:
+                    - img
+                    - text: "Всего: 4"
+                  - generic [ref=f1e34]:
+                    - img
+                    - text: "Свободно: 3"
+                  - generic [ref=f1e35]:
+                    - img
+                    - text: "Занято: 1"
+                  - generic [ref=f1e36]: 75% свободных
+              - table [ref=f1e39]:
+                - rowgroup [ref=f1e40]:
+                  - row "Дом / Тип пнд 04.05 втр 05.05 срд 06.05 чтв 07.05 птн 08.05 суб 09.05 вск 10.05" [ref=f1e41]:
+                    - columnheader "Дом / Тип" [ref=f1e42]
+                    - columnheader "пнд 04.05" [ref=f1e43]:
+                      - generic [ref=f1e44]: пнд
+                      - generic [ref=f1e45]: "04.05"
+                    - columnheader "втр 05.05" [ref=f1e46]:
+                      - generic [ref=f1e47]: втр
+                      - generic [ref=f1e48]: "05.05"
+                    - columnheader "срд 06.05" [ref=f1e49]:
+                      - generic [ref=f1e50]: срд
+                      - generic [ref=f1e51]: "06.05"
+                    - columnheader "чтв 07.05" [ref=f1e52]:
+                      - generic [ref=f1e53]: чтв
+                      - generic [ref=f1e54]: "07.05"
+                    - columnheader "птн 08.05" [ref=f1e55]:
+                      - generic [ref=f1e56]: птн
+                      - generic [ref=f1e57]: "08.05"
+                    - columnheader "суб 09.05" [ref=f1e58]:
+                      - generic [ref=f1e59]: суб
+                      - generic [ref=f1e60]: "09.05"
+                    - columnheader "вск 10.05" [ref=f1e61]:
+                      - generic [ref=f1e62]: вск
+                      - generic [ref=f1e63]: "10.05"
+                - rowgroup [ref=f1e64]:
+                  - row "Коттедж №1 Коттедж — — — — — — Иван Иванов +375291234567 Осталось 5 дн." [ref=f1e65]:
+                    - cell "Коттедж №1 Коттедж" [ref=f1e66]:
+                      - generic [ref=f1e67]: Коттедж №1
+                      - generic [ref=f1e68]: Коттедж
+                    - cell "—" [ref=f1e69]:
+                      - generic [ref=f1e70] [cursor=pointer]: —
+                    - cell "—" [ref=f1e71]:
+                      - generic [ref=f1e72] [cursor=pointer]: —
+                    - cell "—" [ref=f1e73]:
+                      - generic [ref=f1e74] [cursor=pointer]: —
+                    - cell "—" [ref=f1e75]:
+                      - generic [ref=f1e76] [cursor=pointer]: —
+                    - cell "—" [ref=f1e77]:
+                      - generic [ref=f1e78] [cursor=pointer]: —
+                    - cell "—" [ref=f1e79]:
+                      - generic [ref=f1e80] [cursor=pointer]: —
+                    - cell "Иван Иванов +375291234567 Осталось 5 дн." [ref=f1e81]:
+                      - button "Иван Иванов +375291234567 Осталось 5 дн." [ref=f1e82] [cursor=pointer]:
+                        - generic [ref=f1e83]: Иван Иванов
+                        - generic [ref=f1e84]: "+375291234567"
+                        - generic [ref=f1e85]: Осталось 5 дн.
+                  - row "Апартаменты №1 Апартаменты — — — — — — —" [ref=f1e86]:
+                    - cell "Апартаменты №1 Апартаменты" [ref=f1e87]:
+                      - generic [ref=f1e88]: Апартаменты №1
+                      - generic [ref=f1e89]: Апартаменты
+                    - cell "—" [ref=f1e90]:
+                      - generic [ref=f1e91] [cursor=pointer]: —
+                    - cell "—" [ref=f1e92]:
+                      - generic [ref=f1e93] [cursor=pointer]: —
+                    - cell "—" [ref=f1e94]:
+                      - generic [ref=f1e95] [cursor=pointer]: —
+                    - cell "—" [ref=f1e96]:
+                      - generic [ref=f1e97] [cursor=pointer]: —
+                    - cell "—" [ref=f1e98]:
+                      - generic [ref=f1e99] [cursor=pointer]: —
+                    - cell "—" [ref=f1e100]:
+                      - generic [ref=f1e101] [cursor=pointer]: —
+                    - cell "—" [ref=f1e102]:
+                      - generic [ref=f1e103] [cursor=pointer]: —
+                  - row "Летний домик №1 Летние домики — — — — — — —" [ref=f1e104]:
+                    - cell "Летний домик №1 Летние домики" [ref=f1e105]:
+                      - generic [ref=f1e106]: Летний домик №1
+                      - generic [ref=f1e107]: Летние домики
+                    - cell "—" [ref=f1e108]:
+                      - generic [ref=f1e109] [cursor=pointer]: —
+                    - cell "—" [ref=f1e110]:
+                      - generic [ref=f1e111] [cursor=pointer]: —
+                    - cell "—" [ref=f1e112]:
+                      - generic [ref=f1e113] [cursor=pointer]: —
+                    - cell "—" [ref=f1e114]:
+                      - generic [ref=f1e115] [cursor=pointer]: —
+                    - cell "—" [ref=f1e116]:
+                      - generic [ref=f1e117] [cursor=pointer]: —
+                    - cell "—" [ref=f1e118]:
+                      - generic [ref=f1e119] [cursor=pointer]: —
+                    - cell "—" [ref=f1e120]:
+                      - generic [ref=f1e121] [cursor=pointer]: —
+                  - row "Терраса с баней Терраса с баней и мини бассейном — — — — — — —" [ref=f1e122]:
+                    - cell "Терраса с баней Терраса с баней и мини бассейном" [ref=f1e123]:
+                      - generic [ref=f1e124]: Терраса с баней
+                      - generic [ref=f1e125]: Терраса с баней и мини бассейном
+                    - cell "—" [ref=f1e126]:
+                      - generic [ref=f1e127] [cursor=pointer]: —
+                    - cell "—" [ref=f1e128]:
+                      - generic [ref=f1e129] [cursor=pointer]: —
+                    - cell "—" [ref=f1e130]:
+                      - generic [ref=f1e131] [cursor=pointer]: —
+                    - cell "—" [ref=f1e132]:
+                      - generic [ref=f1e133] [cursor=pointer]: —
+                    - cell "—" [ref=f1e134]:
+                      - generic [ref=f1e135] [cursor=pointer]: —
+                    - cell "—" [ref=f1e136]:
+                      - generic [ref=f1e137] [cursor=pointer]: —
+                    - cell "—" [ref=f1e138]:
+                      - generic [ref=f1e139] [cursor=pointer]: —

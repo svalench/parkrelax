@@ -8,8 +8,9 @@ from starlette.datastructures import UploadFile
 from starlette.responses import Response
 from starlette_admin.auth import AuthProvider
 from starlette_admin.contrib.sqla import Admin, ModelView
-from starlette_admin.views import CustomView
+from starlette_admin.views import CustomView, DropDown
 from starlette_admin.exceptions import LoginFailed
+from dataclasses import dataclass
 from starlette_admin.fields import (
     IntegerField,
     StringField,
@@ -17,6 +18,7 @@ from starlette_admin.fields import (
     TinyMCEEditorField,
     BooleanField,
     HasOne,
+    HasMany,
     EnumField,
     ImageField,
     FileField,
@@ -47,17 +49,18 @@ from app.models import (
     EmailAddress,
     Review,
     GalleryItem,
+    AboutSliderItem,
     Booking,
     AccommodationType,
     Accommodation,
     Admin as AdminModel,
-    SiteSettings,
     LegalPage,
     RentalItem,
     SmtpSettings,
     EmailTemplate,
     EmailLog,
     PriceListData,
+    AccommodationImage,
 )
 
 from app.html_sanitize import sanitize_rich_html
@@ -198,6 +201,22 @@ class CustomImageField(ImageField):
         return {"url": url, "filename": filename}
 
 
+@dataclass
+class CroppableImageField(ImageField):
+    """ImageField с inline cropper (Cropper.js) перед отправкой формы."""
+
+    form_template: str = "forms/croppable_image.html"
+    crop_ratio: float | None = None
+
+    async def serialize_value(self, request, value, action):
+        if value is None:
+            return None
+        filename = value.split("/")[-1] if isinstance(value, str) else ""
+        base = str(request.base_url).rstrip("/")
+        url = f"{base}{value}" if value.startswith("/") else value
+        return {"url": url, "filename": filename}
+
+
 class RentalItemView(ModelView):
     fields = [
         IntegerField("id", read_only=True),
@@ -319,7 +338,7 @@ class GalleryItemAdminView(ModelView):
     fields = [
         IntegerField("id", read_only=True),
         StringField("title", label="Заголовок"),
-        CustomImageField("imageUrl", label="Изображение"),
+        CroppableImageField("imageUrl", label="Изображение"),
         StringField("category", label="Категория"),
         IntegerField("sortOrder", label="Порядок сортировки"),
         BooleanField("isActive", label="Активен"),
@@ -348,6 +367,45 @@ class GalleryItemAdminView(ModelView):
 
         if isinstance(file_value, UploadFile) and file_value.filename:
             new_url = _convert_to_webp(file_value, "gallery")
+            data["imageUrl"] = new_url
+            return new_url
+        if isinstance(image_value, str) and image_value.startswith("/uploads/"):
+            return None
+        return None
+
+
+class AboutSliderItemAdminView(ModelView):
+    fields = [
+        IntegerField("id", read_only=True),
+        StringField("title", label="Заголовок"),
+        CroppableImageField("imageUrl", label="Изображение", crop_ratio=0.62),
+        IntegerField("sortOrder", label="Порядок сортировки"),
+        BooleanField("isActive", label="Активен"),
+        DateTimeField("createdAt", label="Создано", read_only=True),
+    ]
+
+    async def before_create(self, request: Request, data: dict, obj: AboutSliderItem) -> None:
+        new_url = await self._process_image_upload(data)
+        if new_url is not None:
+            obj.imageUrl = new_url
+
+    async def before_edit(self, request: Request, data: dict, obj: AboutSliderItem) -> None:
+        old_image_url = obj.imageUrl if obj else None
+        new_url = await self._process_image_upload(data)
+        if new_url is not None:
+            obj.imageUrl = new_url
+            if new_url != old_image_url:
+                _delete_image_file(old_image_url)
+
+    async def _process_image_upload(self, data: dict) -> str | None:
+        image_value = data.get("imageUrl")
+
+        file_value = image_value
+        if isinstance(image_value, tuple) and len(image_value) == 2:
+            file_value, _should_be_deleted = image_value
+
+        if isinstance(file_value, UploadFile) and file_value.filename:
+            new_url = _convert_to_webp(file_value, "about-slider")
             data["imageUrl"] = new_url
             return new_url
         if isinstance(image_value, str) and image_value.startswith("/uploads/"):
@@ -423,6 +481,49 @@ class AccommodationTypeAdminView(ModelView):
         return None
 
 
+class AccommodationImageView(ModelView):
+    fields = [
+        IntegerField("id", read_only=True),
+        HasOne("accommodation", identity="accommodations", label="Апартамент"),
+        CustomImageField("imageUrl", label="Изображение"),
+        IntegerField("sortOrder", label="Порядок сортировки"),
+    ]
+
+    async def before_create(self, request: Request, data: dict, obj: AccommodationImage) -> None:
+        new_url = await self._process_image_upload(data)
+        if new_url is not None:
+            obj.imageUrl = new_url
+
+    async def before_edit(self, request: Request, data: dict, obj: AccommodationImage) -> None:
+        old_image_url = obj.imageUrl if obj else None
+        new_url = await self._process_image_upload(data)
+        if new_url is not None:
+            obj.imageUrl = new_url
+            if new_url != old_image_url:
+                _delete_image_file(old_image_url)
+
+    async def _process_image_upload(self, data: dict) -> str | None:
+        image_value = data.get("imageUrl")
+
+        file_value = image_value
+        if isinstance(image_value, tuple) and len(image_value) == 2:
+            file_value, _should_be_deleted = image_value
+
+        if isinstance(file_value, UploadFile) and file_value.filename:
+            new_url = _convert_to_webp(file_value, "accommodation")
+            data["imageUrl"] = new_url
+            return new_url
+        if isinstance(image_value, str) and image_value.startswith("/uploads/"):
+            return None
+        return None
+
+
+@dataclass
+class GalleryIframeField(TextAreaField):
+    form_template: str = "forms/gallery_iframe.html"
+    read_only: bool = True
+
+
 class AccommodationView(ModelView):
     fields = [
         IntegerField("id", read_only=True),
@@ -440,6 +541,7 @@ class AccommodationView(ModelView):
         BooleanField("isActive", label="Активно"),
         BooleanField("showOnMain", label="Показывать на главной"),
         IntegerField("sortOrder", label="Порядок сортировки"),
+        GalleryIframeField("galleryManager", label="Галерея (массовая загрузка + crop)"),
         DateTimeField("createdAt", label="Создано", read_only=True),
     ]
 
@@ -482,14 +584,6 @@ class AdminAccountView(ModelView):
         StringField("name", label="Имя"),
         DateTimeField("createdAt", label="Создан", read_only=True),
         DateTimeField("updatedAt", label="Обновлён", read_only=True),
-    ]
-
-
-class SiteSettingsAdminView(ModelView):
-    fields = [
-        IntegerField("id", read_only=True),
-        TextAreaField("heroBackgroundUrl", label="Фон hero (URL)"),
-        DateTimeField("updatedAt", label="Обновлено", read_only=True),
     ]
 
 
@@ -603,6 +697,12 @@ class PriceListDataView(ModelView):
         DateTimeField("updatedAt", label="Обновлено", read_only=True),
     ]
 
+    def can_create(self, request) -> bool:
+        return False
+
+    def can_delete(self, request) -> bool:
+        return False
+
     async def before_create(self, request: Request, data: dict, obj: PriceListData) -> None:
         await self._process_upload(data, obj)
 
@@ -662,7 +762,16 @@ admin.add_view(ContactAdminView(Contact, icon="fa fa-address-book", label="Ко�
 admin.add_view(PhoneNumberAdminView(PhoneNumber, icon="fa fa-phone", label="Телефоны", identity="phone-numbers"))
 admin.add_view(EmailAddressAdminView(EmailAddress, icon="fa fa-envelope", label="Email адреса", identity="email-addresses"))
 admin.add_view(ReviewAdminView(Review, icon="fa fa-star", label="Отзывы", identity="reviews"))
-admin.add_view(GalleryItemAdminView(GalleryItem, icon="fa fa-images", label="Галерея", identity="gallery"))
+admin.add_view(
+    DropDown(
+        "Слайдер",
+        icon="fa fa-images",
+        views=[
+            GalleryItemAdminView(GalleryItem, label="Галерея", identity="gallery"),
+            AboutSliderItemAdminView(AboutSliderItem, label="Слайдер О нас", identity="about-slider"),
+        ],
+    )
+)
 admin.add_view(BookingView(Booking, icon="fa fa-calendar-check", label="Бронирования", identity="booking"))
 admin.add_view(
     AccommodationTypeAdminView(
@@ -673,11 +782,19 @@ admin.add_view(
     )
 )
 admin.add_view(AccommodationView(Accommodation, icon="fa fa-home", label="Размещения", identity="accommodations"))
+admin.add_view(AccommodationImageView(AccommodationImage, icon="fa fa-images", label="Галерея апартаментов", identity="accommodation-images"))
 admin.add_view(AdminAccountView(AdminModel, icon="fa fa-user-shield", label="Администраторы", identity="admins"))
-admin.add_view(SiteSettingsAdminView(SiteSettings, icon="fa fa-cogs", label="Настройки сайта", identity="settings"))
 admin.add_view(LegalPageAdminView(LegalPage, icon="fa fa-file-contract", label="Юридические страницы", identity="legal-pages"))
 admin.add_view(RentalItemView(RentalItem, icon="fa fa-bicycle", label="Аренда и услуги", identity="rental-items"))
-admin.add_view(SmtpSettingsView(SmtpSettings, icon="fa fa-envelope", label="SMTP настройки", identity="smtp-settings"))
-admin.add_view(EmailTemplateView(EmailTemplate, icon="fa fa-file-code", label="Шаблоны писем", identity="email-templates"))
-admin.add_view(EmailLogView(EmailLog, icon="fa fa-paper-plane", label="Отправленные письма", identity="email-logs"))
+admin.add_view(
+    DropDown(
+        "Почта",
+        icon="fa fa-envelope",
+        views=[
+            SmtpSettingsView(SmtpSettings, label="SMTP настройки", identity="smtp-settings"),
+            EmailTemplateView(EmailTemplate, label="Шаблоны писем", identity="email-templates"),
+            EmailLogView(EmailLog, label="Отправленные письма", identity="email-logs"),
+        ],
+    )
+)
 admin.add_view(PriceListDataView(PriceListData, icon="fa fa-table", label="Прайс-лист", identity="price-list"))

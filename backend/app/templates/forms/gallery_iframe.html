@@ -1,0 +1,15 @@
+<div class="mb-3">
+    {% if action=='EDIT' and obj and obj.id is defined and obj.id %}
+        <div class="border rounded-lg overflow-hidden" style="height: 650px;">
+            <iframe
+                src="/admin-panel/accommodation-gallery?id={{ obj.id }}"
+                style="width: 100%; height: 100%; border: none;"
+                title="Галерея размещения"
+            ></iframe>
+        </div>
+    {% else %}
+        <div class="alert alert-info">
+            <p class="mb-0">Сохраните размещение, чтобы управлять галереей (массовая загрузка, crop, порядок).</p>
+        </div>
+    {% endif %}
+</div>

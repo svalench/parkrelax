@@ -1,0 +1,133 @@
+- generic [ref=e2]:
+  - complementary [ref=e3]:
+    - generic [ref=e4]:
+      - heading "Комплекс отдыха Парк Relax — админка" [level=1] [ref=e5]:
+        - link "Комплекс отдыха Парк Relax — админка" [ref=e6] [cursor=pointer]:
+          - /url: http://127.0.0.1:8000/admin/
+          - heading "Комплекс отдыха Парк Relax — админка" [level=3] [ref=e7]
+      - list [ref=e9]:
+        - listitem [ref=e10]:
+          - link " Дашборд" [ref=e11] [cursor=pointer]:
+            - /url: http://127.0.0.1:8000/admin/
+            - generic [ref=e13]: 
+            - generic [ref=e14]: Дашборд
+        - listitem [ref=e15]:
+          - link " Пользователи" [ref=e16] [cursor=pointer]:
+            - /url: http://127.0.0.1:8000/admin/users/list
+            - generic [ref=e18]: 
+            - generic [ref=e19]: Пользователи
+        - listitem [ref=e20]:
+          - link " Контакты" [ref=e21] [cursor=pointer]:
+            - /url: http://127.0.0.1:8000/admin/contacts/list
+            - generic [ref=e23]: 
+            - generic [ref=e24]: Контакты
+        - listitem [ref=e25]:
+          - link " Телефоны" [ref=e26] [cursor=pointer]:
+            - /url: http://127.0.0.1:8000/admin/phone-numbers/list
+            - generic [ref=e28]: 
+            - generic [ref=e29]: Телефоны
+        - listitem [ref=e30]:
+          - link " Email адреса" [ref=e31] [cursor=pointer]:
+            - /url: http://127.0.0.1:8000/admin/email-addresses/list
+            - generic [ref=e33]: 
+            - generic [ref=e34]: Email адреса
+        - listitem [ref=e35]:
+          - link " Отзывы" [ref=e36] [cursor=pointer]:
+            - /url: http://127.0.0.1:8000/admin/reviews/list
+            - generic [ref=e38]: 
+            - generic [ref=e39]: Отзывы
+        - listitem [ref=e40]:
+          - button " Слайдер" [ref=e41] [cursor=pointer]:
+            - generic [ref=e43]: 
+            - generic [ref=e44]: Слайдер
+        - listitem [ref=e50]:
+          - link " Бронирования" [ref=e51] [cursor=pointer]:
+            - /url: http://127.0.0.1:8000/admin/booking/list
+            - generic [ref=e53]: 
+            - generic [ref=e54]: Бронирования
+        - listitem [ref=e55]:
+          - link " Типы размещения" [ref=e56] [cursor=pointer]:
+            - /url: http://127.0.0.1:8000/admin/accommodation-type/list
+            - generic [ref=e58]: 
+            - generic [ref=e59]: Типы размещения
+        - listitem [ref=e60]:
+          - link " Размещения" [ref=e61] [cursor=pointer]:
+            - /url: http://127.0.0.1:8000/admin/accommodations/list
+            - generic [ref=e63]: 
+            - generic [ref=e64]: Размещения
+        - listitem [ref=e65]:
+          - link " Администраторы" [ref=e66] [cursor=pointer]:
+            - /url: http://127.0.0.1:8000/admin/admins/list
+            - generic [ref=e68]: 
+            - generic [ref=e69]: Администраторы
+        - listitem [ref=e70]:
+          - link " Юридические страницы" [ref=e71] [cursor=pointer]:
+            - /url: http://127.0.0.1:8000/admin/legal-pages/list
+            - generic [ref=e73]: 
+            - generic [ref=e74]: Юридические страницы
+        - listitem [ref=e75]:
+          - link " Аренда и услуги" [ref=e76] [cursor=pointer]:
+            - /url: http://127.0.0.1:8000/admin/rental-items/list
+            - generic [ref=e78]: 
+            - generic [ref=e79]: Аренда и услуги
+        - listitem [ref=e80]:
+          - button " Почта" [ref=e81] [cursor=pointer]:
+            - generic [ref=e83]: 
+            - generic [ref=e84]: Почта
+          - generic [ref=e87]:
+            - link "SMTP настройки" [ref=e88] [cursor=pointer]:
+              - /url: http://127.0.0.1:8000/admin/smtp-settings/list
+            - link "Шаблоны писем" [ref=e89] [cursor=pointer]:
+              - /url: http://127.0.0.1:8000/admin/email-templates/list
+            - link "Отправленные письма" [ref=e90] [cursor=pointer]:
+              - /url: http://127.0.0.1:8000/admin/email-logs/list
+        - listitem [ref=e91]:
+          - link " Прайс-лист" [ref=e92] [cursor=pointer]:
+            - /url: http://127.0.0.1:8000/admin/price-list/list
+            - generic [ref=e94]: 
+            - generic [ref=e95]: Прайс-лист
+        - link " Выйти" [ref=e96] [cursor=pointer]:
+          - /url: http://127.0.0.1:8000/admin/logout
+          - generic [ref=e97]: 
+          - generic [ref=e98]: Выйти
+  - generic [ref=e99]:
+    - generic [ref=e102]:
+      - heading "Слайдер О нас" [level=1] [ref=e103]
+      - list [ref=e104]:
+        - listitem [ref=e105]:
+          - link "Админ" [ref=e106] [cursor=pointer]:
+            - /url: http://127.0.0.1:8000/admin/
+        - listitem [ref=e107]:
+          - text: /
+          - link "Слайдер О нас" [ref=e108] [cursor=pointer]:
+            - /url: http://127.0.0.1:8000/admin/about-slider/list
+        - listitem [ref=e109]: / Создать
+    - generic [ref=e117]:
+      - heading "Добавить About Slider Item" [level=3] [ref=e121]
+      - generic [ref=e122]:
+        - generic [ref=e123]:
+          - generic [ref=e124]: Заголовок
+          - textbox "Заголовок" [ref=e126]: Тестовый слайд
+        - generic [ref=e127]:
+          - generic [ref=e128]: Изображение
+          - button "Изображение" [ref=e130] [cursor=pointer]
+          - generic [ref=e150]:
+            - generic [ref=e154]:
+              - img "Crop preview" [ref=e157]
+              - img "Crop preview" [ref=e161]
+            - generic [ref=e153]: Перемещайте и масштабируйте изображение, чтобы выбрать видимую область
+        - generic [ref=e131]:
+          - generic [ref=e132]: Порядок сортировки
+          - spinbutton "Порядок сортировки" [ref=e134]
+        - generic [ref=e135]:
+          - generic [ref=e136]: Активен
+          - checkbox "Активен" [ref=e139]
+        - generic [ref=e140]:
+          - generic [ref=e141]: Создано
+          - textbox [ref=e143]
+      - generic [ref=e145]:
+        - link "Отмена" [ref=e146] [cursor=pointer]:
+          - /url: http://127.0.0.1:8000/admin/about-slider/list
+        - button "Сохранить и добавить" [ref=e147] [cursor=pointer]
+        - button "Сохранить и продолжить" [ref=e148] [cursor=pointer]
+        - button "Сохранить" [active] [ref=e149] [cursor=pointer]

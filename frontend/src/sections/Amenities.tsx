@@ -1,3 +1,4 @@
+import { Link } from 'react-router'
 import {
   Home,
   Bed,
@@ -154,13 +155,14 @@ export default function Amenities() {
         {/* Quick tags */}
         <div className="flex flex-wrap gap-3 mb-14">
           {quickTags.map((tag) => (
-            <div
+            <Link
               key={tag.label}
-              className="inline-flex items-center gap-2 bg-white border border-border/60 text-dark text-sm font-medium px-4 py-2 rounded-full shadow-sm"
+              to="/prices"
+              className="inline-flex items-center gap-2 bg-white border border-border/60 text-dark text-sm font-medium px-4 py-2 rounded-full shadow-sm no-underline"
             >
               <tag.icon className="w-4 h-4 text-brand shrink-0" />
               {tag.label}
-            </div>
+            </Link>
           ))}
         </div>
 
@@ -181,12 +183,13 @@ export default function Amenities() {
               </div>
               <div className="flex flex-wrap gap-2">
                 {cat.items.map((item) => (
-                  <span
+                  <Link
                     key={item}
-                    className="inline-block text-xs text-dark bg-lightgray px-2.5 py-1 rounded-full"
+                    to="/prices"
+                    className="inline-block text-xs text-dark bg-lightgray px-2.5 py-1 rounded-full no-underline"
                   >
                     {item}
-                  </span>
+                  </Link>
                 ))}
               </div>
             </div>

@@ -1,0 +1,47 @@
+- generic [ref=e2]:
+  - banner [ref=e3]:
+    - generic [ref=e4]:
+      - link "+375 (29) 500-50-29" [ref=e6] [cursor=pointer]:
+        - /url: tel:+375295005029
+        - img [ref=e7]
+        - text: +375 (29) 500-50-29
+      - navigation [ref=e9]:
+        - link "Главная" [ref=e10] [cursor=pointer]:
+          - /url: /
+        - link "О комплексе" [ref=e11] [cursor=pointer]:
+          - /url: /#about
+        - link "Аренда" [ref=e12] [cursor=pointer]:
+          - /url: /#accommodation
+        - link "Услуги" [ref=e13] [cursor=pointer]:
+          - /url: /#rental
+        - link "Прайс" [ref=e14] [cursor=pointer]:
+          - /url: /prices
+        - link "Галерея" [ref=e15] [cursor=pointer]:
+          - /url: /#gallery
+        - link "Контакты" [ref=e16] [cursor=pointer]:
+          - /url: /#contacts
+      - generic [ref=e17]:
+        - button "Пинский район, д. Кончицы — открыть на Яндекс.Картах" [ref=e18] [cursor=pointer]:
+          - img [ref=e19]
+        - button "Вход" [ref=e22] [cursor=pointer]:
+          - img [ref=e23]
+          - text: Вход
+  - generic [ref=e26]:
+    - region "Notifications alt+T"
+    - generic [ref=e27]:
+      - generic [ref=e28]:
+        - button "Назад" [ref=e29] [cursor=pointer]:
+          - img
+          - text: Назад
+        - 'heading "Галерея: Коттедж №1" [level=1] [ref=e30]'
+      - generic [ref=e32]:
+        - generic [ref=e33]:
+          - generic [ref=e34]:
+            - heading "Текущие фото (0)" [level=2] [ref=e35]
+            - button "Сохранить порядок" [ref=e36] [cursor=pointer]:
+              - img
+              - text: Сохранить порядок
+          - paragraph [ref=e37]: Нет фото
+        - generic [ref=e38] [cursor=pointer]:
+          - img [ref=e39]
+          - paragraph [ref=e42]: Перетащите фото сюда или нажмите для выбора

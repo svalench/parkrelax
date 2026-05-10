@@ -3,12 +3,12 @@ from typing import Optional
 from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy import select, asc, and_, or_, func
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.orm import joinedload
+from sqlalchemy.orm import joinedload, selectinload
 from fastapi_viewsets import AsyncBaseViewset
 
 from app.database import AsyncSessionLocal
 from app.dependencies import get_db, get_current_admin
-from app.models import Accommodation, AccommodationType, Booking
+from app.models import Accommodation, AccommodationType, Booking, AccommodationImage
 from app.schemas import (
     AccommodationResponse,
     AccommodationCreate,
@@ -29,6 +29,17 @@ async def list_types(db: AsyncSession = Depends(get_db)):
     return result.scalars().all()
 
 
+@router.get("/types/{type_id}", response_model=AccommodationTypeResponse)
+async def get_type(type_id: int, db: AsyncSession = Depends(get_db)):
+    result = await db.execute(
+        select(AccommodationType).where(AccommodationType.id == type_id)
+    )
+    type_obj = result.scalar_one_or_none()
+    if not type_obj:
+        raise HTTPException(status_code=404, detail="Тип размещения не найден")
+    return type_obj
+
+
 @router.get("/objects", response_model=list[AccommodationResponse])
 async def list_objects(
     type_id: Optional[int] = Query(None, alias="typeId"),
@@ -36,7 +47,7 @@ async def list_objects(
     show_on_main: Optional[bool] = Query(None, alias="showOnMain"),
     db: AsyncSession = Depends(get_db),
 ):
-    stmt = select(Accommodation).options(joinedload(Accommodation.type))
+    stmt = select(Accommodation).options(joinedload(Accommodation.type), selectinload(Accommodation.images))
     if active_only:
         stmt = stmt.where(Accommodation.isActive == True)
     if type_id:
@@ -61,7 +72,7 @@ async def check_availability(
 ):
     stmt = (
         select(Accommodation)
-        .options(joinedload(Accommodation.type))
+        .options(joinedload(Accommodation.type), selectinload(Accommodation.images))
         .where(Accommodation.isActive == True)
     )
     if type_id:
@@ -105,8 +116,36 @@ async def check_availability(
     return items
 
 
-@router.get("/objects/{object_id}/booked-dates")
+@router.get("/booked-dates")
 async def get_booked_dates(
+    typeId: int | None = None,
+    db: AsyncSession = Depends(get_db),
+):
+    acc_ids_stmt = select(Accommodation.id)
+    if typeId is not None:
+        acc_ids_stmt = acc_ids_stmt.where(Accommodation.typeId == typeId)
+    acc_result = await db.execute(acc_ids_stmt)
+    acc_ids = list(acc_result.scalars().all())
+
+    if not acc_ids:
+        return []
+
+    stmt = select(Booking).where(
+        and_(
+            Booking.accommodationId.in_(acc_ids),
+            Booking.status.in_(["pending", "confirmed"]),
+        )
+    ).order_by(asc(Booking.startDate))
+    result = await db.execute(stmt)
+    bookings = result.scalars().all()
+    return [
+        {"startDate": b.startDate.isoformat(), "endDate": b.endDate.isoformat()}
+        for b in bookings
+    ]
+
+
+@router.get("/objects/{object_id}/booked-dates")
+async def get_object_booked_dates(
     object_id: int,
     db: AsyncSession = Depends(get_db),
 ):

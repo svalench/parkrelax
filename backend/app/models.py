@@ -89,6 +89,17 @@ class GalleryItem(Base):
     createdAt = Column(DateTime, default=func.now(), nullable=True)
 
 
+class AboutSliderItem(Base):
+    __tablename__ = "about_slider"
+
+    id = Column(Integer, primary_key=True, index=True)
+    title = Column(String(200), nullable=True)
+    imageUrl = Column(Text, nullable=True)
+    sortOrder = Column(Integer, default=0, nullable=False)
+    isActive = Column(Boolean, default=True, nullable=False)
+    createdAt = Column(DateTime, default=func.now(), nullable=True)
+
+
 class Accommodation(Base):
     __tablename__ = "accommodations"
 
@@ -106,6 +117,31 @@ class Accommodation(Base):
 
     type = relationship("AccommodationType", back_populates="accommodations")
     bookings = relationship("Booking", back_populates="accommodation")
+    images = relationship(
+        "AccommodationImage",
+        back_populates="accommodation",
+        cascade="all, delete-orphan",
+        order_by="AccommodationImage.sortOrder",
+    )
+
+    @property
+    def galleryManager(self) -> str:
+        return ""
+
+    @galleryManager.setter
+    def galleryManager(self, value: str) -> None:
+        pass
+
+
+class AccommodationImage(Base):
+    __tablename__ = "accommodation_images"
+
+    id = Column(Integer, primary_key=True, index=True)
+    accommodationId = Column(Integer, ForeignKey("accommodations.id", ondelete="CASCADE"), nullable=False)
+    imageUrl = Column(Text, nullable=False)
+    sortOrder = Column(Integer, default=0, nullable=False)
+
+    accommodation = relationship("Accommodation", back_populates="images")
 
 
 class Booking(Base):

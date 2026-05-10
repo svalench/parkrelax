@@ -1,6 +1,6 @@
 import { useEffect, useState, useCallback, useMemo } from 'react'
-import { useSearchParams } from 'react-router'
-import { format, addDays, startOfToday, compareAsc, startOfDay, isSameDay, isAfter, isBefore } from 'date-fns'
+import { useParams, useNavigate } from 'react-router'
+import { format, addDays, startOfToday, compareAsc, startOfDay, isSameDay, isAfter, isBefore, differenceInDays } from 'date-fns'
 import { ru } from 'date-fns/locale'
 import type { DateRange, OnSelectHandler } from 'react-day-picker'
 import {
@@ -10,15 +10,11 @@ import {
   BedDouble,
   Minus,
   Plus,
+  ArrowLeft,
+  Loader2,
+  Home,
   X,
 } from 'lucide-react'
-import {
-  Carousel,
-  CarouselContent,
-  CarouselItem,
-  CarouselNext,
-  CarouselPrevious,
-} from '@/components/ui/carousel'
 
 import { Calendar } from '@/components/ui/calendar'
 import { Button } from '@/components/ui/button'
@@ -27,31 +23,9 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from '@/components/ui/popover'
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select'
-import {
-  Pagination,
-  PaginationContent,
-  PaginationItem,
-  PaginationLink,
-  PaginationNext,
-  PaginationPrevious,
-} from '@/components/ui/pagination'
-
 import { plainTextFromHtml } from '@/lib/safeHtml'
 
 const API_BASE = '/api'
-const cabinToTypeName: Record<string, string> = {
-  cottage: 'Коттедж',
-  apartments: 'Апартаменты',
-  summer: 'Летние домики',
-  terrace: 'Терраса с баней',
-}
 
 interface AccommodationType {
   id: number
@@ -61,12 +35,6 @@ interface AccommodationType {
   pricePerNight: number
   imageUrl?: string
   isActive: boolean
-  sortOrder: number
-}
-
-interface AccommodationImage {
-  id: number
-  imageUrl: string
   sortOrder: number
 }
 
@@ -81,7 +49,6 @@ interface Accommodation {
   isActive: boolean
   sortOrder: number
   type?: AccommodationType
-  images?: AccommodationImage[]
 }
 
 function formatShortDate(d: Date | undefined): string {
@@ -89,7 +56,6 @@ function formatShortDate(d: Date | undefined): string {
   return format(d, 'dd.MM.yyyy')
 }
 
-/** Склонение для строки гостей «N взрослых, M детей». */
 function formatGuestsLabel(adults: number, children: number): string {
   const adultWord = adults % 10 === 1 && adults % 100 !== 11 ? 'взрослый' : 'взрослых'
   if (children === 0) {
@@ -106,32 +72,27 @@ function formatGuestsLabel(adults: number, children: number): string {
   return `${adults} ${adultWord}, ${children} ${childWord}`
 }
 
-export default function BookingPage() {
-  const [searchParams, setSearchParams] = useSearchParams()
+export default function AccommodationTypePage() {
+  const { id } = useParams<{ id: string }>()
+  const navigate = useNavigate()
+  const typeId = Number(id)
 
-  const [types, setTypes] = useState<AccommodationType[]>([])
-  /** После ответа /types (успех или ошибка) — иначе при ?cabin= нельзя бесконечно ждать пустой список. */
-  const [typesReady, setTypesReady] = useState(false)
+  const [type, setType] = useState<AccommodationType | null>(null)
+  const [typeLoading, setTypeLoading] = useState(true)
+  const [typeError, setTypeError] = useState('')
+
   const [objects, setObjects] = useState<Accommodation[]>([])
   const [loading, setLoading] = useState(false)
-  const [totalPages, setTotalPages] = useState(1)
 
-  const [typeId, setTypeId] = useState<string>(searchParams.get('typeId') || 'all')
   const [dateRange, setDateRange] = useState<DateRange | undefined>(() => {
-    const checkIn = searchParams.get('checkIn')
-    const checkOut = searchParams.get('checkOut')
-    if (checkIn && checkOut) {
-      return { from: new Date(checkIn), to: new Date(checkOut) }
-    }
     const t = startOfToday()
     return { from: addDays(t, 1), to: addDays(t, 2) }
   })
-  const [adults, setAdults] = useState<number>(Number(searchParams.get('adults') || '2'))
-  const [children, setChildren] = useState<number>(Number(searchParams.get('children') || '0'))
+  const [adults, setAdults] = useState<number>(2)
+  const [children, setChildren] = useState<number>(0)
   const [guestsOpen, setGuestsOpen] = useState(false)
   const [datesOpen, setDatesOpen] = useState(false)
   const [hoverDate, setHoverDate] = useState<Date | undefined>(undefined)
-  const [page, setPage] = useState(Number(searchParams.get('page') || '1'))
   const [bookedDates, setBookedDates] = useState<Date[]>([])
 
   const hoverFrom = dateRange?.from && !dateRange?.to && hoverDate
@@ -145,80 +106,61 @@ export default function BookingPage() {
         : startOfDay(hoverDate))
     : undefined
 
-  const pageSize = 10
-
-  // Load types
+  const [calendarMonths, setCalendarMonths] = useState(1)
   useEffect(() => {
-    fetch(`${API_BASE}/accommodation/types`)
-      .then((r) => r.json())
-      .then((data) => {
-        setTypes(Array.isArray(data) ? data : [])
-      })
-      .catch(() => setTypes([]))
-      .finally(() => setTypesReady(true))
+    const mq = window.matchMedia('(min-width: 1024px)')
+    const sync = () => setCalendarMonths(mq.matches ? 2 : 1)
+    sync()
+    mq.addEventListener('change', sync)
+    return () => mq.removeEventListener('change', sync)
   }, [])
 
-  /** Пока типы не пришли, ?cabin= из Hero ещё не отражён в typeId — вычисляем id для запроса. */
-  const resolvedTypeId = useMemo(() => {
-    if (types.length === 0) return typeId
-    const cabin = searchParams.get('cabin')
-    if (cabin && cabinToTypeName[cabin]) {
-      const expectedName = cabinToTypeName[cabin]
-      const found = types.find(
-        (t: AccommodationType) => t.name.toLowerCase() === expectedName.toLowerCase(),
-      )
-      if (found) return String(found.id)
-    }
-    return typeId
-  }, [typeId, types, searchParams])
-
-  // Синхронизация фильтра с ?cabin= / ?typeId= (в т.ч. переход с футера)
+  // Load type info
   useEffect(() => {
-    if (types.length === 0) return
-    const cabin = searchParams.get('cabin')
-    if (cabin && cabinToTypeName[cabin]) {
-      const expectedName = cabinToTypeName[cabin]
-      const found = types.find(
-        (t: AccommodationType) => t.name.toLowerCase() === expectedName.toLowerCase()
-      )
-      if (found) setTypeId(String(found.id))
+    if (!typeId) {
+      setTypeError('Неверный ID типа размещения')
+      setTypeLoading(false)
       return
     }
-    const tid = searchParams.get('typeId')
-    if (tid) setTypeId(tid)
-  }, [types, searchParams])
+    setTypeLoading(true)
+    fetch(`${API_BASE}/accommodation/types/${typeId}`)
+      .then((r) => {
+        if (!r.ok) throw new Error('Не найден')
+        return r.json()
+      })
+      .then((data: AccommodationType) => {
+        setType(data)
+        setTypeError('')
+      })
+      .catch(() => setTypeError('Тип размещения не найден'))
+      .finally(() => setTypeLoading(false))
+  }, [typeId])
 
   // Determine if user has changed filters from defaults
   const isFiltered = useMemo(() => {
     const t = startOfToday()
     const defaultFrom = addDays(t, 1)
     const defaultTo = addDays(t, 2)
-    const isDefaultType = typeId === 'all'
     const isDefaultDates = dateRange?.from && dateRange?.to &&
       isSameDay(dateRange.from, defaultFrom) &&
       isSameDay(dateRange.to, defaultTo)
     const isDefaultGuests = adults === 2 && children === 0
-    return !(isDefaultType && isDefaultDates && isDefaultGuests)
-  }, [typeId, dateRange, adults, children])
+    return !(isDefaultDates && isDefaultGuests)
+  }, [dateRange, adults, children])
 
   // Load availability or all objects
   const loadData = useCallback(async () => {
-    await Promise.resolve()
-    const cabin = searchParams.get('cabin')
-    if (cabin && cabinToTypeName[cabin] && !typesReady) {
-      return
-    }
+    if (!typeId) return
     setLoading(true)
 
     if (!isFiltered) {
       const params = new URLSearchParams()
-      if (resolvedTypeId && resolvedTypeId !== 'all') params.set('typeId', resolvedTypeId)
+      params.set('typeId', String(typeId))
       params.set('activeOnly', 'true')
       try {
         const res = await fetch(`${API_BASE}/accommodation/objects?${params.toString()}`)
         const data: Accommodation[] = await res.json()
         setObjects(data)
-        setTotalPages(1)
       } catch {
         setObjects([])
       } finally {
@@ -228,9 +170,7 @@ export default function BookingPage() {
     }
 
     const params = new URLSearchParams()
-    params.set('page', String(page))
-    params.set('pageSize', String(pageSize))
-    if (resolvedTypeId && resolvedTypeId !== 'all') params.set('typeId', resolvedTypeId)
+    params.set('typeId', String(typeId))
     if (dateRange?.from) params.set('checkIn', format(dateRange.from, 'yyyy-MM-dd'))
     if (dateRange?.to) params.set('checkOut', format(dateRange.to, 'yyyy-MM-dd'))
     params.set('adults', String(adults))
@@ -240,42 +180,49 @@ export default function BookingPage() {
       const res = await fetch(`${API_BASE}/accommodation/availability?${params.toString()}`)
       const data: Accommodation[] = await res.json()
       setObjects(data)
-      setTotalPages(Math.max(1, Math.ceil(data.length / pageSize) + (data.length === pageSize ? 1 : 0)))
     } catch {
       setObjects([])
     } finally {
       setLoading(false)
     }
-  }, [isFiltered, resolvedTypeId, dateRange, page, adults, children, typesReady, searchParams])
+  }, [typeId, isFiltered, dateRange, adults, children])
 
   useEffect(() => {
-    loadData()
-  }, [loadData])
+    if (type && !typeError) {
+      loadData()
+    }
+  }, [type, typeError, loadData])
 
-  // Update URL params (мержим с текущим query, чтобы не терять ?cabin= до загрузки типов)
+  // Fetch booked dates for disabled calendar days
   useEffect(() => {
-    setSearchParams(
-      (prev) => {
-        const params = new URLSearchParams(prev)
-        if (typeId && typeId !== 'all') {
-          params.set('typeId', typeId)
-          params.delete('cabin')
-        } else {
-          params.delete('typeId')
+    if (!typeId) {
+      setBookedDates([])
+      return
+    }
+    fetch(`${API_BASE}/accommodation/booked-dates?typeId=${typeId}`)
+      .then((r) => r.json())
+      .then((data: Array<{ startDate: string; endDate: string }>) => {
+        const dates: Date[] = []
+        for (const range of data) {
+          const start = new Date(range.startDate)
+          const end = new Date(range.endDate)
+          const d = new Date(start)
+          while (d < end) {
+            dates.push(new Date(d))
+            d.setDate(d.getDate() + 1)
+          }
         }
-        if (dateRange?.from) params.set('checkIn', format(dateRange.from, 'yyyy-MM-dd'))
-        else params.delete('checkIn')
-        if (dateRange?.to) params.set('checkOut', format(dateRange.to, 'yyyy-MM-dd'))
-        else params.delete('checkOut')
-        if (page > 1) params.set('page', String(page))
-        else params.delete('page')
-        params.set('adults', String(adults))
-        params.set('children', String(children))
-        return params
-      },
-      { replace: true },
-    )
-  }, [typeId, dateRange, page, adults, children, setSearchParams])
+        setBookedDates(dates)
+      })
+      .catch(() => setBookedDates([]))
+  }, [typeId])
+
+  const handleResetFilters = () => {
+    const t = startOfToday()
+    setDateRange({ from: addDays(t, 1), to: addDays(t, 2) })
+    setAdults(2)
+    setChildren(0)
+  }
 
   const handleRangeSelect: OnSelectHandler<DateRange | undefined> = (
     _range,
@@ -310,81 +257,82 @@ export default function BookingPage() {
     }
   }
 
-  const [calendarMonths, setCalendarMonths] = useState(1)
-  useEffect(() => {
-    const mq = window.matchMedia('(min-width: 1024px)')
-    const sync = () => setCalendarMonths(mq.matches ? 2 : 1)
-    sync()
-    mq.addEventListener('change', sync)
-    return () => mq.removeEventListener('change', sync)
-  }, [])
+  const nights = useMemo(() => {
+    if (!dateRange?.from || !dateRange?.to) return 0
+    return Math.max(1, differenceInDays(dateRange.to, dateRange.from))
+  }, [dateRange])
 
-  const handlePageChange = (p: number) => {
-    if (p < 1 || p > totalPages) return
-    setPage(p)
+  if (typeLoading) {
+    return (
+      <div className="min-h-screen bg-lightgray flex items-center justify-center">
+        <Loader2 className="w-10 h-10 animate-spin text-brand" />
+      </div>
+    )
   }
 
-  // Fetch booked dates for disabled calendar days
-  useEffect(() => {
-    const typeIdNum = resolvedTypeId && resolvedTypeId !== 'all' ? Number(resolvedTypeId) : null
-    if (!typeIdNum || isNaN(typeIdNum)) {
-      setBookedDates([])
-      return
-    }
-    fetch(`${API_BASE}/accommodation/booked-dates?typeId=${typeIdNum}`)
-      .then((r) => r.json())
-      .then((data: Array<{ startDate: string; endDate: string }>) => {
-        const dates: Date[] = []
-        for (const range of data) {
-          const start = new Date(range.startDate)
-          const end = new Date(range.endDate)
-          const d = new Date(start)
-          while (d < end) {
-            dates.push(new Date(d))
-            d.setDate(d.getDate() + 1)
-          }
-        }
-        setBookedDates(dates)
-      })
-      .catch(() => setBookedDates([]))
-  }, [resolvedTypeId])
-
-  const handleResetFilters = () => {
-    setTypeId('all')
-    const t = startOfToday()
-    setDateRange({ from: addDays(t, 1), to: addDays(t, 2) })
-    setAdults(2)
-    setChildren(0)
-    setPage(1)
+  if (typeError || !type) {
+    return (
+      <div className="min-h-screen bg-lightgray flex flex-col items-center justify-center gap-4 px-4">
+        <BedDouble className="w-16 h-16 text-gray-300" />
+        <h1 className="text-2xl font-bold text-dark">{typeError || 'Не найдено'}</h1>
+        <Button onClick={() => navigate('/')} variant="outline">
+          <ArrowLeft className="w-4 h-4 mr-2" />
+          На главную
+        </Button>
+      </div>
+    )
   }
 
   return (
     <div className="min-h-screen bg-lightgray">
-        <main className="container-main py-8 md:py-12 pt-24 md:pt-28">
-        <div className="mb-8">
-          <h1 className="text-3xl md:text-4xl font-bold text-dark mb-2">Бронирование аренды</h1>
-          <p className="text-graytext">Выберите даты и тип размещения, чтобы найти свободные варианты</p>
+      {/* Hero */}
+      <section className="relative min-h-[400px] md:min-h-[500px] flex items-end">
+        <div
+          className="absolute inset-0 bg-cover bg-center"
+          style={{ backgroundImage: `url(${type.imageUrl || '/assets/asset_7.jpg'})` }}
+        />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-black/10" />
+        <div className="relative container-main pb-12 pt-32 md:pt-40">
+          <button
+            onClick={() => navigate('/')}
+            className="inline-flex items-center gap-2 text-white/80 hover:text-white text-sm mb-4 transition-colors"
+          >
+            <ArrowLeft className="w-4 h-4" />
+            Назад
+          </button>
+          <h1 className="text-3xl md:text-5xl font-bold text-white mb-4">
+            {type.name}
+          </h1>
+          {type.description && (
+            <div
+              className="text-white/90 text-base md:text-lg max-w-2xl leading-relaxed"
+              dangerouslySetInnerHTML={{ __html: type.description }}
+            />
+          )}
+          <div className="flex items-center gap-4 mt-4 text-white/80 text-sm">
+            <span className="flex items-center gap-1.5">
+              <Users className="w-4 h-4" />
+              До {type.capacity} чел.
+            </span>
+            <span className="flex items-center gap-1.5">
+              <Home className="w-4 h-4" />
+              {type.pricePerNight.toLocaleString('ru-RU')} Br/ночь
+            </span>
+          </div>
         </div>
+      </section>
 
-        {/* Filters */}
+      {/* Search panel */}
+      <main className="container-main py-8 md:py-12">
         <div className="bg-white rounded-2xl border shadow-sm p-4 md:p-6 mb-8">
           <div className="flex flex-col lg:flex-row items-stretch lg:items-end gap-4">
-            {/* Type selector */}
+            {/* Fixed type */}
             <div className="flex-1 min-w-[200px]">
               <label className="text-sm font-medium text-dark mb-1.5 block">Тип аренды</label>
-              <Select value={typeId} onValueChange={(v) => { setTypeId(v); setPage(1) }}>
-                <SelectTrigger className="w-full h-11">
-                  <SelectValue placeholder="Все типы" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">Все типы</SelectItem>
-                  {types.map((t) => (
-                    <SelectItem key={t.id} value={String(t.id)}>
-                      {t.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              <div className="flex items-center gap-2 h-11 px-3 rounded-xl border border-input bg-gray-50 text-sm text-dark">
+                <BedDouble className="w-4 h-4 text-brand shrink-0" />
+                <span className="font-medium">{type.name}</span>
+              </div>
             </div>
 
             {/* Dates */}
@@ -472,7 +420,7 @@ export default function BookingPage() {
                           type="button"
                           className="w-8 h-8 rounded-full bg-brand/10 flex items-center justify-center text-brand hover:bg-brand hover:text-white transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
                           disabled={adults <= 1}
-                          onClick={() => { setAdults((a) => Math.max(1, a - 1)); setPage(1) }}
+                          onClick={() => setAdults((a) => Math.max(1, a - 1))}
                           aria-label="Уменьшить число взрослых"
                         >
                           <Minus className="w-4 h-4" />
@@ -482,7 +430,7 @@ export default function BookingPage() {
                           type="button"
                           className="w-8 h-8 rounded-full bg-brand/10 flex items-center justify-center text-brand hover:bg-brand hover:text-white transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
                           disabled={adults >= 20}
-                          onClick={() => { setAdults((a) => Math.min(20, a + 1)); setPage(1) }}
+                          onClick={() => setAdults((a) => Math.min(20, a + 1))}
                           aria-label="Увеличить число взрослых"
                         >
                           <Plus className="w-4 h-4" />
@@ -505,7 +453,7 @@ export default function BookingPage() {
                           type="button"
                           className="w-8 h-8 rounded-full bg-brand/10 flex items-center justify-center text-brand hover:bg-brand hover:text-white transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
                           disabled={children <= 0}
-                          onClick={() => { setChildren((c) => Math.max(0, c - 1)); setPage(1) }}
+                          onClick={() => setChildren((c) => Math.max(0, c - 1))}
                           aria-label="Уменьшить число детей"
                         >
                           <Minus className="w-4 h-4" />
@@ -515,7 +463,7 @@ export default function BookingPage() {
                           type="button"
                           className="w-8 h-8 rounded-full bg-brand/10 flex items-center justify-center text-brand hover:bg-brand hover:text-white transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
                           disabled={children >= 10}
-                          onClick={() => { setChildren((c) => Math.min(10, c + 1)); setPage(1) }}
+                          onClick={() => setChildren((c) => Math.min(10, c + 1))}
                           aria-label="Увеличить число детей"
                         >
                           <Plus className="w-4 h-4" />
@@ -530,7 +478,7 @@ export default function BookingPage() {
             {/* Search button */}
             <Button
               className="h-11 px-8 bg-brand hover:bg-brand-hover text-white font-semibold rounded-xl"
-              onClick={() => { setPage(1); loadData() }}
+              onClick={loadData}
             >
               Найти
             </Button>
@@ -561,44 +509,29 @@ export default function BookingPage() {
             ))}
           </div>
         ) : objects.length === 0 ? (
-          <div className="text-center py-16">
+          <div className="text-center py-16 bg-white rounded-2xl border shadow-sm">
             <BedDouble className="w-12 h-12 text-gray-300 mx-auto mb-4" />
             <h3 className="text-xl font-semibold text-dark mb-2">Нет доступных вариантов</h3>
-            <p className="text-graytext">Попробуйте изменить даты или тип аренды</p>
+            <p className="text-graytext">Попробуйте изменить даты или количество гостей</p>
           </div>
         ) : (
           <>
-            <div className="grid md:grid-cols-2 gap-5 mb-8">
+            <div className="mb-4 text-sm text-graytext">
+              Найдено {objects.length} {objects.length === 1 ? 'вариант' : objects.length < 5 ? 'варианта' : 'вариантов'} на {nights} {nights === 1 ? 'ночь' : nights < 5 ? 'ночи' : 'ночей'}
+            </div>
+            <div className="grid md:grid-cols-2 gap-5">
               {objects.map((obj) => (
                 <div
                   key={obj.id}
                   className="group bg-white rounded-xl overflow-hidden border shadow-sm hover:shadow-md transition-shadow"
                 >
                   <div className="aspect-[16/10] overflow-hidden relative">
-                    {obj.images && obj.images.length > 0 ? (
-                      <Carousel className="w-full h-full">
-                        <CarouselContent className="h-full">
-                          {obj.images.map((img) => (
-                            <CarouselItem key={img.id} className="h-full pl-0">
-                              <img
-                                src={img.imageUrl}
-                                alt={obj.name}
-                                className="w-full h-full object-cover"
-                              />
-                            </CarouselItem>
-                          ))}
-                        </CarouselContent>
-                        <CarouselPrevious className="left-2 top-1/2 -translate-y-1/2 size-7 bg-white/70 hover:bg-white border-0 text-dark" />
-                        <CarouselNext className="right-2 top-1/2 -translate-y-1/2 size-7 bg-white/70 hover:bg-white border-0 text-dark" />
-                      </Carousel>
-                    ) : (
-                      <img
-                        src={obj.imageUrl || '/assets/asset_7.jpg'}
-                        alt={obj.name}
-                        className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-                      />
-                    )}
-                    <div className="absolute top-3 left-3 z-10">
+                    <img
+                      src={obj.imageUrl || '/assets/asset_7.jpg'}
+                      alt={obj.name}
+                      className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                    />
+                    <div className="absolute top-3 left-3">
                       <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold text-white bg-black/40 backdrop-blur-md border border-white/20">
                         {obj.type?.name || 'Аренда'}
                       </span>
@@ -644,39 +577,6 @@ export default function BookingPage() {
                 </div>
               ))}
             </div>
-
-            {/* Pagination */}
-            {totalPages > 1 && (
-              <Pagination>
-                <PaginationContent>
-                  <PaginationItem>
-                    <PaginationPrevious
-                      href="#"
-                      onClick={(e) => { e.preventDefault(); handlePageChange(page - 1) }}
-                      className={page <= 1 ? 'pointer-events-none opacity-50' : ''}
-                    />
-                  </PaginationItem>
-                  {Array.from({ length: totalPages }).map((_, i) => (
-                    <PaginationItem key={i}>
-                      <PaginationLink
-                        href="#"
-                        onClick={(e) => { e.preventDefault(); handlePageChange(i + 1) }}
-                        isActive={page === i + 1}
-                      >
-                        {i + 1}
-                      </PaginationLink>
-                    </PaginationItem>
-                  ))}
-                  <PaginationItem>
-                    <PaginationNext
-                      href="#"
-                      onClick={(e) => { e.preventDefault(); handlePageChange(page + 1) }}
-                      className={page >= totalPages ? 'pointer-events-none opacity-50' : ''}
-                    />
-                  </PaginationItem>
-                </PaginationContent>
-              </Pagination>
-            )}
           </>
         )}
       </main>

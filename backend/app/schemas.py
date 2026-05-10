@@ -175,6 +175,32 @@ class GalleryItemResponse(GalleryItemBase):
     createdAt: datetime | None = None
 
 
+# ── About Slider ───────────────────────────────────────────────────
+
+class AboutSliderItemBase(BaseModel):
+    title: Optional[str] = None
+    imageUrl: Optional[str] = None
+    sortOrder: int = 0
+    isActive: bool = True
+
+
+class AboutSliderItemCreate(AboutSliderItemBase):
+    pass
+
+
+class AboutSliderItemUpdate(BaseModel):
+    title: Optional[str] = None
+    imageUrl: Optional[str] = None
+    sortOrder: Optional[int] = None
+    isActive: Optional[bool] = None
+
+
+class AboutSliderItemResponse(AboutSliderItemBase):
+    model_config = ConfigDict(from_attributes=True)
+    id: int | None = None
+    createdAt: datetime | None = None
+
+
 # ── Accommodations ─────────────────────────────────────────────────
 
 class AccommodationBase(BaseModel):
@@ -205,11 +231,19 @@ class AccommodationUpdate(BaseModel):
     sortOrder: Optional[int] = None
 
 
+class AccommodationImageResponse(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+    id: int | None = None
+    imageUrl: str
+    sortOrder: int = 0
+
+
 class AccommodationResponse(AccommodationBase):
     model_config = ConfigDict(from_attributes=True)
     id: int | None = None
     createdAt: datetime | None = None
     type: Optional["AccommodationTypeResponse"] = None
+    images: list[AccommodationImageResponse] = []
 
 
 # ── Bookings ───────────────────────────────────────────────────────

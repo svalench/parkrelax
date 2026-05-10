@@ -52,11 +52,10 @@ const categories = [
   },
 ]
 
-interface GalleryItem {
+interface AboutSliderItem {
   id: number
   imageUrl: string | null
   title: string | null
-  category: string
   sortOrder: number
   isActive: boolean
 }
@@ -93,28 +92,28 @@ const polesieFeatures = [
 ]
 
 export default function About() {
-  const [galleryItems, setGalleryItems] = useState<GalleryItem[]>([])
-  const [galleryLoading, setGalleryLoading] = useState(true)
+  const [sliderItems, setSliderItems] = useState<AboutSliderItem[]>([])
+  const [sliderLoading, setSliderLoading] = useState(true)
 
   useEffect(() => {
-    fetch('/api/gallery')
+    fetch('/api/about-slider')
       .then((r) => r.json())
-      .then((data: GalleryItem[]) => {
+      .then((data: AboutSliderItem[]) => {
         const active = Array.isArray(data)
           ? data.filter((i) => i.isActive).sort((a, b) => a.sortOrder - b.sortOrder)
           : []
-        setGalleryItems(active)
-        setGalleryLoading(false)
+        setSliderItems(active)
+        setSliderLoading(false)
       })
       .catch(() => {
-        setGalleryItems([])
-        setGalleryLoading(false)
+        setSliderItems([])
+        setSliderLoading(false)
       })
   }, [])
 
   const images =
-    galleryItems.length > 0
-      ? galleryItems.map((i) => i.imageUrl || '/assets/asset_2.jpg')
+    sliderItems.length > 0
+      ? sliderItems.map((i) => i.imageUrl || '/assets/asset_2.jpg')
       : fallbackImages
 
   return (
@@ -179,7 +178,7 @@ export default function About() {
 
             {/* 3D Slider */}
             <div className="relative rounded-2xl overflow-hidden shadow-xl h-[460px] md:h-[580px]">
-              {galleryLoading ? (
+              {sliderLoading ? (
                 <div className="w-full h-full bg-gray-100 animate-pulse rounded-2xl" />
               ) : images.length === 0 ? (
                 <div className="w-full h-full bg-gray-100 rounded-2xl flex items-center justify-center text-gray-400">

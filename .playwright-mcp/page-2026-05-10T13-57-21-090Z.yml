@@ -1,0 +1,10 @@
+- generic [ref=e4]:
+  - generic [ref=e6]: Вход в админ-панель
+  - generic [ref=e8]:
+    - generic [ref=e9]:
+      - generic [ref=e10]: Логин
+      - textbox [ref=e11]
+    - generic [ref=e12]:
+      - generic [ref=e13]: Пароль
+      - textbox [ref=e14]
+    - button "Войти" [ref=e15] [cursor=pointer]

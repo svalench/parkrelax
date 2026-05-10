@@ -8,7 +8,9 @@ import PaymentPage from './pages/PaymentPage'
 import LoginPage from './pages/LoginPage'
 import ProfilePage from './pages/ProfilePage'
 import AdminDashboardPage from './pages/AdminDashboardPage'
+import AccommodationGalleryPage from './pages/AccommodationGalleryPage'
 import PriceListPage from './pages/PriceListPage'
+import AccommodationTypePage from './pages/AccommodationTypePage'
 
 function AppContent() {
   const location = useLocation()
@@ -26,7 +28,9 @@ function AppContent() {
         <Route path="/profile" element={<ProfilePage />} />
         <Route path="/legal/:slug" element={<LegalPage />} />
         <Route path="/admin-panel" element={<AdminDashboardPage />} />
+        <Route path="/admin-panel/accommodation-gallery" element={<AccommodationGalleryPage />} />
         <Route path="/prices" element={<PriceListPage />} />
+        <Route path="/accommodation/:id" element={<AccommodationTypePage />} />
       </Routes>
     </>
   )

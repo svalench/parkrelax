@@ -1,0 +1,92 @@
+<div class="{% if error %}{{ field.error_class }}{% endif %}">
+    <input type="file" class="form-control {% if error %}is-invalid{% endif %}" id="{{ field.id }}"
+           name="{{ field.id }}" {{ field.input_params() | safe }} accept="image/*"/>
+    {% if field.help_text %}
+        <small class="form-hint">{{ field.help_text }}</small>
+    {% endif %}
+</div>
+{% include "forms/_error.html" %}
+
+<div id="cropper-wrap-{{ field.id }}" style="display:none; margin-top: 1rem;">
+    <div style="max-height: 400px;">
+        <img id="cropper-img-{{ field.id }}" style="max-width: 100%; display: block;" alt="Crop preview">
+    </div>
+    <small class="form-hint text-muted">Перемещайте и масштабируйте изображение, чтобы выбрать видимую область</small>
+</div>
+
+{% if action=='EDIT' and field._isvalid_value(data) %}
+    <div class="mt-2 border p-2 existing-image-wrap-{{ field.id }}">
+        {% include "displays/image.html" %}
+        {% include "forms/_delete.html" %}
+    </div>
+{% endif %}
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.css"
+      integrity="sha512-hvNR0F/e2J7zPPfLC9auFe3/SE0yG4aJCOd/qxew74NN7eyiSKjr7xJJMu1Jy2wf7FXITpWS1E/RY8yzuXN7VA=="
+      crossorigin="anonymous" referrerpolicy="no-referrer" />
+<script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.js"
+        integrity="sha512-9KkIqdfN7ipEW6B6k+Aq20PV31bjODg4AA52W+tYtAE0jE0kMx49bjJ3FgvS56wzmyfMUHbQ4Km2b7l9+Y/+Eg=="
+        crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
+<script>
+(function() {
+    const input = document.getElementById('{{ field.id }}');
+    const wrap = document.getElementById('cropper-wrap-{{ field.id }}');
+    const img = document.getElementById('cropper-img-{{ field.id }}');
+    let cropper = null;
+    const aspectRatioRaw = {{ (field.crop_ratio | string) if field.crop_ratio is not none else 'null' }};
+    const aspectRatio = aspectRatioRaw === null ? NaN : parseFloat(aspectRatioRaw);
+
+    const existingWrap = document.querySelector('.existing-image-wrap-{{ field.id }}');
+
+    input.addEventListener('change', function(e) {
+        if (cropper) {
+            cropper.destroy();
+            cropper = null;
+        }
+        const file = e.target.files[0];
+        if (!file) {
+            wrap.style.display = 'none';
+            if (existingWrap) existingWrap.style.display = 'block';
+            return;
+        }
+        if (existingWrap) existingWrap.style.display = 'none';
+        const reader = new FileReader();
+        reader.onload = function(event) {
+            img.src = event.target.result;
+            wrap.style.display = 'block';
+            if (cropper) cropper.destroy();
+            cropper = new Cropper(img, {
+                aspectRatio: isNaN(aspectRatio) ? NaN : aspectRatio,
+                viewMode: 1,
+                autoCropArea: 0.8,
+                movable: true,
+                zoomable: true,
+                scalable: false,
+                rotatable: false,
+            });
+        };
+        reader.readAsDataURL(file);
+    });
+
+    const form = input.closest('form');
+    form.addEventListener('submit', function(e) {
+        if (!cropper) return;
+        e.preventDefault();
+        cropper.getCroppedCanvas({
+            fillColor: '#fff',
+            imageSmoothingEnabled: true,
+            imageSmoothingQuality: 'high',
+        }).toBlob(function(blob) {
+            const dt = new DataTransfer();
+            const originalFile = input.files[0];
+            const newName = (originalFile.name.replace(/\.[^.]+$/, '') || 'image') + '.webp';
+            dt.items.add(new File([blob], newName, { type: 'image/webp' }));
+            input.files = dt.files;
+            cropper.destroy();
+            cropper = null;
+            HTMLFormElement.prototype.submit.call(form);
+        }, 'image/webp', 0.92);
+    });
+})();
+</script>

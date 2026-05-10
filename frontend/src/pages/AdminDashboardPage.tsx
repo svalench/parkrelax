@@ -34,6 +34,7 @@ import {
   Plus,
   Trash2,
   XCircle,
+  Images,
 } from 'lucide-react'
 
 import { Button } from '@/components/ui/button'
@@ -75,6 +76,7 @@ import {
 } from '@/components/ui/alert-dialog'
 import { Textarea } from '@/components/ui/textarea'
 import { toast } from 'sonner'
+import AccommodationManager from '@/components/AccommodationManager'
 import {
   BarChart,
   Bar,
@@ -111,15 +113,17 @@ interface WeekHouse {
   typeName?: string
   bookings: WeekBooking[]
   isOccupied: boolean
+  occupiedDays: number
 }
 
 interface WeekData {
   weekStart: string
   weekEnd: string
   totalHouses: number
-  occupiedHouses: number
-  freeHouses: number
-  freePercentage: number
+  totalDays: number
+  occupiedDays: number
+  freeDays: number
+  occupancyRate: number
   houses: WeekHouse[]
 }
 
@@ -150,7 +154,8 @@ interface OccupancyType {
   typeId: number
   typeName: string
   totalHouses: number
-  bookingsCount: number
+  totalDays: number
+  occupiedDays: number
   occupancyRate: number
 }
 
@@ -332,6 +337,10 @@ export default function AdminDashboardPage() {
               <TrendingUp className="w-4 h-4" />
               Загрузка
             </TabsTrigger>
+            <TabsTrigger value="accommodations" className="gap-1.5">
+              <Images className="w-4 h-4" />
+              Размещения
+            </TabsTrigger>
           </TabsList>
 
           <TabsContent value="month">
@@ -348,6 +357,9 @@ export default function AdminDashboardPage() {
           </TabsContent>
           <TabsContent value="occupancy">
             <OccupancyTab />
+          </TabsContent>
+          <TabsContent value="accommodations">
+            <AccommodationManager />
           </TabsContent>
         </Tabs>
       </div>
@@ -930,18 +942,18 @@ function WeekTab() {
           </Button>
           <Badge variant="outline" className="gap-1">
             <Home className="w-3.5 h-3.5" />
-            Всего: {data?.totalHouses ?? 0}
+            {data?.totalHouses ?? 0} домов
           </Badge>
           <Badge variant="outline" className="gap-1 text-emerald-700 border-emerald-200 bg-emerald-50">
             <BedDouble className="w-3.5 h-3.5" />
-            Свободно: {data?.freeHouses ?? 0}
+            Свободно: {data?.freeDays ?? 0} дн.
           </Badge>
           <Badge variant="outline" className="gap-1 text-amber-700 border-amber-200 bg-amber-50">
             <Users className="w-3.5 h-3.5" />
-            Занято: {data?.occupiedHouses ?? 0}
+            Занято: {data?.occupiedDays ?? 0} дн.
           </Badge>
           <Badge variant="outline" className="gap-1">
-            {data?.freePercentage ?? 0}% свободных
+            {data?.occupancyRate ?? 0}% загрузки
           </Badge>
         </div>
       </div>
@@ -1492,7 +1504,7 @@ function OccupancyTab() {
       name: t.typeName,
       Загрузка: t.occupancyRate,
       Домов: t.totalHouses,
-      Броней: t.bookingsCount,
+      'Занято дней': t.occupiedDays,
     }))
   }, [data])
 
@@ -1563,7 +1575,7 @@ function OccupancyTab() {
                   <div className="flex items-center justify-between text-sm">
                     <span className="font-medium">{t.typeName}</span>
                     <span className="text-graytext">
-                      {t.bookingsCount} броней / {t.totalHouses} домов
+                      {t.occupiedDays} занято / {t.totalDays} дней
                     </span>
                   </div>
                   <Progress value={t.occupancyRate} className="h-2" />

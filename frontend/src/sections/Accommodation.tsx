@@ -87,7 +87,7 @@ export default function Accommodation() {
           {types.map((type) => (
             <div
               key={type.id}
-              onClick={() => navigate(`/booking?typeId=${type.id}`)}
+              onClick={() => navigate(`/accommodation/${type.id}`)}
               className="group cursor-pointer rounded-2xl overflow-hidden border border-border/60 bg-white shadow-sm hover:shadow-xl hover:border-brand/30 transition-all duration-300"
             >
               <div className="relative aspect-[4/3] overflow-hidden">

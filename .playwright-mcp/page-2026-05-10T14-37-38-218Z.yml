@@ -1,0 +1,250 @@
+- generic [ref=e2]:
+  - complementary [ref=e3]:
+    - generic [ref=e4]:
+      - heading "Комплекс отдыха Парк Relax — админка" [level=1] [ref=e5]:
+        - link "Комплекс отдыха Парк Relax — админка" [ref=e6] [cursor=pointer]:
+          - /url: http://127.0.0.1:8000/admin/
+          - heading "Комплекс отдыха Парк Relax — админка" [level=3] [ref=e7]
+      - list [ref=e9]:
+        - listitem [ref=e10]:
+          - link " Дашборд" [ref=e11] [cursor=pointer]:
+            - /url: http://127.0.0.1:8000/admin/
+            - generic [ref=e13]: 
+            - generic [ref=e14]: Дашборд
+        - listitem [ref=e15]:
+          - link " Пользователи" [ref=e16] [cursor=pointer]:
+            - /url: http://127.0.0.1:8000/admin/users/list
+            - generic [ref=e18]: 
+            - generic [ref=e19]: Пользователи
+        - listitem [ref=e20]:
+          - link " Контакты" [ref=e21] [cursor=pointer]:
+            - /url: http://127.0.0.1:8000/admin/contacts/list
+            - generic [ref=e23]: 
+            - generic [ref=e24]: Контакты
+        - listitem [ref=e25]:
+          - link " Телефоны" [ref=e26] [cursor=pointer]:
+            - /url: http://127.0.0.1:8000/admin/phone-numbers/list
+            - generic [ref=e28]: 
+            - generic [ref=e29]: Телефоны
+        - listitem [ref=e30]:
+          - link " Email адреса" [ref=e31] [cursor=pointer]:
+            - /url: http://127.0.0.1:8000/admin/email-addresses/list
+            - generic [ref=e33]: 
+            - generic [ref=e34]: Email адреса
+        - listitem [ref=e35]:
+          - link " Отзывы" [ref=e36] [cursor=pointer]:
+            - /url: http://127.0.0.1:8000/admin/reviews/list
+            - generic [ref=e38]: 
+            - generic [ref=e39]: Отзывы
+        - listitem [ref=e40]:
+          - button " Слайдер" [ref=e41] [cursor=pointer]:
+            - generic [ref=e43]: 
+            - generic [ref=e44]: Слайдер
+          - generic [ref=e47]:
+            - link "Галерея" [ref=e48] [cursor=pointer]:
+              - /url: http://127.0.0.1:8000/admin/gallery/list
+            - link "Слайдер О нас" [ref=e49] [cursor=pointer]:
+              - /url: http://127.0.0.1:8000/admin/about-slider/list
+        - listitem [ref=e50]:
+          - link " Бронирования" [ref=e51] [cursor=pointer]:
+            - /url: http://127.0.0.1:8000/admin/booking/list
+            - generic [ref=e53]: 
+            - generic [ref=e54]: Бронирования
+        - listitem [ref=e55]:
+          - link " Типы размещения" [ref=e56] [cursor=pointer]:
+            - /url: http://127.0.0.1:8000/admin/accommodation-type/list
+            - generic [ref=e58]: 
+            - generic [ref=e59]: Типы размещения
+        - listitem [ref=e60]:
+          - link " Размещения" [ref=e61] [cursor=pointer]:
+            - /url: http://127.0.0.1:8000/admin/accommodations/list
+            - generic [ref=e63]: 
+            - generic [ref=e64]: Размещения
+        - listitem [ref=e65]:
+          - link " Галерея апартаментов" [ref=e66] [cursor=pointer]:
+            - /url: http://127.0.0.1:8000/admin/accommodation-images/list
+            - generic [ref=e68]: 
+            - generic [ref=e69]: Галерея апартаментов
+        - listitem [ref=e70]:
+          - link " Администраторы" [ref=e71] [cursor=pointer]:
+            - /url: http://127.0.0.1:8000/admin/admins/list
+            - generic [ref=e73]: 
+            - generic [ref=e74]: Администраторы
+        - listitem [ref=e75]:
+          - link " Юридические страницы" [ref=e76] [cursor=pointer]:
+            - /url: http://127.0.0.1:8000/admin/legal-pages/list
+            - generic [ref=e78]: 
+            - generic [ref=e79]: Юридические страницы
+        - listitem [ref=e80]:
+          - link " Аренда и услуги" [ref=e81] [cursor=pointer]:
+            - /url: http://127.0.0.1:8000/admin/rental-items/list
+            - generic [ref=e83]: 
+            - generic [ref=e84]: Аренда и услуги
+        - listitem [ref=e85]:
+          - button " Почта" [ref=e86] [cursor=pointer]:
+            - generic [ref=e88]: 
+            - generic [ref=e89]: Почта
+          - generic [ref=e92]:
+            - link "SMTP настройки" [ref=e93] [cursor=pointer]:
+              - /url: http://127.0.0.1:8000/admin/smtp-settings/list
+            - link "Шаблоны писем" [ref=e94] [cursor=pointer]:
+              - /url: http://127.0.0.1:8000/admin/email-templates/list
+            - link "Отправленные письма" [ref=e95] [cursor=pointer]:
+              - /url: http://127.0.0.1:8000/admin/email-logs/list
+        - listitem [ref=e96]:
+          - link " Прайс-лист" [ref=e97] [cursor=pointer]:
+            - /url: http://127.0.0.1:8000/admin/price-list/list
+            - generic [ref=e99]: 
+            - generic [ref=e100]: Прайс-лист
+        - link " Выйти" [ref=e101] [cursor=pointer]:
+          - /url: http://127.0.0.1:8000/admin/logout
+          - generic [ref=e102]: 
+          - generic [ref=e103]: Выйти
+  - generic [ref=e104]:
+    - generic [ref=e107]:
+      - heading "Размещения" [level=1] [ref=e108]
+      - list [ref=e109]:
+        - listitem [ref=e110]:
+          - link "Админ" [ref=e111] [cursor=pointer]:
+            - /url: http://127.0.0.1:8000/admin/
+        - listitem [ref=e112]:
+          - text: /
+          - link "Размещения" [ref=e113] [cursor=pointer]:
+            - /url: http://127.0.0.1:8000/admin/accommodations/list
+        - listitem [ref=e114]: / Редактировать
+    - generic [ref=e122]:
+      - heading "Редактировать Accommodation" [level=3] [ref=e126]
+      - generic [ref=e127]:
+        - generic [ref=e128]:
+          - generic [ref=e129]: Название
+          - textbox "Название" [ref=e131]: Коттедж №1
+        - generic [ref=e132]:
+          - generic [ref=e133]: Описание
+          - application [ref=e135]:
+            - generic [ref=e136]:
+              - group [ref=e138]:
+                - group [ref=e139]:
+                  - toolbar [ref=e140]:
+                    - button "Undo" [disabled] [ref=e141]:
+                      - img [ref=e143]
+                    - button "Redo" [disabled] [ref=e145]:
+                      - img [ref=e147]
+                  - toolbar [ref=e149]:
+                    - button "Bold" [ref=e150] [cursor=pointer]:
+                      - img [ref=e152]
+                    - button "Italic" [ref=e154] [cursor=pointer]:
+                      - img [ref=e156]
+                    - button "Background color" [ref=e158]:
+                      - img [ref=e160]
+                      - img [ref=e164]
+                  - toolbar [ref=e166]:
+                    - button "Align left" [ref=e167] [cursor=pointer]:
+                      - img [ref=e169]
+                    - button "Align center" [ref=e171] [cursor=pointer]:
+                      - img [ref=e173]
+                    - button "Align right" [ref=e175] [cursor=pointer]:
+                      - img [ref=e177]
+                    - button "Justify" [ref=e179] [cursor=pointer]:
+                      - img [ref=e181]
+                  - toolbar [ref=e183]:
+                    - button "Decrease indent" [disabled] [ref=e184]:
+                      - img [ref=e186]
+                    - button "Increase indent" [ref=e188] [cursor=pointer]:
+                      - img [ref=e190]
+                  - toolbar [ref=e192]:
+                    - button "Clear formatting" [ref=e193] [cursor=pointer]:
+                      - img [ref=e195]
+              - iframe [ref=e199]:
+                - generic "Rich Text Area. Press ALT-0 for help." [active] [ref=f4e1]:
+                  - paragraph [ref=f4e2]: Просторный коттедж с видом на лес
+        - generic [ref=e200]:
+          - generic [ref=e201]: Тип размещения
+          - generic [ref=e202]:
+            - combobox [ref=e203]
+            - 'combobox "id: 1 name: Коттедж description: Просторный двухэтажный коттедж с камином, террасой и панорамными окнами. Идеально для большой компании или семейного праздника. capacity: 8 pricePerNight: 15000 isActive: True" [ref=e206] [cursor=pointer]':
+              - button "Remove all items" [ref=e207]: ×
+              - 'textbox "<span><strong>id: </strong>1 <strong>name: </strong>Коттедж <strong>description: </strong>Просторный двухэтажный коттедж с камином, террасой и панорамными окнами. Идеально для большой компании или семейного праздника. <strong>capacity: </strong>8 <strong>pricePerNight: </strong>15000 <strong>isActive: </strong>True </span>" [ref=e208]':
+                - generic [ref=e209]:
+                  - strong [ref=e210]: "id:"
+                  - text: "1"
+                  - strong [ref=e211]: "name:"
+                  - text: Коттедж
+                  - strong [ref=e212]: "description:"
+                  - text: Просторный двухэтажный коттедж с камином, террасой и панорамными окнами. Идеально для большой компании или семейного праздника.
+                  - strong [ref=e213]: "capacity:"
+                  - text: "8"
+                  - strong [ref=e214]: "pricePerNight:"
+                  - text: "15000"
+                  - strong [ref=e215]: "isActive:"
+                  - text: "True"
+        - generic [ref=e216]:
+          - generic [ref=e217]: Изображение
+          - button "Изображение" [ref=e219] [cursor=pointer]
+          - generic [ref=e220]:
+            - img "asset_7.jpg" [ref=e223]
+            - generic [ref=e224]:
+              - checkbox [ref=e225]
+              - generic [ref=e226]: Удалить
+              - generic [ref=e227] [cursor=pointer]: "?"
+        - generic [ref=e228]:
+          - generic [ref=e229]: Вместимость
+          - spinbutton "Вместимость" [ref=e231]: "0"
+        - generic [ref=e232]:
+          - generic [ref=e233]: Цена за ночь
+          - spinbutton "Цена за ночь" [ref=e235]: "0"
+        - generic [ref=e236]:
+          - generic [ref=e237]: Активно
+          - checkbox "Активно" [checked] [ref=e240]
+        - generic [ref=e241]:
+          - generic [ref=e242]: Показывать на главной
+          - checkbox "Показывать на главной" [ref=e245]
+        - generic [ref=e246]:
+          - generic [ref=e247]: Порядок сортировки
+          - spinbutton "Порядок сортировки" [ref=e249]: "0"
+        - generic [ref=e250]:
+          - generic [ref=e251]: Галерея (массовая загрузка + crop)
+          - iframe [ref=e254]:
+            - generic [ref=f3e2]:
+              - banner [ref=f3e3]:
+                - generic [ref=f3e4]:
+                  - generic [ref=f3e5]:
+                    - button "Открыть меню" [ref=f3e6] [cursor=pointer]:
+                      - img [ref=f3e7]
+                    - link "+375 (29) 500-50-29" [ref=f3e8] [cursor=pointer]:
+                      - /url: tel:+375295005029
+                      - img [ref=f3e9]
+                      - text: +375 (29) 500-50-29
+                  - generic [ref=f3e11]:
+                    - button "Пинский район, д. Кончицы — открыть на Яндекс.Картах" [ref=f3e12] [cursor=pointer]:
+                      - img [ref=f3e13]
+                    - button "Вход" [ref=f3e16] [cursor=pointer]:
+                      - img [ref=f3e17]
+                      - text: Вход
+              - generic [ref=f3e20]:
+                - region "Notifications alt+T"
+                - generic [ref=f3e21]:
+                  - generic [ref=f3e22]:
+                    - button "Назад" [ref=f3e23] [cursor=pointer]:
+                      - img
+                      - text: Назад
+                    - 'heading "Галерея: Коттедж №1" [level=1] [ref=f3e24]'
+                  - generic [ref=f3e26]:
+                    - generic [ref=f3e27]:
+                      - generic [ref=f3e28]:
+                        - heading "Текущие фото (0)" [level=2] [ref=f3e29]
+                        - button "Сохранить порядок" [ref=f3e30] [cursor=pointer]:
+                          - img
+                          - text: Сохранить порядок
+                      - paragraph [ref=f3e31]: Нет фото
+                    - generic [ref=f3e32] [cursor=pointer]:
+                      - img [ref=f3e33]
+                      - paragraph [ref=f3e36]: Перетащите фото сюда или нажмите для выбора
+        - generic [ref=e255]:
+          - generic [ref=e256]: Создано
+          - textbox [ref=e258]: Май 4, 2026 20:21:57
+      - generic [ref=e260]:
+        - link "Отмена" [ref=e261] [cursor=pointer]:
+          - /url: http://127.0.0.1:8000/admin/accommodations/list
+        - button "Сохранить и добавить" [ref=e262] [cursor=pointer]
+        - button "Сохранить и продолжить" [ref=e263] [cursor=pointer]
+        - button "Сохранить" [ref=e264] [cursor=pointer]
