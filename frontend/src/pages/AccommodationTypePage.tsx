@@ -327,7 +327,7 @@ export default function AccommodationTypePage() {
         <div className="bg-white rounded-2xl border shadow-sm p-4 md:p-6 mb-8">
           <div className="flex flex-col lg:flex-row items-stretch lg:items-end gap-4">
             {/* Fixed type */}
-            <div className="flex-1 min-w-[200px]">
+            <div className="flex-[1_1_200px] min-w-[200px]">
               <label className="text-sm font-medium text-dark mb-1.5 block">Тип аренды</label>
               <div className="flex items-center gap-2 h-11 px-3 rounded-xl border border-input bg-gray-50 text-sm text-dark">
                 <BedDouble className="w-4 h-4 text-brand shrink-0" />
@@ -336,7 +336,7 @@ export default function AccommodationTypePage() {
             </div>
 
             {/* Dates */}
-            <div className="flex-1 min-w-[280px]">
+            <div className="flex-[1_1_280px] min-w-[280px]">
               <label className="text-sm font-medium text-dark mb-1.5 block">Даты аренды</label>
               <Popover open={datesOpen} onOpenChange={setDatesOpen}>
                 <PopoverTrigger asChild>
@@ -383,7 +383,7 @@ export default function AccommodationTypePage() {
             </div>
 
             {/* Guests */}
-            <div className="flex-1 min-w-[200px]">
+            <div className="flex-[1_1_200px] min-w-[200px]">
               <label className="text-sm font-medium text-dark mb-1.5 block">Гости</label>
               <Popover open={guestsOpen} onOpenChange={setGuestsOpen}>
                 <PopoverTrigger asChild>
@@ -475,23 +475,23 @@ export default function AccommodationTypePage() {
               </Popover>
             </div>
 
-            {/* Search button */}
-            <Button
-              className="h-11 px-8 bg-brand hover:bg-brand-hover text-white font-semibold rounded-xl"
-              onClick={loadData}
-            >
-              Найти
-            </Button>
-
-            {/* Reset filters */}
-            <Button
-              variant="outline"
-              className="h-11 px-4 rounded-xl border-gray-200 text-graytext hover:text-dark hover:border-gray-300"
-              onClick={handleResetFilters}
-            >
-              <X className="w-4 h-4 mr-1.5" />
-              Сбросить фильтры
-            </Button>
+            {/* Buttons */}
+            <div className="flex items-center gap-3 shrink-0 self-start lg:self-auto">
+              <Button
+                className="h-11 px-8 bg-brand hover:bg-brand-hover text-white font-semibold rounded-xl"
+                onClick={loadData}
+              >
+                Найти
+              </Button>
+              <Button
+                variant="outline"
+                className="h-11 px-4 rounded-xl border-gray-200 text-graytext hover:text-dark hover:border-gray-300"
+                onClick={handleResetFilters}
+              >
+                <X className="w-4 h-4 mr-1.5" />
+                Сбросить фильтры
+              </Button>
+            </div>
           </div>
         </div>
 

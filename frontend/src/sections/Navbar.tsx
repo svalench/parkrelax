@@ -97,7 +97,7 @@ export default function Navbar() {
   return (
     <>
       <header className={`${headerBase} ${isHome ? headerHome : headerInner}`}>
-        <div className="relative container-main flex items-center justify-between h-16 md:h-20">
+        <div className="relative container-main grid grid-cols-[1fr_auto_1fr] items-center h-16 md:h-20">
           {/* Слева: гамбургер (моб.) + телефон текстом (md+) */}
           <div className="flex items-center gap-2 md:gap-4 min-w-0 shrink-0">
             <button
@@ -127,7 +127,7 @@ export default function Navbar() {
           </div>
 
           {/* Desktop Nav */}
-          <nav className="hidden lg:flex absolute left-1/2 top-1/2 -translate-x-[calc(50%+2.25rem)] -translate-y-1/2 items-center gap-4 xl:gap-6">
+          <nav className="hidden lg:flex items-center justify-center gap-4">
             {navLinks.map((link) => (
               <a
                 key={link.label}
@@ -142,7 +142,7 @@ export default function Navbar() {
           </nav>
 
           {/* Справа */}
-          <div className="flex items-center gap-1 sm:gap-2 md:gap-4 shrink-0 justify-end">
+          <div className="flex items-center gap-1 sm:gap-2 md:gap-3 shrink-0 justify-end">
             <div className="flex md:hidden items-center gap-0.5">
               <a
                 href={phoneHref}
@@ -150,6 +150,19 @@ export default function Navbar() {
                 className={`p-2 rounded-lg transition-colors ${mobileContactIcon}`}
               >
                 <Phone className="w-5 h-5" />
+              </a>
+              <a
+                href="https://www.instagram.com/baza_relax_pinsk/"
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="Instagram"
+                className={`p-2 rounded-lg transition-colors ${mobileContactIcon}`}
+              >
+                <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <rect width="20" height="20" x="2" y="2" rx="5" ry="5" />
+                  <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z" />
+                  <line x1="17.5" x2="17.51" y1="6.5" y2="6.5" />
+                </svg>
               </a>
               <button
                 type="button"
@@ -163,6 +176,26 @@ export default function Navbar() {
               </button>
             </div>
 
+            <a
+              href="https://www.instagram.com/baza_relax_pinsk/"
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="Instagram"
+              className={`hidden md:inline-flex items-center justify-center shrink-0 rounded-lg p-2 transition-colors ${
+                isHome
+                  ? headerLooksSolid
+                    ? 'text-dark hover:bg-black/5'
+                    : 'text-white hover:bg-white/15'
+                  : 'text-dark hover:bg-black/5'
+              }`}
+            >
+              <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <rect width="20" height="20" x="2" y="2" rx="5" ry="5" />
+                <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z" />
+                <line x1="17.5" x2="17.51" y1="6.5" y2="6.5" />
+              </svg>
+            </a>
+
             <button
               type="button"
               onClick={handleAddressClick}
@@ -174,16 +207,16 @@ export default function Navbar() {
                   ? 'Координаты скопированы'
                   : 'Пинский район, д. Кончицы — открыть на Яндекс.Картах'
               }
-              className={`hidden md:inline-flex items-center justify-center shrink-0 rounded-xl text-sm font-semibold border transition-all duration-200 px-2.5 py-2 xl:px-5 ${
+              className={`hidden md:inline-flex items-center justify-center shrink-0 rounded-xl text-sm font-semibold border transition-all duration-200 px-2.5 py-2 2xl:px-5 ${
                 isHome ? addressBtnHome : addressBtnSolid
               }`}
             >
               {copied ? (
-                <Check className="w-4 h-4 shrink-0 xl:mr-1.5" />
+                <Check className="w-4 h-4 shrink-0 2xl:mr-1.5" />
               ) : (
-                <MapPin className="w-4 h-4 shrink-0 xl:mr-1.5" />
+                <MapPin className="w-4 h-4 shrink-0 2xl:mr-1.5" />
               )}
-              <span className="hidden xl:inline">
+              <span className="hidden 2xl:inline">
                 {copied ? 'Скопировано!' : 'Пинский район, д. Кончицы'}
               </span>
             </button>
