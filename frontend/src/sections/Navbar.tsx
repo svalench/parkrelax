@@ -97,9 +97,9 @@ export default function Navbar() {
   return (
     <>
       <header className={`${headerBase} ${isHome ? headerHome : headerInner}`}>
-        <div className="relative container-main grid grid-cols-[1fr_auto_1fr] items-center h-16 md:h-20">
+        <div className="relative mx-auto grid h-16 w-full max-w-[1400px] grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] items-center gap-x-2 px-4 sm:px-6 md:h-20 md:gap-x-3 lg:gap-x-4 lg:px-8">
           {/* Слева: гамбургер (моб.) + телефон текстом (md+) */}
-          <div className="flex items-center gap-2 md:gap-4 min-w-0 shrink-0">
+          <div className="flex min-w-0 items-center gap-2 md:gap-3">
             <button
               type="button"
               aria-expanded={mobileOpen}
@@ -117,22 +117,22 @@ export default function Navbar() {
             </button>
             <a
               href={phoneHref}
-              className={`hidden md:flex items-center gap-2 text-sm font-medium transition-colors duration-300 ${
+              className={`hidden min-w-0 truncate md:flex items-center gap-2 text-xs font-medium transition-colors duration-300 xl:text-sm ${
                 isHome ? textHome : textSolid
               }`}
             >
-              <Phone className="w-4 h-4" />
-              {headerPhone}
+              <Phone className="w-4 h-4 shrink-0" />
+              <span className="truncate">{headerPhone}</span>
             </a>
           </div>
 
           {/* Desktop Nav */}
-          <nav className="hidden lg:flex items-center justify-center gap-4">
+          <nav className="hidden lg:flex items-center justify-center gap-x-2 gap-y-1 whitespace-nowrap xl:gap-x-3 2xl:gap-x-4">
             {navLinks.map((link) => (
               <a
                 key={link.label}
                 href={link.href}
-                className={`text-sm font-medium transition-colors duration-200 ${
+                className={`text-xs font-medium transition-colors duration-200 xl:text-sm ${
                   isHome ? linkHome : linkSolid
                 }`}
               >
@@ -142,7 +142,7 @@ export default function Navbar() {
           </nav>
 
           {/* Справа */}
-          <div className="flex items-center gap-1 sm:gap-2 md:gap-3 shrink-0 justify-end">
+          <div className="flex min-w-max items-center justify-end gap-1 sm:gap-2 md:gap-2.5 lg:gap-3">
             <div className="flex md:hidden items-center gap-0.5">
               <a
                 href={phoneHref}
@@ -207,7 +207,7 @@ export default function Navbar() {
                   ? 'Координаты скопированы'
                   : 'Пинский район, д. Кончицы — открыть на Яндекс.Картах'
               }
-              className={`hidden md:inline-flex items-center justify-center shrink-0 rounded-xl text-sm font-semibold border transition-all duration-200 px-2.5 py-2 2xl:px-5 ${
+              className={`hidden md:inline-flex shrink-0 items-center justify-center rounded-xl border px-2 py-2 text-xs font-semibold transition-all duration-200 xl:px-2.5 xl:text-sm 2xl:px-5 ${
                 isHome ? addressBtnHome : addressBtnSolid
               }`}
             >
@@ -224,7 +224,7 @@ export default function Navbar() {
               <button
                 type="button"
                 onClick={() => navigate('/profile')}
-                className={`hidden md:flex items-center gap-2 text-sm font-medium transition-colors ${
+                className={`hidden min-w-0 shrink md:flex items-center gap-1.5 text-xs font-medium transition-colors xl:gap-2 xl:text-sm ${
                   isHome
                     ? headerLooksSolid
                       ? userBtnHomeSolid
@@ -232,14 +232,14 @@ export default function Navbar() {
                     : userBtnHomeSolid
                 }`}
               >
-                <User className="w-4 h-4" />
-                Личный кабинет
+                <User className="h-4 w-4 shrink-0" />
+                <span className="truncate">Личный кабинет</span>
               </button>
             ) : (
               <button
                 type="button"
                 onClick={() => navigate('/login')}
-                className={`hidden md:flex items-center gap-2 text-sm font-medium transition-colors ${
+                className={`hidden shrink-0 md:flex items-center gap-1.5 text-xs font-medium transition-colors xl:gap-2 xl:text-sm ${
                   isHome
                     ? headerLooksSolid
                       ? userBtnHomeSolid
@@ -247,7 +247,7 @@ export default function Navbar() {
                     : userBtnHomeSolid
                 }`}
               >
-                <User className="w-4 h-4" />
+                <User className="h-4 w-4 shrink-0" />
                 Вход
               </button>
             )}

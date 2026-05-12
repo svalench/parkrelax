@@ -135,34 +135,30 @@ export default function Footer() {
           </div>
         </div>
 
-        {/* Payment icons */}
-        <div className="flex flex-wrap items-center justify-center gap-6 mb-8 grayscale opacity-70">
-          <div className="h-8 flex items-center">
-            <span className="text-sm font-bold tracking-wider">WebPay</span>
-          </div>
-          <div className="h-8 flex items-center">
-            <svg viewBox="0 0 48 32" className="h-6">
-              <rect width="48" height="32" rx="4" fill="white" />
-              <text x="8" y="21" fill="#1A1F71" fontSize="12" fontWeight="bold" fontFamily="Arial">VISA</text>
-            </svg>
-          </div>
-          <div className="h-8 flex items-center">
-            <svg viewBox="0 0 48 32" className="h-6">
-              <rect width="48" height="32" rx="4" fill="white" />
-              <text x="6" y="21" fill="#EB001B" fontSize="10" fontWeight="bold" fontFamily="Arial">Mastercard</text>
-            </svg>
-          </div>
-          <div className="h-8 flex items-center">
-            <span className="text-sm font-bold tracking-wider text-white">БЕЛКАРТ</span>
-          </div>
-          <div className="h-8 flex items-center">
-            <span className="text-sm font-bold tracking-wider text-white">МИР</span>
-          </div>
+        {/* Способы оплаты — SVG в public/images/payments */}
+        <div className="flex flex-wrap items-center justify-center gap-3 mb-8">
+          {(
+            [
+              { src: '/images/payments/visa.svg', alt: 'Visa' },
+              { src: '/images/payments/mastercard.svg', alt: 'Mastercard' },
+              { src: '/images/payments/mir.svg', alt: 'Мир' },
+              { src: '/images/payments/belkart.svg', alt: 'Белкарт' },
+            ] as const
+          ).map(({ src, alt }) => (
+            <div
+              key={src}
+              className="flex h-9 items-center rounded-md bg-white/95 px-2.5 shadow-sm ring-1 ring-white/10"
+            >
+              <img src={src} alt={alt} className="h-6 w-auto max-w-[4.75rem] object-contain" loading="lazy" />
+            </div>
+          ))}
         </div>
 
-        {/* Copyright */}
+        {/* Копирайт */}
         <div className="text-center text-xs text-white/40">
-          ООО «Комплекс отдыха Парк Relax» — © 2024
+          <p className="text-white/65">
+            Парк Relax <span aria-hidden="true">©</span> 2026
+          </p>
         </div>
       </div>
     </footer>
