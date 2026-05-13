@@ -5,6 +5,17 @@ import { Loader2, CreditCard, CheckCircle, ArrowLeft } from 'lucide-react'
 
 const API_BASE = '/api'
 
+async function fetchCsrfToken(): Promise<string | null> {
+  try {
+    const res = await fetch(`${API_BASE}/csrf-token`, { credentials: 'include' })
+    if (!res.ok) return null
+    const data = await res.json()
+    return data.csrfToken || null
+  } catch {
+    return null
+  }
+}
+
 export default function PaymentPage() {
   const navigate = useNavigate()
   const [searchParams] = useSearchParams()
@@ -15,6 +26,7 @@ export default function PaymentPage() {
   const [success, setSuccess] = useState(false)
   const [amount, setAmount] = useState(0)
   const [error, setError] = useState('')
+  const [clientSecret, setClientSecret] = useState('')
 
   useEffect(() => {
     if (!bookingId) {
@@ -22,31 +34,51 @@ export default function PaymentPage() {
       setLoading(false)
       return
     }
-    fetch(`${API_BASE}/payment/initiate`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ bookingId }),
-    })
-      .then((r) => r.json())
-      .then((data) => {
-        if (data.amount !== undefined) {
-          setAmount(data.amount)
-        } else {
-          setError('Не удалось инициализировать оплату')
-        }
+
+    let cancelled = false
+
+    async function init() {
+      const csrf = await fetchCsrfToken()
+      if (cancelled) return
+      const res = await fetch(`${API_BASE}/payment/initiate`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRF-Token': csrf || '',
+        },
+        credentials: 'include',
+        body: JSON.stringify({ bookingId }),
       })
-      .catch(() => setError('Ошибка сети'))
-      .finally(() => setLoading(false))
+      if (cancelled) return
+      const data = await res.json()
+      if (!cancelled) {
+        if (data.amount !== undefined && data.clientSecret) {
+          setAmount(data.amount)
+          setClientSecret(data.clientSecret)
+        } else {
+          setError(data.detail || 'Не удалось инициализировать оплату')
+        }
+        setLoading(false)
+      }
+    }
+
+    init()
+    return () => { cancelled = true }
   }, [bookingId])
 
   const handlePay = async () => {
     setProcessing(true)
     setError('')
     try {
+      const csrf = await fetchCsrfToken()
       const res = await fetch(`${API_BASE}/payment/confirm`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ bookingId, clientSecret: `secret_${bookingId}_mock` }),
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRF-Token': csrf || '',
+        },
+        credentials: 'include',
+        body: JSON.stringify({ bookingId, clientSecret }),
       })
       const data = await res.json()
       if (data.success) {
@@ -109,7 +141,7 @@ export default function PaymentPage() {
 
           <Button
             onClick={handlePay}
-            disabled={processing}
+            disabled={processing || !clientSecret}
             className="w-full h-12 bg-brand hover:bg-brand-hover text-white font-semibold rounded-xl text-base"
           >
             {processing ? <Loader2 className="w-5 h-5 animate-spin" /> : 'Оплатить'}

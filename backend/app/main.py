@@ -7,6 +7,12 @@ from fastapi.staticfiles import StaticFiles
 
 from app.admin import admin
 from app.dependencies import get_current_admin
+from app.security import (
+    SecurityHeadersMiddleware,
+    AuditLoggingMiddleware,
+    csrf_router,
+    csrf_dependency,
+)
 from app.routers import (
     auth,
     admin_auth,
@@ -59,6 +65,8 @@ class ApiPrefixMiddleware:
 
 app = FastAPI(title="Park Relax API", lifespan=lifespan)
 app.add_middleware(ApiPrefixMiddleware)
+app.add_middleware(SecurityHeadersMiddleware)
+app.add_middleware(AuditLoggingMiddleware)
 
 # ── CORS ───────────────────────────────────────────────────────────
 
@@ -86,11 +94,12 @@ app.include_router(upload.router)
 app.include_router(legal_page.router)
 app.include_router(rental.router)
 app.include_router(user_auth.router)
-app.include_router(payment.router)
+app.include_router(payment.router, dependencies=[Depends(csrf_dependency)])
 app.include_router(profile.router)
 app.include_router(admin_dashboard.router)
 app.include_router(price_list.router)
 app.include_router(about_slider.router)
+app.include_router(csrf_router)
 
 # OAuth callback at legacy path
 @app.get("/api/oauth/callback")

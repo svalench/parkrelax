@@ -1,6 +1,6 @@
 from datetime import datetime, date
 from typing import Optional
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, field_validator
 
 
 # ── Users ──────────────────────────────────────────────────────────
@@ -544,6 +544,14 @@ class PaymentInitiateResponse(BaseModel):
 class PaymentConfirmRequest(BaseModel):
     bookingId: int
     clientSecret: str
+
+    @field_validator("clientSecret")
+    @classmethod
+    def validate_client_secret(cls, v: str) -> str:
+        import re
+        if not re.fullmatch(r"secret_\d+_[A-Za-z0-9_-]+", v):
+            raise ValueError("Invalid client secret format")
+        return v
 
 
 class PaymentConfirmResponse(BaseModel):
