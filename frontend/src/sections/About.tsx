@@ -23,7 +23,7 @@ const categories = [
   {
     icon: Home,
     title: 'Размещение и комфорт',
-    desc: 'Уютные коттеджи, апартаменты и летние домики у озера с современным оснащением для комфортной аренды',
+    desc: 'Уютные коттеджи, апартаменты и летние домики у озера с современным оснащением для комфортного размещения',
   },
   {
     icon: WavesIcon,
@@ -125,7 +125,7 @@ export default function About() {
           <div className="grid md:grid-cols-2 gap-12 items-center mb-16">
             {/* Text */}
             <div>
-              <span className="section-label mb-3 block">О НАС</span>
+              <span className="section-label mb-3 block">О комплексе</span>
               <h2 className="text-3xl md:text-4xl font-bold text-dark mb-4">
                 База отдыха в сердце
                 <br />

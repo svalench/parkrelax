@@ -8,6 +8,7 @@ interface AccommodationType {
   description?: string
   capacity: number
   pricePerNight: number
+  priceUnit?: string
   imageUrl?: string
   isActive: boolean
   sortOrder: number
@@ -20,6 +21,7 @@ const fallbackTypes: AccommodationType[] = [
     description: 'Просторный двухэтажный коттедж с камином, террасой и панорамными окнами. Идеально для большой компании или семейного праздника.',
     capacity: 8,
     pricePerNight: 8500,
+    priceUnit: 'ночь',
     imageUrl: '/assets/asset_7.jpg',
     isActive: true,
     sortOrder: 0,
@@ -30,6 +32,7 @@ const fallbackTypes: AccommodationType[] = [
     description: 'Современные апартаменты с балконом, полностью оборудованной кухней и уютной гостиной. Комфорт как дома, но среди природы.',
     capacity: 4,
     pricePerNight: 5200,
+    priceUnit: 'ночь',
     imageUrl: '/assets/asset_8.jpg',
     isActive: true,
     sortOrder: 1,
@@ -40,6 +43,7 @@ const fallbackTypes: AccommodationType[] = [
     description: 'Уютные A-образные домики у озера с террасой и видом на воду. Идеальный выбор для романтического getaway или тихого отдыха.',
     capacity: 6,
     pricePerNight: 4800,
+    priceUnit: 'ночь',
     imageUrl: '/assets/asset_9.jpg',
     isActive: true,
     sortOrder: 2,
@@ -50,6 +54,7 @@ const fallbackTypes: AccommodationType[] = [
     description: 'Большая терраса с русской баней, мини-бассейном и обеденной зоной. Отличное место для вечеринок и корпоративного отдыха.',
     capacity: 10,
     pricePerNight: 12000,
+    priceUnit: 'ночь',
     imageUrl: '/assets/asset_10.jpg',
     isActive: true,
     sortOrder: 3,
@@ -110,7 +115,7 @@ export default function Accommodation() {
                   <span className="text-brand font-bold">
                     {type.pricePerNight.toLocaleString('ru-RU')} Br{' '}
                     <span className="text-sm text-graytext font-normal">
-                      / ночь
+                      / {type.priceUnit || 'ночь'}
                     </span>
                   </span>
                   <span className="text-sm text-brand font-medium group-hover:underline">

@@ -366,6 +366,7 @@ class AccommodationTypeBase(BaseModel):
     description: Optional[str] = None
     capacity: int
     pricePerNight: int
+    priceUnit: Optional[str] = "ночь"
     imageUrl: Optional[str] = None
     isActive: bool = True
     sortOrder: int = 0
@@ -380,6 +381,7 @@ class AccommodationTypeUpdate(BaseModel):
     description: Optional[str] = None
     capacity: Optional[int] = None
     pricePerNight: Optional[int] = None
+    priceUnit: Optional[str] = None
     imageUrl: Optional[str] = None
     isActive: Optional[bool] = None
     sortOrder: Optional[int] = None

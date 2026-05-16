@@ -56,7 +56,7 @@ async def week_dashboard(
         .options(joinedload(Booking.accommodation))
         .where(
             and_(
-                Booking.status.in_(["pending", "confirmed", "paid"]),
+                Booking.status.in_(["pending", "confirmed", "paid", "pending_confirmation"]),
                 Booking.startDate <= sunday,
                 Booking.endDate >= monday,
             )
@@ -152,7 +152,7 @@ async def month_dashboard(
         .options(joinedload(Booking.accommodation))
         .where(
             and_(
-                Booking.status.in_(["pending", "confirmed", "paid"]),
+                Booking.status.in_(["pending", "confirmed", "paid", "pending_confirmation"]),
                 Booking.startDate <= month_end,
                 Booking.endDate >= month_start,
             )
@@ -339,7 +339,7 @@ async def dashboard_stats(
         .select_from(Booking)
         .where(
             and_(
-                Booking.status.in_(["pending", "confirmed", "paid"]),
+                Booking.status.in_(["pending", "confirmed", "paid", "pending_confirmation"]),
                 Booking.startDate <= today,
                 Booking.endDate >= today,
             )
@@ -388,7 +388,7 @@ async def occupancy_by_type(
         .join(Accommodation, Booking.accommodationId == Accommodation.id)
         .where(
             and_(
-                Booking.status.in_(["pending", "confirmed", "paid"]),
+                Booking.status.in_(["pending", "confirmed", "paid", "pending_confirmation"]),
                 Booking.startDate <= end,
                 Booking.endDate >= start,
             )

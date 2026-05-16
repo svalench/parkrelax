@@ -60,7 +60,7 @@ const categories = [
   },
   {
     icon: Bed,
-    title: 'Аренда',
+    title: 'Размещение',
     items: [
       'Коттедж',
       'Домик',

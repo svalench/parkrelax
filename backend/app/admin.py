@@ -444,6 +444,7 @@ class AccommodationTypeAdminView(ModelView):
         ),
         IntegerField("capacity", label="Вместимость"),
         IntegerField("pricePerNight", label="Цена за ночь"),
+        StringField("priceUnit", label="Единица цены (например: ночь, сутки, час)"),
         CustomImageField("imageUrl", label="Изображение"),
         BooleanField("isActive", label="Активно"),
         IntegerField("sortOrder", label="Порядок сортировки"),

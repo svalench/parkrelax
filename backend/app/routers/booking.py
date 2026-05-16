@@ -6,7 +6,7 @@ from fastapi_viewsets import AsyncBaseViewset
 
 from app.database import AsyncSessionLocal
 from app.dependencies import get_db, get_current_user
-from app.models import Booking, Accommodation, User
+from app.models import Booking, Accommodation, User, EmailAddress, SmtpSettings
 from app.schemas import (
     BookingCreate,
     BookingResponse,
@@ -29,7 +29,7 @@ async def _check_accommodation_availability(
     stmt = select(Booking).where(
         and_(
             Booking.accommodationId == accommodation_id,
-            Booking.status.in_(["pending", "confirmed", "paid"]),
+            Booking.status.in_(["pending", "confirmed", "paid", "pending_confirmation"]),
             Booking.startDate < end_date,
             Booking.endDate > start_date,
         )
@@ -61,6 +61,8 @@ async def create_booking(data: BookingCreate, db: AsyncSession = Depends(get_db)
             raise HTTPException(status_code=409, detail="Данный дом занят на выбранный период")
 
     booking = Booking(**data.model_dump())
+    # New public bookings always start as pending_confirmation
+    booking.status = "pending_confirmation"
     db.add(booking)
     await db.flush()
 
@@ -96,10 +98,48 @@ async def create_booking(data: BookingCreate, db: AsyncSession = Depends(get_db)
                 },
             )
         booking.userId = user.id
-        await db.commit()
-        await db.refresh(booking)
 
     await db.commit()
+    await db.refresh(booking)
+
+    # Send notification to admin
+    admin_emails = []
+    email_addrs_result = await db.execute(
+        select(EmailAddress).order_by(EmailAddress.sortOrder)
+    )
+    email_addrs = email_addrs_result.scalars().all()
+    if email_addrs:
+        admin_emails = [ea.email for ea in email_addrs]
+    else:
+        smtp_result = await db.execute(select(SmtpSettings).where(SmtpSettings.isActive == True))
+        smtp = smtp_result.scalar_one_or_none()
+        if smtp and smtp.fromEmail:
+            admin_emails = [smtp.fromEmail]
+
+    if admin_emails and accommodation:
+        nights = max(1, (data.endDate - data.startDate).days)
+        total_price = nights * (accommodation.pricePerNight or 0)
+        admin_url = "https://parkrelax.by/admin"  # production url
+        for admin_email in admin_emails:
+            await send_email(
+                db,
+                to_email=admin_email,
+                template_type="new_booking_admin",
+                variables={
+                    "bookingId": str(booking.id),
+                    "customerName": data.customerName or "—",
+                    "customerPhone": data.customerPhone or "—",
+                    "customerEmail": data.customerEmail or "—",
+                    "houseName": accommodation.name if accommodation else "—",
+                    "startDate": data.startDate.isoformat(),
+                    "endDate": data.endDate.isoformat(),
+                    "adults": str(data.adults or 1),
+                    "children": str(data.children or 0),
+                    "nights": str(nights),
+                    "totalPrice": str(total_price),
+                    "adminUrl": admin_url,
+                },
+            )
 
     # Reload with relationships for serialization
     result = await db.execute(

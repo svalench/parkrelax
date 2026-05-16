@@ -1,0 +1,109 @@
+- generic [ref=e2]:
+  - complementary [ref=e3]:
+    - generic [ref=e4]:
+      - heading "Комплекс отдыха Парк Relax — админка" [level=1] [ref=e5]:
+        - link "Комплекс отдыха Парк Relax — админка" [ref=e6] [cursor=pointer]:
+          - /url: http://127.0.0.1:8000/admin/
+          - heading "Комплекс отдыха Парк Relax — админка" [level=3] [ref=e7]
+      - list [ref=e9]:
+        - listitem [ref=e10]:
+          - link " Дашборд" [ref=e11] [cursor=pointer]:
+            - /url: http://127.0.0.1:8000/admin/
+            - generic [ref=e13]: 
+            - generic [ref=e14]: Дашборд
+        - listitem [ref=e15]:
+          - link " Пользователи" [ref=e16] [cursor=pointer]:
+            - /url: http://127.0.0.1:8000/admin/users/list
+            - generic [ref=e18]: 
+            - generic [ref=e19]: Пользователи
+        - listitem [ref=e20]:
+          - link " Контакты" [ref=e21] [cursor=pointer]:
+            - /url: http://127.0.0.1:8000/admin/contacts/list
+            - generic [ref=e23]: 
+            - generic [ref=e24]: Контакты
+        - listitem [ref=e25]:
+          - link " Телефоны" [ref=e26] [cursor=pointer]:
+            - /url: http://127.0.0.1:8000/admin/phone-numbers/list
+            - generic [ref=e28]: 
+            - generic [ref=e29]: Телефоны
+        - listitem [ref=e30]:
+          - link " Email адреса" [ref=e31] [cursor=pointer]:
+            - /url: http://127.0.0.1:8000/admin/email-addresses/list
+            - generic [ref=e33]: 
+            - generic [ref=e34]: Email адреса
+        - listitem [ref=e35]:
+          - link " Отзывы" [ref=e36] [cursor=pointer]:
+            - /url: http://127.0.0.1:8000/admin/reviews/list
+            - generic [ref=e38]: 
+            - generic [ref=e39]: Отзывы
+        - listitem [ref=e40]:
+          - button " Слайдер" [ref=e41] [cursor=pointer]:
+            - generic [ref=e43]: 
+            - generic [ref=e44]: Слайдер
+          - generic [ref=e47]:
+            - link "Галерея" [ref=e48] [cursor=pointer]:
+              - /url: http://127.0.0.1:8000/admin/gallery/list
+            - link "Слайдер О нас" [ref=e49] [cursor=pointer]:
+              - /url: http://127.0.0.1:8000/admin/about-slider/list
+        - listitem [ref=e50]:
+          - link " Бронирования" [ref=e51] [cursor=pointer]:
+            - /url: http://127.0.0.1:8000/admin/booking/list
+            - generic [ref=e53]: 
+            - generic [ref=e54]: Бронирования
+        - listitem [ref=e55]:
+          - link " Типы размещения" [ref=e56] [cursor=pointer]:
+            - /url: http://127.0.0.1:8000/admin/accommodation-type/list
+            - generic [ref=e58]: 
+            - generic [ref=e59]: Типы размещения
+        - listitem [ref=e60]:
+          - link " Размещения" [ref=e61] [cursor=pointer]:
+            - /url: http://127.0.0.1:8000/admin/accommodations/list
+            - generic [ref=e63]: 
+            - generic [ref=e64]: Размещения
+        - listitem [ref=e65]:
+          - link " Галерея апартаментов" [ref=e66] [cursor=pointer]:
+            - /url: http://127.0.0.1:8000/admin/accommodation-images/list
+            - generic [ref=e68]: 
+            - generic [ref=e69]: Галерея апартаментов
+        - listitem [ref=e70]:
+          - link " Администраторы" [ref=e71] [cursor=pointer]:
+            - /url: http://127.0.0.1:8000/admin/admins/list
+            - generic [ref=e73]: 
+            - generic [ref=e74]: Администраторы
+        - listitem [ref=e75]:
+          - link " Юридические страницы" [ref=e76] [cursor=pointer]:
+            - /url: http://127.0.0.1:8000/admin/legal-pages/list
+            - generic [ref=e78]: 
+            - generic [ref=e79]: Юридические страницы
+        - listitem [ref=e80]:
+          - link " Аренда и услуги" [ref=e81] [cursor=pointer]:
+            - /url: http://127.0.0.1:8000/admin/rental-items/list
+            - generic [ref=e83]: 
+            - generic [ref=e84]: Аренда и услуги
+        - listitem [ref=e85]:
+          - button " Почта" [ref=e86] [cursor=pointer]:
+            - generic [ref=e88]: 
+            - generic [ref=e89]: Почта
+          - generic [ref=e92]:
+            - link "SMTP настройки" [ref=e93] [cursor=pointer]:
+              - /url: http://127.0.0.1:8000/admin/smtp-settings/list
+            - link "Шаблоны писем" [ref=e94] [cursor=pointer]:
+              - /url: http://127.0.0.1:8000/admin/email-templates/list
+            - link "Отправленные письма" [ref=e95] [cursor=pointer]:
+              - /url: http://127.0.0.1:8000/admin/email-logs/list
+        - listitem [ref=e96]:
+          - link " Прайс-лист" [ref=e97] [cursor=pointer]:
+            - /url: http://127.0.0.1:8000/admin/price-list/list
+            - generic [ref=e99]: 
+            - generic [ref=e100]: Прайс-лист
+        - link " Выйти" [ref=e101] [cursor=pointer]:
+          - /url: http://127.0.0.1:8000/admin/logout
+          - generic [ref=e102]: 
+          - generic [ref=e103]: Выйти
+  - generic [ref=e104]:
+    - heading "Дашборд" [level=2] [ref=e109]
+    - iframe [ref=e116]:
+      - generic [ref=f1e3]:
+        - text: Сайт
+        - strong [ref=f1e4]: 127.0.0.1
+        - text: не позволяет установить соединение.

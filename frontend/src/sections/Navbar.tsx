@@ -7,8 +7,8 @@ import { fetchContacts } from '@/lib/contacts'
 const navLinks = [
   { label: 'Главная', href: '/' },
   { label: 'О комплексе', href: '/#about' },
-  { label: 'Аренда', href: '/#accommodation' },
-  { label: 'Услуги', href: '/#rental' },
+  { label: 'Размещение', href: '/#accommodation' },
+  { label: 'Прокат', href: '/#rental' },
   { label: 'Прайс', href: '/prices' },
   { label: 'Галерея', href: '/#gallery' },
   { label: 'Контакты', href: '/#contacts' },

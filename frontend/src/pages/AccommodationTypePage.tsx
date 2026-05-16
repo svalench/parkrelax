@@ -33,6 +33,7 @@ interface AccommodationType {
   description?: string
   capacity: number
   pricePerNight: number
+  priceUnit?: string
   imageUrl?: string
   isActive: boolean
   sortOrder: number
@@ -316,7 +317,7 @@ export default function AccommodationTypePage() {
             </span>
             <span className="flex items-center gap-1.5">
               <Home className="w-4 h-4" />
-              {type.pricePerNight.toLocaleString('ru-RU')} Br/ночь
+              {type.pricePerNight.toLocaleString('ru-RU')} Br/{type.priceUnit || 'ночь'}
             </span>
           </div>
         </div>
@@ -328,7 +329,7 @@ export default function AccommodationTypePage() {
           <div className="flex flex-col lg:flex-row items-stretch lg:items-end gap-4">
             {/* Fixed type */}
             <div className="flex-[1_1_200px] min-w-[200px]">
-              <label className="text-sm font-medium text-dark mb-1.5 block">Тип аренды</label>
+              <label className="text-sm font-medium text-dark mb-1.5 block">Тип размещения</label>
               <div className="flex items-center gap-2 h-11 px-3 rounded-xl border border-input bg-gray-50 text-sm text-dark">
                 <BedDouble className="w-4 h-4 text-brand shrink-0" />
                 <span className="font-medium">{type.name}</span>
@@ -337,7 +338,7 @@ export default function AccommodationTypePage() {
 
             {/* Dates */}
             <div className="flex-[1_1_280px] min-w-[280px]">
-              <label className="text-sm font-medium text-dark mb-1.5 block">Даты аренды</label>
+              <label className="text-sm font-medium text-dark mb-1.5 block">Даты размещения</label>
               <Popover open={datesOpen} onOpenChange={setDatesOpen}>
                 <PopoverTrigger asChild>
                   <button
@@ -533,7 +534,7 @@ export default function AccommodationTypePage() {
                     />
                     <div className="absolute top-3 left-3">
                       <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold text-white bg-black/40 backdrop-blur-md border border-white/20">
-                        {obj.type?.name || 'Аренда'}
+                        {obj.type?.name || 'Размещение'}
                       </span>
                     </div>
                   </div>
@@ -554,7 +555,7 @@ export default function AccommodationTypePage() {
                         )}
                         {(obj.pricePerNight || obj.type?.pricePerNight) && (
                           <span className="font-medium text-dark">
-                            {(obj.pricePerNight || obj.type?.pricePerNight || 0).toLocaleString('ru-RU')} Br/ночь
+                            {(obj.pricePerNight || obj.type?.pricePerNight || 0).toLocaleString('ru-RU')} Br/{obj.type?.priceUnit || 'ночь'}
                           </span>
                         )}
                       </div>

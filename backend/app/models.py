@@ -197,6 +197,7 @@ class AccommodationType(Base):
     description = Column(Text, nullable=True)
     capacity = Column(Integer, nullable=False)
     pricePerNight = Column(Integer, nullable=False)
+    priceUnit = Column(String(50), default="ночь", nullable=True)
     imageUrl = Column(Text, nullable=True)
     isActive = Column(Boolean, default=True, nullable=False)
     sortOrder = Column(Integer, default=0, nullable=False)

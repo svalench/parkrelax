@@ -59,6 +59,7 @@ interface AccommodationType {
   description?: string
   capacity: number
   pricePerNight: number
+  priceUnit?: string
   imageUrl?: string
   isActive: boolean
   sortOrder: number
@@ -362,7 +363,7 @@ export default function BookingPage() {
     <div className="min-h-screen bg-lightgray">
         <main className="container-main py-8 md:py-12 pt-24 md:pt-28">
         <div className="mb-8">
-          <h1 className="text-3xl md:text-4xl font-bold text-dark mb-2">Бронирование аренды</h1>
+          <h1 className="text-3xl md:text-4xl font-bold text-dark mb-2">Бронирование размещения</h1>
           <p className="text-graytext">Выберите даты и тип размещения, чтобы найти свободные варианты</p>
         </div>
 
@@ -371,7 +372,7 @@ export default function BookingPage() {
           <div className="flex flex-col lg:flex-row lg:flex-wrap items-stretch lg:items-end gap-4">
             {/* Type selector */}
             <div className="flex-[1_1_200px] min-w-[200px]">
-              <label className="text-sm font-medium text-dark mb-1.5 block">Тип аренды</label>
+              <label className="text-sm font-medium text-dark mb-1.5 block">Тип размещения</label>
               <Select value={typeId} onValueChange={(v) => { setTypeId(v); setPage(1) }}>
                 <SelectTrigger className="w-full h-11">
                   <SelectValue placeholder="Все типы" />
@@ -389,7 +390,7 @@ export default function BookingPage() {
 
             {/* Dates */}
             <div className="flex-[1_1_280px] min-w-[280px]">
-              <label className="text-sm font-medium text-dark mb-1.5 block">Даты аренды</label>
+              <label className="text-sm font-medium text-dark mb-1.5 block">Даты размещения</label>
               <Popover open={datesOpen} onOpenChange={setDatesOpen}>
                 <PopoverTrigger asChild>
                   <button
@@ -564,7 +565,7 @@ export default function BookingPage() {
           <div className="text-center py-16">
             <BedDouble className="w-12 h-12 text-gray-300 mx-auto mb-4" />
             <h3 className="text-xl font-semibold text-dark mb-2">Нет доступных вариантов</h3>
-            <p className="text-graytext">Попробуйте изменить даты или тип аренды</p>
+            <p className="text-graytext">Попробуйте изменить даты или тип размещения</p>
           </div>
         ) : (
           <>
@@ -600,7 +601,7 @@ export default function BookingPage() {
                     )}
                     <div className="absolute top-3 left-3 z-10">
                       <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold text-white bg-black/40 backdrop-blur-md border border-white/20">
-                        {obj.type?.name || 'Аренда'}
+                        {obj.type?.name || 'Размещение'}
                       </span>
                     </div>
                   </div>
@@ -621,7 +622,7 @@ export default function BookingPage() {
                         )}
                         {(obj.pricePerNight || obj.type?.pricePerNight) && (
                           <span className="font-medium text-dark">
-                            {(obj.pricePerNight || obj.type?.pricePerNight || 0).toLocaleString('ru-RU')} Br/ночь
+                            {(obj.pricePerNight || obj.type?.pricePerNight || 0).toLocaleString('ru-RU')} Br/{obj.type?.priceUnit || 'ночь'}
                           </span>
                         )}
                       </div>

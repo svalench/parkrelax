@@ -191,7 +191,7 @@ export default function Hero() {
                   />
                   <img
                     src="/images/logo.svg"
-                    alt="Комплекс отдыха Парк Relax — лучший комплекс отдыха и аренды на природе"
+                    alt="Комплекс отдыха Парк Relax — лучший комплекс отдыха и размещения на природе"
                     className="relative w-full max-w-[min(100%,420px)] h-auto object-contain drop-shadow-[0_2px_10px_rgba(0,0,0,0.45)] mx-auto md:mx-0"
                   />
                 </span>
@@ -224,7 +224,7 @@ export default function Hero() {
       <div className="relative z-20 w-full pb-4 md:pb-6">
         <div className="container-main">
           <h3 className="text-3xl md:text-4xl font-bold text-white mb-3 md:mb-4 drop-shadow-lg">
-            Бронирование аренды
+            Бронирование размещения
           </h3>
           <div className="bg-white/[0.08] backdrop-blur-xl rounded-2xl border border-white/20 shadow-2xl p-3 md:p-4 animate-in fade-in slide-in-from-bottom-4 duration-700">
             <div className="flex flex-col lg:flex-row items-stretch lg:items-center gap-3">

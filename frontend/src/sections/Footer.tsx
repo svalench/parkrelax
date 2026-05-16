@@ -67,7 +67,7 @@ const staticColumns: { title: string; links: FooterLinkItem[] }[] = [
     links: [
       { label: 'Политика конфиденциальности', to: '/legal/privacy-policy' },
       { label: 'Условия использования файлов cookies', to: '/legal/cookie-policy' },
-      { label: 'Условия аренды и возврата', to: '/legal/rental-terms' },
+      { label: 'Условия размещения и возврата', to: '/legal/rental-terms' },
       { label: 'Публичная оферта', to: '/legal/public-offer' },
     ],
   },
@@ -116,9 +116,9 @@ export default function Footer() {
             </div>
           ))}
 
-          {/* Аренда — динамически из БД */}
+          {/* Размещение — динамически из БД */}
           <div>
-            <h4 className="text-sm font-semibold mb-4">Аренда</h4>
+            <h4 className="text-sm font-semibold mb-4">Размещение</h4>
             <ul className="space-y-2.5">
               {rentalTypes.length > 0 ? (
                 rentalTypes.map((type) => (

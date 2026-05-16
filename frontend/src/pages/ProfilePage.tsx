@@ -92,7 +92,7 @@ export default function ProfilePage() {
               onClick={() => navigate('/booking')}
               className="mt-4 bg-brand hover:bg-brand-hover text-white rounded-xl"
             >
-              Забронировать аренду
+              Забронировать размещение
             </Button>
           </div>
         ) : (
@@ -109,7 +109,7 @@ export default function ProfilePage() {
                   />
                   <div className="flex-1">
                     <div className="flex items-center justify-between mb-2">
-                      <h3 className="font-semibold text-dark text-lg">{b.accommodation?.name || 'Аренда'}</h3>
+                      <h3 className="font-semibold text-dark text-lg">{b.accommodation?.name || 'Размещение'}</h3>
                       <span className={`px-3 py-1 rounded-full text-xs font-semibold ${
                         b.status === 'paid' ? 'bg-green-100 text-green-700' :
                         b.status === 'pending' ? 'bg-yellow-100 text-yellow-700' :

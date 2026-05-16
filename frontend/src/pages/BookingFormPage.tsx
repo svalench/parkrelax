@@ -4,7 +4,15 @@ import { format, differenceInDays } from 'date-fns'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { Loader2, Calendar, Users, ArrowLeft } from 'lucide-react'
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog'
+import { Loader2, Calendar, Users, ArrowLeft, Home, Phone, Mail, User, CheckCircle } from 'lucide-react'
 
 const API_BASE = '/api'
 
@@ -26,6 +34,9 @@ export default function BookingFormPage() {
   const [loading, setLoading] = useState(false)
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState('')
+  const [showConfirm, setShowConfirm] = useState(false)
+  const [showSuccess, setShowSuccess] = useState(false)
+  const [bookingId, setBookingId] = useState<number | null>(null)
 
   const [name, setName] = useState('')
   const [phone, setPhone] = useState('')
@@ -44,7 +55,7 @@ export default function BookingFormPage() {
       .then((data: Accommodation[]) => {
         const found = data.find((a) => a.id === accommodationId)
         if (found) setAccommodation(found)
-        else setError('Аренда не найдена')
+        else setError('Размещение не найдено')
       })
       .catch(() => setError('Не удалось загрузить данные'))
       .finally(() => setLoading(false))
@@ -53,10 +64,15 @@ export default function BookingFormPage() {
   const nights = checkIn && checkOut ? Math.max(1, differenceInDays(new Date(checkOut), new Date(checkIn))) : 0
   const totalPrice = accommodation?.type?.pricePerNight ? nights * accommodation.type.pricePerNight : 0
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
     setError('')
+    setShowConfirm(true)
+  }
+
+  const handleConfirm = async () => {
     setSubmitting(true)
+    setError('')
     try {
       const res = await fetch(`${API_BASE}/booking`, {
         method: 'POST',
@@ -70,18 +86,21 @@ export default function BookingFormPage() {
           adults,
           children,
           accommodationId,
-          status: 'pending',
+          status: 'pending_confirmation',
         }),
       })
       const data = await res.json()
       if (!res.ok) {
         setError(data.detail || 'Не удалось создать бронирование')
+        setShowConfirm(false)
       } else {
-        // Redirect to payment
-        navigate(`/payment?bookingId=${data.id}`)
+        setBookingId(data.id ?? null)
+        setShowConfirm(false)
+        setShowSuccess(true)
       }
     } catch {
       setError('Ошибка сети')
+      setShowConfirm(false)
     } finally {
       setSubmitting(false)
     }
@@ -176,11 +195,164 @@ export default function BookingFormPage() {
               disabled={submitting}
               className="w-full h-12 bg-brand hover:bg-brand-hover text-white font-semibold rounded-xl text-base"
             >
-              {submitting ? <Loader2 className="w-5 h-5 animate-spin" /> : 'Перейти к оплате'}
+              {submitting ? <Loader2 className="w-5 h-5 animate-spin" /> : 'Отправить заявку'}
             </Button>
           </form>
         </div>
       </div>
+
+      {/* Success Dialog */}
+      <Dialog open={showSuccess} onOpenChange={setShowSuccess}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <div className="mx-auto w-16 h-16 bg-brand/10 rounded-full flex items-center justify-center mb-2">
+              <CheckCircle className="w-8 h-8 text-brand" />
+            </div>
+            <DialogTitle className="text-center">Заявка отправлена!</DialogTitle>
+            <DialogDescription className="text-center">
+              С вами скоро свяжутся для уточнения заказа по указанным контактам.
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-3 py-2">
+            <div className="grid grid-cols-2 gap-3">
+              <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-xl">
+                <Phone className="w-5 h-5 text-brand shrink-0" />
+                <div>
+                  <p className="text-sm text-graytext">Телефон</p>
+                  <p className="font-semibold text-dark">{phone || '—'}</p>
+                </div>
+              </div>
+              <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-xl">
+                <Mail className="w-5 h-5 text-brand shrink-0" />
+                <div>
+                  <p className="text-sm text-graytext">Email</p>
+                  <p className="font-semibold text-dark">{email || '—'}</p>
+                </div>
+              </div>
+            </div>
+
+            {accommodation && (
+              <div className="p-3 bg-brand/5 border border-brand/20 rounded-xl text-center">
+                <p className="text-sm text-graytext">Номер заявки</p>
+                <p className="text-lg font-bold text-brand">#{bookingId ?? '—'}</p>
+              </div>
+            )}
+          </div>
+
+          <DialogFooter className="flex-col sm:flex-row gap-2">
+            <Button variant="outline" onClick={() => navigate('/')} className="w-full">
+              На главную
+            </Button>
+            <Button onClick={() => navigate('/profile')} className="w-full bg-brand hover:bg-brand-hover text-white">
+              Перейти в профиль
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Confirmation Dialog */}
+      <Dialog open={showConfirm} onOpenChange={setShowConfirm}>
+        <DialogContent className="sm:max-w-lg">
+          <DialogHeader>
+            <DialogTitle>Проверьте данные бронирования</DialogTitle>
+            <DialogDescription>
+              Пожалуйста, перепроверьте информацию перед отправкой заявки.
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-3 py-2">
+            {accommodation && (
+              <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-xl">
+                <Home className="w-5 h-5 text-brand shrink-0" />
+                <div>
+                  <p className="text-sm text-graytext">Размещение</p>
+                  <p className="font-semibold text-dark">{accommodation.name} ({accommodation.type?.name})</p>
+                </div>
+              </div>
+            )}
+
+            <div className="grid grid-cols-2 gap-3">
+              <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-xl">
+                <Calendar className="w-5 h-5 text-brand shrink-0" />
+                <div>
+                  <p className="text-sm text-graytext">Заезд</p>
+                  <p className="font-semibold text-dark">{checkIn ? format(new Date(checkIn), 'dd.MM.yyyy') : '—'}</p>
+                </div>
+              </div>
+              <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-xl">
+                <Calendar className="w-5 h-5 text-brand shrink-0" />
+                <div>
+                  <p className="text-sm text-graytext">Выезд</p>
+                  <p className="font-semibold text-dark">{checkOut ? format(new Date(checkOut), 'dd.MM.yyyy') : '—'}</p>
+                </div>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-xl">
+              <User className="w-5 h-5 text-brand shrink-0" />
+              <div>
+                <p className="text-sm text-graytext">Гость</p>
+                <p className="font-semibold text-dark">{name || '—'}</p>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-3">
+              <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-xl">
+                <Phone className="w-5 h-5 text-brand shrink-0" />
+                <div>
+                  <p className="text-sm text-graytext">Телефон</p>
+                  <p className="font-semibold text-dark">{phone || '—'}</p>
+                </div>
+              </div>
+              <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-xl">
+                <Mail className="w-5 h-5 text-brand shrink-0" />
+                <div>
+                  <p className="text-sm text-graytext">Email</p>
+                  <p className="font-semibold text-dark">{email || '—'}</p>
+                </div>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-3">
+              <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-xl">
+                <Users className="w-5 h-5 text-brand shrink-0" />
+                <div>
+                  <p className="text-sm text-graytext">Взрослые / Дети</p>
+                  <p className="font-semibold text-dark">{adults} / {children}</p>
+                </div>
+              </div>
+              <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-xl">
+                <Calendar className="w-5 h-5 text-brand shrink-0" />
+                <div>
+                  <p className="text-sm text-graytext">Ночей</p>
+                  <p className="font-semibold text-dark">{nights}</p>
+                </div>
+              </div>
+            </div>
+
+            {totalPrice > 0 && (
+              <div className="p-3 bg-brand/5 border border-brand/20 rounded-xl text-center">
+                <p className="text-sm text-graytext">Итого за {nights} ночей</p>
+                <p className="text-xl font-bold text-brand">{totalPrice.toLocaleString('ru-RU')} Br</p>
+              </div>
+            )}
+          </div>
+
+          <DialogFooter className="flex-col-reverse sm:flex-row gap-2">
+            <Button variant="outline" onClick={() => setShowConfirm(false)} className="w-full sm:w-auto">
+              Изменить
+            </Button>
+            <Button
+              onClick={handleConfirm}
+              disabled={submitting}
+              className="w-full sm:w-auto bg-brand hover:bg-brand-hover text-white"
+            >
+              {submitting ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Подтвердить бронирование'}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }
