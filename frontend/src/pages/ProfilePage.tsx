@@ -2,8 +2,10 @@ import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router'
 import { useAuth } from '@/contexts/AuthContext'
 import { Button } from '@/components/ui/button'
-import { Loader2, Calendar, Home, Users, LogOut, Mail, User } from 'lucide-react'
+import { Loader2, Calendar, Home, Users, LogOut, Mail, User, Shield, Cookie, FileText } from 'lucide-react'
 import { format, differenceInDays } from 'date-fns'
+import { Link } from 'react-router'
+import { revokeCookieConsent } from '@/components/CookieBanner'
 
 const API_BASE = '/api'
 
@@ -79,6 +81,49 @@ export default function ProfilePage() {
               <LogOut className="w-4 h-4 mr-2" />
               Выйти
             </Button>
+          </div>
+        </div>
+
+        <div className="bg-white rounded-2xl border shadow-sm p-6 md:p-8 mb-6">
+          <h2 className="text-lg font-bold text-dark mb-4 flex items-center gap-2">
+            <Shield className="w-5 h-5 text-brand" />
+            Приватность и согласия
+          </h2>
+          <div className="space-y-3">
+            <div className="flex items-center justify-between gap-4 p-3 bg-gray-50 rounded-xl">
+              <div className="flex items-center gap-3">
+                <FileText className="w-5 h-5 text-brand shrink-0" />
+                <div>
+                  <p className="text-sm font-medium text-dark">Политика конфиденциальности</p>
+                  <p className="text-xs text-graytext">Ознакомьтесь с условиями обработки данных</p>
+                </div>
+              </div>
+              <Link
+                to="/legal/privacy-policy"
+                target="_blank"
+                className="text-sm text-brand hover:underline font-medium shrink-0"
+              >
+                Открыть
+              </Link>
+            </div>
+            <div className="flex items-center justify-between gap-4 p-3 bg-gray-50 rounded-xl">
+              <div className="flex items-center gap-3">
+                <Cookie className="w-5 h-5 text-brand shrink-0" />
+                <div>
+                  <p className="text-sm font-medium text-dark">Файлы cookie</p>
+                  <p className="text-xs text-graytext">Отозвать согласие на использование cookie</p>
+                </div>
+              </div>
+              <button
+                onClick={() => {
+                  revokeCookieConsent()
+                  window.location.reload()
+                }}
+                className="text-sm text-brand hover:underline font-medium shrink-0"
+              >
+                Отозвать
+              </button>
+            </div>
           </div>
         </div>
 

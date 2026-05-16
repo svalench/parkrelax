@@ -11,6 +11,7 @@ import AdminDashboardPage from './pages/AdminDashboardPage'
 import AccommodationGalleryPage from './pages/AccommodationGalleryPage'
 import PriceListPage from './pages/PriceListPage'
 import AccommodationTypePage from './pages/AccommodationTypePage'
+import CookieBanner from './components/CookieBanner'
 
 function AppContent() {
   const location = useLocation()
@@ -32,6 +33,7 @@ function AppContent() {
         <Route path="/prices" element={<PriceListPage />} />
         <Route path="/accommodation/:id" element={<AccommodationTypePage />} />
       </Routes>
+      <CookieBanner />
     </>
   )
 }

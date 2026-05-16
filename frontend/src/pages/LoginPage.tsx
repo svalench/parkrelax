@@ -14,11 +14,16 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false)
   const [message, setMessage] = useState('')
   const [error, setError] = useState('')
+  const [privacyConsent, setPrivacyConsent] = useState(false)
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
-    setLoading(true)
     setError('')
+    if (!privacyConsent) {
+      setError('Необходимо дать согласие на обработку персональных данных')
+      return
+    }
+    setLoading(true)
     setMessage('')
     const ok = await login(email, password)
     setLoading(false)
@@ -91,6 +96,28 @@ export default function LoginPage() {
                 className="pl-10"
               />
             </div>
+          </div>
+
+          <div className="flex items-start gap-3 p-3 bg-gray-50 rounded-xl">
+            <input
+              id="privacyConsent"
+              type="checkbox"
+              checked={privacyConsent}
+              onChange={(e) => setPrivacyConsent(e.target.checked)}
+              className="mt-0.5 w-4 h-4 text-brand border-gray-300 rounded focus:ring-brand cursor-pointer"
+            />
+            <label htmlFor="privacyConsent" className="text-xs text-graytext leading-relaxed cursor-pointer">
+              Я согласен на обработку персональных данных в соответствии с{' '}
+              <a
+                href="/legal/privacy-policy"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-brand hover:underline font-medium"
+                onClick={(e) => e.stopPropagation()}
+              >
+                Политикой конфиденциальности
+              </a>
+            </label>
           </div>
 
           {error && <p className="text-sm text-red-500">{error}</p>}
