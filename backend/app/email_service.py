@@ -127,6 +127,7 @@ async def send_email(
     variables: dict,
     subject_override: Optional[str] = None,
     body_override: Optional[str] = None,
+    raise_on_error: bool = False,
 ) -> EmailLog:
     """Send an email using active SMTP settings and log the result."""
     # Resolve template first to have subject for logging even on failure
@@ -204,8 +205,12 @@ async def send_email(
         log.status = "sent"
         log.sentAt = datetime.utcnow()
     except Exception as exc:
+        import traceback
         log.status = "failed"
-        log.errorMessage = str(exc)[:500]
+        log.errorMessage = f"{exc}\n\n{traceback.format_exc()}"
+        await db.commit()
+        if raise_on_error:
+            raise
 
     await db.commit()
     return log

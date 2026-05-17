@@ -717,20 +717,35 @@ async def smtp_status(
     }
 
 
+import traceback as _traceback
+
 @router.post("/test-email")
 async def send_test_email(
     to: str,
     db: AsyncSession = Depends(get_db),
     _admin=Depends(get_current_admin),
 ):
-    log = await send_email(
-        db,
-        to_email=to,
-        template_type="welcome",
-        variables={"name": "Тест"},
-    )
-    return {
-        "status": log.status,
-        "error": log.errorMessage,
-        "logId": log.id,
-    }
+    """Send a test email. Does not depend on the 'welcome' template existing."""
+    try:
+        log = await send_email(
+            db,
+            to_email=to,
+            template_type="welcome",
+            variables={"name": "Тест"},
+            subject_override="Тестовое письмо — Комплекс отдыха Парк Relax",
+            body_override="<h2>Тестовое письмо</h2><p>Если вы видите это сообщение, значит SMTP настроен корректно.</p><hr><p>Комплекс отдыха Парк Relax</p>",
+            raise_on_error=True,
+        )
+        return {
+            "status": log.status,
+            "error": log.errorMessage,
+            "traceback": None,
+            "logId": log.id,
+        }
+    except Exception as exc:
+        return {
+            "status": "failed",
+            "error": str(exc),
+            "traceback": _traceback.format_exc(),
+            "logId": None,
+        }

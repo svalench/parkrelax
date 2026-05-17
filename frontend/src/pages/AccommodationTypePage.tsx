@@ -618,7 +618,11 @@ export default function AccommodationTypePage() {
                   className="group bg-white rounded-xl overflow-hidden border shadow-sm hover:shadow-md transition-shadow"
                 >
                   <ImageSlider
-                    images={obj.images?.length ? obj.images.map((i) => i.imageUrl) : [obj.imageUrl || '/assets/asset_7.jpg']}
+                    images={(() => {
+                      const cover = obj.imageUrl || '/assets/asset_7.jpg'
+                      const gallery = (obj.images || []).map((i) => i.imageUrl).filter((url) => url !== cover)
+                      return [cover, ...gallery]
+                    })()}
                     alt={obj.name}
                     badge={obj.type?.name || 'Размещение'}
                   />

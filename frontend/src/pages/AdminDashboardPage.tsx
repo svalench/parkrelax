@@ -1875,7 +1875,7 @@ function EmailTab() {
   const [loading, setLoading] = useState(false)
   const [toEmail, setToEmail] = useState('')
   const [sendLoading, setSendLoading] = useState(false)
-  const [lastResult, setLastResult] = useState<{ status: string; error?: string; logId?: number } | null>(null)
+  const [lastResult, setLastResult] = useState<{ status: string; error?: string; traceback?: string; logId?: number | null } | null>(null)
 
   const loadSmtp = useCallback(async () => {
     setLoading(true)
@@ -2009,6 +2009,12 @@ function EmailTab() {
               {lastResult.error && <div className="text-xs opacity-90">{lastResult.error}</div>}
               {lastResult.logId && (
                 <div className="text-xs opacity-70 mt-1">Log ID: {lastResult.logId}</div>
+              )}
+              {lastResult.traceback && (
+                <details className="mt-2">
+                  <summary className="cursor-pointer text-xs font-medium opacity-80">Показать полный трейс</summary>
+                  <pre className="mt-2 text-[10px] bg-white/60 rounded-lg p-2 overflow-x-auto whitespace-pre-wrap border border-red-100">{lastResult.traceback}</pre>
+                </details>
               )}
             </div>
           )}
