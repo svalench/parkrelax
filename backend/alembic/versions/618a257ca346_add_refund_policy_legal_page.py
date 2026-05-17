@@ -78,7 +78,7 @@ def upgrade() -> None:
     conn = op.get_bind()
     conn.execute(
         sa.text("""
-            INSERT OR REPLACE INTO legal_pages (slug, title, content, isActive)
+            REPLACE INTO legal_pages (slug, title, content, isActive)
             VALUES (:slug, :title, :content, :isActive)
         """),
         {

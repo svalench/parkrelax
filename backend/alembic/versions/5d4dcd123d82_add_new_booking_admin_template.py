@@ -21,6 +21,9 @@ depends_on: Union[str, Sequence[str], None] = None
 def upgrade() -> None:
     """Add new_booking_admin email template if missing."""
     conn = op.get_bind()
+    is_sqlite = conn.dialect.name == "sqlite"
+    now_sql = "datetime('now')" if is_sqlite else "NOW()"
+
     exists = conn.execute(
         sa.text("SELECT 1 FROM email_templates WHERE type = :t"),
         {"t": "new_booking_admin"},
@@ -29,9 +32,9 @@ def upgrade() -> None:
     if not exists:
         conn.execute(
             sa.text(
-                """
+                f"""
                 INSERT INTO email_templates (type, subject, bodyHtml, isActive, createdAt, updatedAt)
-                VALUES (:type, :subject, :body, 1, datetime('now'), datetime('now'))
+                VALUES (:type, :subject, :body, 1, {now_sql}, {now_sql})
                 """
             ),
             {

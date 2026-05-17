@@ -129,7 +129,7 @@ def upgrade() -> None:
     for row in ACCOMMODATION_TYPES:
         conn.execute(
             sa.text("""
-                INSERT OR REPLACE INTO accommodationTypes
+                REPLACE INTO accommodationTypes
                 (id, name, description, capacity, pricePerNight, priceUnit, imageUrl, isActive, sortOrder)
                 VALUES (:id, :name, :description, :capacity, :pricePerNight, :priceUnit, :imageUrl, :isActive, :sortOrder)
             """),
@@ -165,10 +165,8 @@ def downgrade() -> None:
     conn = op.get_bind()
 
     # accommodationTypes
-    conn.execute(
-        sa.text("DELETE FROM accommodationTypes WHERE id IN :ids"),
-        {'ids': tuple(r['id'] for r in ACCOMMODATION_TYPES)},
-    )
+    ids = [str(r['id']) for r in ACCOMMODATION_TYPES]
+    conn.execute(sa.text(f"DELETE FROM accommodationTypes WHERE id IN ({', '.join(ids)})"))
 
     # rental_items
     titles = [r['title'] for r in RENTAL_ITEMS]
