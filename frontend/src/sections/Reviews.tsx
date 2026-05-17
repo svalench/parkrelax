@@ -11,14 +11,6 @@ interface Review {
   createdAt: string
 }
 
-function formatDate(dateStr: string): string {
-  const d = new Date(dateStr)
-  return d.toLocaleDateString('ru-RU', {
-    month: 'long',
-    year: 'numeric',
-  })
-}
-
 export default function Reviews() {
   const [reviews, setReviews] = useState<Review[]>([])
   const [loading, setLoading] = useState(true)
@@ -75,7 +67,7 @@ export default function Reviews() {
                   )}
                   <div>
                     <div className="font-semibold text-dark text-sm">{review.name}</div>
-                    <div className="text-xs text-graytext">{formatDate(review.createdAt)}</div>
+
                   </div>
                 </div>
 
