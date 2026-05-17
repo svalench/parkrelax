@@ -36,6 +36,7 @@ import {
   XCircle,
   Images,
   Star,
+  Bike,
 } from 'lucide-react'
 
 import { Button } from '@/components/ui/button'
@@ -79,6 +80,7 @@ import { Switch } from '@/components/ui/switch'
 import { Textarea } from '@/components/ui/textarea'
 import { toast } from 'sonner'
 import AccommodationManager from '@/components/AccommodationManager'
+import RentalManager from '@/components/RentalManager'
 import {
   BarChart,
   Bar,
@@ -358,6 +360,10 @@ export default function AdminDashboardPage() {
               <Star className="w-4 h-4" />
               Отзывы
             </TabsTrigger>
+            <TabsTrigger value="rentals" className="gap-1.5">
+              <Bike className="w-4 h-4" />
+              Аренда
+            </TabsTrigger>
           </TabsList>
 
           <TabsContent value="month">
@@ -380,6 +386,9 @@ export default function AdminDashboardPage() {
           </TabsContent>
           <TabsContent value="reviews">
             <ReviewsTab />
+          </TabsContent>
+          <TabsContent value="rentals">
+            <RentalManager />
           </TabsContent>
         </Tabs>
       </div>

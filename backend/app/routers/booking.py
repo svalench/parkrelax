@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy import select, desc, and_, func
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.orm import joinedload
+from sqlalchemy.orm import joinedload, selectinload
 from fastapi_viewsets import AsyncBaseViewset
 
 from app.database import AsyncSessionLocal
@@ -144,7 +144,10 @@ async def create_booking(data: BookingCreate, db: AsyncSession = Depends(get_db)
     # Reload with relationships for serialization
     result = await db.execute(
         select(Booking)
-        .options(joinedload(Booking.accommodation).joinedload(Accommodation.type))
+        .options(
+            joinedload(Booking.accommodation).joinedload(Accommodation.type),
+            selectinload(Booking.accommodation).selectinload(Accommodation.images),
+        )
         .where(Booking.id == booking.id)
     )
     booking = result.unique().scalar_one()
@@ -162,7 +165,10 @@ async def list_bookings(
 ):
     stmt = (
         select(Booking)
-        .options(joinedload(Booking.accommodation).joinedload(Accommodation.type))
+        .options(
+            joinedload(Booking.accommodation).joinedload(Accommodation.type),
+            selectinload(Booking.accommodation).selectinload(Accommodation.images),
+        )
         .order_by(desc(Booking.createdAt))
     )
     if phone:
@@ -178,7 +184,10 @@ async def my_bookings(
 ):
     stmt = (
         select(Booking)
-        .options(joinedload(Booking.accommodation))
+        .options(
+            joinedload(Booking.accommodation).joinedload(Accommodation.type),
+            selectinload(Booking.accommodation).selectinload(Accommodation.images),
+        )
         .where(Booking.userId == user.id)
         .order_by(desc(Booking.createdAt))
     )

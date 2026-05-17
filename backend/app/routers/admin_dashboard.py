@@ -7,8 +7,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import joinedload
 
 from app.dependencies import get_db, get_current_admin
-from app.models import Booking, Accommodation, AccommodationType, AccommodationImage
-from app.schemas import BookingCreate, BookingUpdate, BookingResponse
+from app.models import Booking, Accommodation, AccommodationType, AccommodationImage, RentalItem
+from app.schemas import BookingCreate, BookingUpdate, BookingResponse, RentalItemCreate, RentalItemUpdate, RentalItemResponse
 from app.routers.booking import _check_accommodation_availability
 from app.admin import _convert_to_webp, _delete_image_file
 
@@ -633,3 +633,62 @@ async def admin_reorder_accommodation_images(
             image.sortOrder = item.sortOrder
     await db.commit()
     return {"ok": True}
+
+
+# ── Rental Items CRUD ──────────────────────────────────────────────
+
+@router.get("/rentalItems", response_model=list[RentalItemResponse])
+async def admin_list_rental_items(
+    db: AsyncSession = Depends(get_db),
+    _admin=Depends(get_current_admin),
+):
+    result = await db.execute(
+        select(RentalItem).order_by(asc(RentalItem.sortOrder))
+    )
+    return result.scalars().all()
+
+
+@router.post("/rentalItems", response_model=RentalItemResponse)
+async def admin_create_rental_item(
+    data: RentalItemCreate,
+    db: AsyncSession = Depends(get_db),
+    _admin=Depends(get_current_admin),
+):
+    item = RentalItem(**data.model_dump())
+    db.add(item)
+    await db.commit()
+    await db.refresh(item)
+    return item
+
+
+@router.patch("/rentalItems/{item_id}", response_model=RentalItemResponse)
+async def admin_update_rental_item(
+    item_id: int,
+    data: RentalItemUpdate,
+    db: AsyncSession = Depends(get_db),
+    _admin=Depends(get_current_admin),
+):
+    result = await db.execute(select(RentalItem).where(RentalItem.id == item_id))
+    item = result.scalar_one_or_none()
+    if not item:
+        raise HTTPException(status_code=404, detail="Не найдено")
+    for key, value in data.model_dump(exclude_unset=True).items():
+        setattr(item, key, value)
+    await db.commit()
+    await db.refresh(item)
+    return item
+
+
+@router.delete("/rentalItems/{item_id}", status_code=204)
+async def admin_delete_rental_item(
+    item_id: int,
+    db: AsyncSession = Depends(get_db),
+    _admin=Depends(get_current_admin),
+):
+    result = await db.execute(select(RentalItem).where(RentalItem.id == item_id))
+    item = result.scalar_one_or_none()
+    if not item:
+        raise HTTPException(status_code=404, detail="Не найдено")
+    await db.delete(item)
+    await db.commit()
+    return None
