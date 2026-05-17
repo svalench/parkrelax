@@ -555,6 +555,35 @@ class RentalItemResponse(RentalItemBase):
     updatedAt: datetime | None = None
 
 
+# ── Area Items ─────────────────────────────────────────────────────
+
+class AreaItemBase(BaseModel):
+    title: str
+    info: Optional[str] = None
+    imageUrl: Optional[str] = None
+    isActive: bool = True
+    sortOrder: int = 0
+
+
+class AreaItemCreate(AreaItemBase):
+    pass
+
+
+class AreaItemUpdate(BaseModel):
+    title: Optional[str] = None
+    info: Optional[str] = None
+    imageUrl: Optional[str] = None
+    isActive: Optional[bool] = None
+    sortOrder: Optional[int] = None
+
+
+class AreaItemResponse(AreaItemBase):
+    model_config = ConfigDict(from_attributes=True)
+    id: int | None = None
+    createdAt: datetime | None = None
+    updatedAt: datetime | None = None
+
+
 # ── Payment ────────────────────────────────────────────────────────
 
 class PaymentInitiateRequest(BaseModel):

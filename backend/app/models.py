@@ -267,6 +267,19 @@ class RentalItem(Base):
     updatedAt = Column(DateTime, default=func.now(), onupdate=func.now(), nullable=True)
 
 
+class AreaItem(Base):
+    __tablename__ = "area_items"
+
+    id = Column(Integer, primary_key=True, index=True)
+    title = Column(String(200), nullable=False)
+    info = Column(String(200), nullable=True)
+    imageUrl = Column(Text, nullable=True)
+    isActive = Column(Boolean, default=True, nullable=False)
+    sortOrder = Column(Integer, default=0, nullable=False)
+    createdAt = Column(DateTime, default=func.now(), nullable=True)
+    updatedAt = Column(DateTime, default=func.now(), onupdate=func.now(), nullable=True)
+
+
 # ── Email / SMTP ───────────────────────────────────────────────────
 
 class SmtpSettings(Base):

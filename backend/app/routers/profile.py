@@ -37,24 +37,28 @@ async def get_my_bookings(
     user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):
-    filters = [Booking.userId == user.id]
-    if user.email:
-        filters.append(Booking.customerEmail == user.email)
+    try:
+        filters = [Booking.userId == user.id]
+        if user.email:
+            filters.append(Booking.customerEmail == user.email)
 
-    logger.info(
-        "get_my_bookings called: user_id=%s user_email=%s filters_count=%s",
-        user.id,
-        user.email,
-        len(filters),
-    )
+        logger.info(
+            "get_my_bookings called: user_id=%s user_email=%s filters_count=%s",
+            user.id,
+            user.email,
+            len(filters),
+        )
 
-    stmt = (
-        select(Booking)
-        .options(joinedload(Booking.accommodation).joinedload(Accommodation.type))
-        .where(or_(*filters))
-        .order_by(desc(Booking.createdAt))
-    )
-    result = await db.execute(stmt)
-    bookings = result.unique().scalars().all()
-    logger.info("get_my_bookings result: count=%s", len(bookings))
-    return bookings
+        stmt = (
+            select(Booking)
+            .options(joinedload(Booking.accommodation).joinedload(Accommodation.type))
+            .where(or_(*filters))
+            .order_by(desc(Booking.createdAt))
+        )
+        result = await db.execute(stmt)
+        bookings = result.unique().scalars().all()
+        logger.info("get_my_bookings result: count=%s", len(bookings))
+        return bookings
+    except Exception as e:
+        logger.exception("Error in get_my_bookings")
+        raise HTTPException(status_code=500, detail=str(e))

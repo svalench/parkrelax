@@ -56,6 +56,7 @@ from app.models import (
     Admin as AdminModel,
     LegalPage,
     RentalItem,
+    AreaItem,
     SmtpSettings,
     EmailTemplate,
     EmailLog,
@@ -799,3 +800,47 @@ admin.add_view(
     )
 )
 admin.add_view(PriceListDataView(PriceListData, icon="fa fa-table", label="Прайс-лист", identity="price-list"))
+
+
+class AreaItemAdminView(ModelView):
+    fields = [
+        IntegerField("id", read_only=True),
+        StringField("title", label="Название"),
+        StringField("info", label="Краткая информация"),
+        CroppableImageField("imageUrl", label="Изображение", crop_ratio=1.6),
+        IntegerField("sortOrder", label="Порядок сортировки"),
+        BooleanField("isActive", label="Активно"),
+        DateTimeField("createdAt", label="Создано", read_only=True),
+        DateTimeField("updatedAt", label="Обновлено", read_only=True),
+    ]
+
+    async def before_create(self, request: Request, data: dict, obj: AreaItem) -> None:
+        new_url = await self._process_image_upload(data)
+        if new_url is not None:
+            obj.imageUrl = new_url
+
+    async def before_edit(self, request: Request, data: dict, obj: AreaItem) -> None:
+        old_image_url = obj.imageUrl if obj else None
+        new_url = await self._process_image_upload(data)
+        if new_url is not None:
+            obj.imageUrl = new_url
+            if new_url != old_image_url:
+                _delete_image_file(old_image_url)
+
+    async def _process_image_upload(self, data: dict) -> str | None:
+        image_value = data.get("imageUrl")
+
+        file_value = image_value
+        if isinstance(image_value, tuple) and len(image_value) == 2:
+            file_value, _should_be_deleted = image_value
+
+        if isinstance(file_value, UploadFile) and file_value.filename:
+            new_url = _convert_to_webp(file_value, "area")
+            data["imageUrl"] = new_url
+            return new_url
+        if isinstance(image_value, str) and image_value.startswith("/uploads/"):
+            return None
+        return None
+
+
+admin.add_view(AreaItemAdminView(AreaItem, icon="fa fa-map-marker-alt", label="Зоны отдыха (аренда)", identity="area-items"))
