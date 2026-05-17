@@ -1,3 +1,4 @@
+import logging
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy import select, desc, or_
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -8,6 +9,7 @@ from app.models import User, Booking, Accommodation
 from app.schemas import UserResponse, UserProfileUpdate, BookingResponse
 
 router = APIRouter(prefix="/profile", tags=["profile"])
+logger = logging.getLogger(__name__)
 
 
 @router.get("", response_model=UserResponse)
@@ -35,16 +37,24 @@ async def get_my_bookings(
     user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):
+    filters = [Booking.userId == user.id]
+    if user.email:
+        filters.append(Booking.customerEmail == user.email)
+
+    logger.info(
+        "get_my_bookings called: user_id=%s user_email=%s filters_count=%s",
+        user.id,
+        user.email,
+        len(filters),
+    )
+
     stmt = (
         select(Booking)
         .options(joinedload(Booking.accommodation).joinedload(Accommodation.type))
-        .where(
-            or_(
-                Booking.userId == user.id,
-                Booking.customerEmail == user.email if user.email else False,
-            )
-        )
+        .where(or_(*filters))
         .order_by(desc(Booking.createdAt))
     )
     result = await db.execute(stmt)
-    return result.unique().scalars().all()
+    bookings = result.unique().scalars().all()
+    logger.info("get_my_bookings result: count=%s", len(bookings))
+    return bookings
