@@ -90,7 +90,7 @@ async def check_availability(
         overlap_stmt = select(Booking.accommodationId).where(
             and_(
                 Booking.accommodationId.isnot(None),
-                Booking.status.in_(["pending", "confirmed", "pending_confirmation"]),
+                Booking.status.in_(["pending", "confirmed", "paid", "pending_confirmation"]),
                 Booking.startDate < check_out,
                 Booking.endDate > check_in,
             )
@@ -133,7 +133,7 @@ async def get_booked_dates(
     stmt = select(Booking).where(
         and_(
             Booking.accommodationId.in_(acc_ids),
-            Booking.status.in_(["pending", "confirmed", "pending_confirmation"]),
+            Booking.status.in_(["pending", "confirmed", "paid", "pending_confirmation"]),
         )
     ).order_by(asc(Booking.startDate))
     result = await db.execute(stmt)
@@ -152,7 +152,7 @@ async def get_object_booked_dates(
     stmt = select(Booking).where(
         and_(
             Booking.accommodationId == object_id,
-            Booking.status.in_(["pending", "confirmed", "pending_confirmation"]),
+            Booking.status.in_(["pending", "confirmed", "paid", "pending_confirmation"]),
         )
     ).order_by(asc(Booking.startDate))
     result = await db.execute(stmt)
