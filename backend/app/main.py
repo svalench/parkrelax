@@ -244,7 +244,14 @@ async def admin_panel_page(request: Request):
     """Serve React admin dashboard for iframe inside starlette-admin."""
     index_file = FRONTEND_DIST / "index.html"
     if index_file.exists():
-        return FileResponse(str(index_file))
+        return FileResponse(
+            str(index_file),
+            headers={
+                "Cache-Control": "no-cache, no-store, must-revalidate",
+                "Pragma": "no-cache",
+                "Expires": "0",
+            },
+        )
     return HTMLResponse("Frontend not built. Run <code>npm run build</code>.", status_code=404)
 
 if os.getenv("NODE_ENV") == "production" and FRONTEND_DIST.exists():

@@ -343,7 +343,7 @@ export default function AdminDashboardPage() {
         </div>
 
         <Tabs defaultValue="week" className="space-y-6">
-          <TabsList className="bg-white border shadow-sm">
+          <TabsList className="bg-white border shadow-sm overflow-x-auto whitespace-nowrap w-full">
             <TabsTrigger value="month" className="gap-1.5">
               <CalendarRange className="w-4 h-4" />
               Месяц

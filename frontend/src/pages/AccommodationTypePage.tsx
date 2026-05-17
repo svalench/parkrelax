@@ -14,6 +14,8 @@ import {
   Loader2,
   Home,
   X,
+  ChevronLeft,
+  ChevronRight,
 } from 'lucide-react'
 
 import { Calendar } from '@/components/ui/calendar'
@@ -39,6 +41,12 @@ interface AccommodationType {
   sortOrder: number
 }
 
+interface AccommodationImage {
+  id: number
+  imageUrl: string
+  sortOrder: number
+}
+
 interface Accommodation {
   id: number
   name: string
@@ -50,6 +58,89 @@ interface Accommodation {
   isActive: boolean
   sortOrder: number
   type?: AccommodationType
+  images?: AccommodationImage[]
+}
+
+function ImageSlider({
+  images,
+  alt,
+  badge,
+}: {
+  images: string[]
+  alt: string
+  badge: string
+}) {
+  const [current, setCurrent] = useState(0)
+  const hasMultiple = images.length > 1
+
+  const prev = (e: React.MouseEvent) => {
+    e.stopPropagation()
+    setCurrent((c) => (c === 0 ? images.length - 1 : c - 1))
+  }
+  const next = (e: React.MouseEvent) => {
+    e.stopPropagation()
+    setCurrent((c) => (c === images.length - 1 ? 0 : c + 1))
+  }
+
+  return (
+    <div className="aspect-[16/10] overflow-hidden relative group/slider">
+      {images.map((src, idx) => (
+        <img
+          key={idx}
+          src={src}
+          alt={`${alt} — фото ${idx + 1}`}
+          className={`absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-105 transition-opacity duration-300 ${
+            idx === current ? 'opacity-100 z-10' : 'opacity-0 z-0'
+          }`}
+          loading="lazy"
+        />
+      ))}
+
+      {/* Badge */}
+      <div className="absolute top-3 left-3 z-20">
+        <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold text-white bg-black/40 backdrop-blur-md border border-white/20">
+          {badge}
+        </span>
+      </div>
+
+      {/* Arrows */}
+      {hasMultiple && (
+        <>
+          <button
+            onClick={prev}
+            className="absolute left-2 top-1/2 -translate-y-1/2 z-20 w-8 h-8 rounded-full bg-white/80 hover:bg-white text-dark flex items-center justify-center opacity-0 group-hover/slider:opacity-100 transition-opacity"
+            aria-label="Предыдущее фото"
+          >
+            <ChevronLeft className="w-4 h-4" />
+          </button>
+          <button
+            onClick={next}
+            className="absolute right-2 top-1/2 -translate-y-1/2 z-20 w-8 h-8 rounded-full bg-white/80 hover:bg-white text-dark flex items-center justify-center opacity-0 group-hover/slider:opacity-100 transition-opacity"
+            aria-label="Следующее фото"
+          >
+            <ChevronRight className="w-4 h-4" />
+          </button>
+
+          {/* Dots */}
+          <div className="absolute bottom-2 left-1/2 -translate-x-1/2 z-20 flex items-center gap-1.5">
+            {images.map((_, idx) => (
+              <button
+                key={idx}
+                onClick={(e) => {
+                  e.stopPropagation()
+                  setCurrent(idx)
+                }}
+                className={`w-2 h-2 rounded-full transition-all ${
+                  idx === current ? 'bg-white w-4' : 'bg-white/60 hover:bg-white/80'
+                }`}
+                aria-label={`Фото ${idx + 1}`}
+              />
+            ))}
+          </div>
+        </>
+      )}
+    </div>
+  )
 }
 
 function formatShortDate(d: Date | undefined): string {
@@ -526,18 +617,11 @@ export default function AccommodationTypePage() {
                   key={obj.id}
                   className="group bg-white rounded-xl overflow-hidden border shadow-sm hover:shadow-md transition-shadow"
                 >
-                  <div className="aspect-[16/10] overflow-hidden relative">
-                    <img
-                      src={obj.imageUrl || '/assets/asset_7.jpg'}
-                      alt={obj.name}
-                      className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-                    />
-                    <div className="absolute top-3 left-3">
-                      <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold text-white bg-black/40 backdrop-blur-md border border-white/20">
-                        {obj.type?.name || 'Размещение'}
-                      </span>
-                    </div>
-                  </div>
+                  <ImageSlider
+                    images={obj.images?.length ? obj.images.map((i) => i.imageUrl) : [obj.imageUrl || '/assets/asset_7.jpg']}
+                    alt={obj.name}
+                    badge={obj.type?.name || 'Размещение'}
+                  />
                   <div className="p-5">
                     <h3 className="text-lg font-semibold text-dark mb-1">{obj.name}</h3>
                     {obj.description && (
