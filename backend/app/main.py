@@ -4,6 +4,8 @@ from fastapi import FastAPI, Request, Depends
 from fastapi.responses import FileResponse, HTMLResponse, RedirectResponse
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
+from starlette.staticfiles import StaticFiles as StarletteStaticFiles
+from starlette.responses import Response
 
 from app.admin import admin
 from app.dependencies import get_current_admin
@@ -232,11 +234,32 @@ async def ping():
 
 FRONTEND_DIST = Path(__file__).resolve().parent.parent.parent / "frontend" / "dist"
 
+
+class CachedStaticFiles(StarletteStaticFiles):
+    """StaticFiles with long-term cache headers for hashed assets and images."""
+
+    def __init__(self, *args, cache_max_age: int = 2592000, **kwargs):
+        self.cache_max_age = cache_max_age
+        super().__init__(*args, **kwargs)
+
+    async def get_response(self, path: str, scope):
+        response: Response = await super().get_response(path, scope)
+        if response.status_code == 200:
+            response.headers.setdefault(
+                "Cache-Control", f"public, max-age={self.cache_max_age}"
+            )
+        return response
+
+
 # Serve static assets (always, so iframe at /admin-panel can load them)
 if FRONTEND_DIST.exists():
     assets_dir = FRONTEND_DIST / "assets"
     if assets_dir.exists():
-        app.mount("/assets", StaticFiles(directory=str(assets_dir)), name="assets")
+        app.mount(
+            "/assets",
+            CachedStaticFiles(directory=str(assets_dir), cache_max_age=31536000),
+            name="assets",
+        )
 
 @app.get("/admin-panel")
 @app.get("/admin-panel/{path:path}")
@@ -254,8 +277,19 @@ async def admin_panel_page(request: Request):
         )
     return HTMLResponse("Frontend not built. Run <code>npm run build</code>.", status_code=404)
 
+# Serve uploaded images with 6-month cache
+uploads_dir = FRONTEND_DIST.parent / "public" / "uploads"
+if not uploads_dir.exists():
+    uploads_dir = FRONTEND_DIST / "uploads"
+if uploads_dir.exists():
+    app.mount(
+        "/uploads",
+        CachedStaticFiles(directory=str(uploads_dir), cache_max_age=15552000),
+        name="uploads",
+    )
+
 if os.getenv("NODE_ENV") == "production" and FRONTEND_DIST.exists():
-    app.mount("/", StaticFiles(directory=str(FRONTEND_DIST), html=True), name="static")
+    app.mount("/", CachedStaticFiles(directory=str(FRONTEND_DIST), html=True, cache_max_age=2592000), name="static")
 
     @app.exception_handler(404)
     async def not_found_handler(request: Request, exc):

@@ -1,5 +1,5 @@
 from fastapi import APIRouter, Depends, HTTPException
-from sqlalchemy import select, desc
+from sqlalchemy import select, desc, or_
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import joinedload
 
@@ -38,7 +38,12 @@ async def get_my_bookings(
     stmt = (
         select(Booking)
         .options(joinedload(Booking.accommodation).joinedload(Accommodation.type))
-        .where(Booking.userId == user.id)
+        .where(
+            or_(
+                Booking.userId == user.id,
+                Booking.customerEmail == user.email if user.email else False,
+            )
+        )
         .order_by(desc(Booking.createdAt))
     )
     result = await db.execute(stmt)

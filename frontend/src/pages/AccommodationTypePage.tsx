@@ -436,7 +436,7 @@ export default function AccommodationTypePage() {
       <section className="relative min-h-[400px] md:min-h-[500px] flex items-end">
         <div
           className="absolute inset-0 bg-cover bg-center"
-          style={{ backgroundImage: `url(${type.imageUrl || '/assets/asset_7.jpg'})` }}
+          style={{ backgroundImage: `url(${type.imageUrl || '/assets/asset_7.webp'})` }}
         />
         <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-black/10" />
         <div className="relative container-main pb-12 pt-32 md:pt-40">
@@ -674,7 +674,7 @@ export default function AccommodationTypePage() {
                 >
                   <ImageSlider
                     images={(() => {
-                      const cover = obj.imageUrl || '/assets/asset_7.jpg'
+                      const cover = obj.imageUrl || '/assets/asset_7.webp'
                       const gallery = (obj.images || []).map((i) => i.imageUrl).filter((url) => url !== cover)
                       return [cover, ...gallery]
                     })()}

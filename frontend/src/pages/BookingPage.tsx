@@ -594,7 +594,7 @@ export default function BookingPage() {
                       </Carousel>
                     ) : (
                       <img
-                        src={obj.imageUrl || '/assets/asset_7.jpg'}
+                        src={obj.imageUrl || '/assets/asset_7.webp'}
                         alt={obj.name}
                         className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                       />

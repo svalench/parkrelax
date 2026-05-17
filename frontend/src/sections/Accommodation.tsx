@@ -73,7 +73,7 @@ export default function Accommodation() {
               >
                 <div className="relative aspect-[4/3] overflow-hidden">
                   <img
-                    src={type.imageUrl || '/assets/asset_7.jpg'}
+                    src={type.imageUrl || '/assets/asset_7.webp'}
                     alt={type.name}
                     className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                     loading="lazy"

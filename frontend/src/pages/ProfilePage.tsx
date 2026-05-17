@@ -148,7 +148,7 @@ export default function ProfilePage() {
               return (
                 <div key={b.id} className="bg-white rounded-2xl border shadow-sm p-5 flex flex-col md:flex-row gap-5">
                   <img
-                    src={b.accommodation?.imageUrl || '/assets/asset_7.jpg'}
+                    src={b.accommodation?.imageUrl || '/assets/asset_7.webp'}
                     alt={b.accommodation?.name}
                     className="w-full md:w-40 h-32 object-cover rounded-xl"
                   />

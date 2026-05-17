@@ -136,7 +136,7 @@ export default function BookingFormPage() {
           {accommodation && (
             <div className="flex items-start gap-4 mt-4 mb-6 p-4 bg-gray-50 rounded-xl">
               <img
-                src={accommodation.imageUrl || '/assets/asset_7.jpg'}
+                src={accommodation.imageUrl || '/assets/asset_7.webp'}
                 alt={accommodation.name}
                 className="w-24 h-16 object-cover rounded-lg"
               />

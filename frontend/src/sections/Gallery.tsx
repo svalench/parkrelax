@@ -12,12 +12,12 @@ interface GalleryItem {
 }
 
 const fallbackImages = [
-  '/assets/asset_17.jpg',
-  '/assets/asset_18.jpg',
-  '/assets/asset_19.jpg',
-  '/assets/asset_20.jpg',
-  '/assets/asset_21.jpg',
-  '/assets/asset_22.jpg',
+  '/assets/asset_17.webp',
+  '/assets/asset_18.webp',
+  '/assets/asset_19.webp',
+  '/assets/asset_20.webp',
+  '/assets/asset_21.webp',
+  '/assets/asset_22.webp',
 ]
 
 export default function Gallery() {
@@ -43,7 +43,7 @@ export default function Gallery() {
   }, [])
 
   const images = items.length > 0
-    ? items.map((i) => i.imageUrl || '/assets/asset_17.jpg')
+    ? items.map((i) => i.imageUrl || '/assets/asset_17.webp')
     : fallbackImages
 
   const goTo = useCallback((i: number) => {
@@ -153,6 +153,10 @@ export default function Gallery() {
                   i === current ? 'opacity-100' : 'opacity-0'
                 }`}
                 draggable={false}
+                loading={i === 0 ? 'eager' : 'lazy'}
+                decoding="async"
+                width="1200"
+                height="675"
               />
             ))}
           </div>
@@ -208,6 +212,10 @@ export default function Gallery() {
                 alt={`Миниатюра ${i + 1}`}
                 className="w-full h-full object-cover"
                 draggable={false}
+                loading="lazy"
+                decoding="async"
+                width="180"
+                height="113"
               />
             </button>
           ))}

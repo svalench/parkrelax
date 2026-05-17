@@ -3,12 +3,12 @@ import SectionHeader from '../components/SectionHeader'
 
 const areas = [
   {
-    image: '/assets/asset_15.jpg',
+    image: '/assets/asset_15.webp',
     title: 'Беседки у пляжа',
     info: '8 мест',
   },
   {
-    image: '/assets/asset_16.jpg',
+    image: '/assets/asset_16.webp',
     title: 'Зона пляжа',
     info: 'Стол, шезлонги, мангал',
   },

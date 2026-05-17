@@ -1,7 +1,7 @@
 import logging
 
 from fastapi import APIRouter, Depends, HTTPException, status
-from sqlalchemy import select, desc, and_, func
+from sqlalchemy import select, desc, and_, or_, func
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import joinedload, selectinload
 from fastapi_viewsets import AsyncBaseViewset
@@ -208,7 +208,12 @@ async def my_bookings(
             selectinload(Booking.accommodation).joinedload(Accommodation.type),
             selectinload(Booking.accommodation).selectinload(Accommodation.images),
         )
-        .where(Booking.userId == user.id)
+        .where(
+            or_(
+                Booking.userId == user.id,
+                Booking.customerEmail == user.email if user.email else False,
+            )
+        )
         .order_by(desc(Booking.createdAt))
     )
     result = await db.execute(stmt)

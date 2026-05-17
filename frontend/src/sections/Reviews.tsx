@@ -59,6 +59,10 @@ export default function Reviews() {
                       src={review.avatarUrl}
                       alt={review.name}
                       className="w-12 h-12 rounded-full object-cover"
+                      loading="lazy"
+                      decoding="async"
+                      width="48"
+                      height="48"
                     />
                   ) : (
                     <div className="w-12 h-12 rounded-full bg-brand/10 flex items-center justify-center text-brand font-bold text-sm">

@@ -61,11 +61,11 @@ interface AboutSliderItem {
 }
 
 const fallbackImages = [
-  '/assets/asset_2.jpg',
-  '/assets/asset_17.jpg',
-  '/assets/asset_18.jpg',
-  '/assets/asset_19.jpg',
-  '/assets/asset_20.jpg',
+  '/assets/asset_2.webp',
+  '/assets/asset_17.webp',
+  '/assets/asset_18.webp',
+  '/assets/asset_19.webp',
+  '/assets/asset_20.webp',
 ]
 
 const polesieFeatures = [
@@ -113,7 +113,7 @@ export default function About() {
 
   const images =
     sliderItems.length > 0
-      ? sliderItems.map((i) => i.imageUrl || '/assets/asset_2.jpg')
+      ? sliderItems.map((i) => i.imageUrl || '/assets/asset_2.webp')
       : fallbackImages
 
   return (
@@ -214,6 +214,10 @@ export default function About() {
                         alt={`Фото базы отдыха ${i + 1}`}
                         className="w-full h-full object-cover rounded-2xl"
                         draggable={false}
+                        loading="lazy"
+                        decoding="async"
+                        width="360"
+                        height="480"
                       />
                     </SwiperSlide>
                   ))}
@@ -246,7 +250,7 @@ export default function About() {
         {/* subtle background texture */}
         <div
           className="absolute inset-0 opacity-[0.04]"
-          style={{ backgroundImage: 'url(/assets/asset_3.jpg)', backgroundSize: 'cover', backgroundPosition: 'center' }}
+          style={{ backgroundImage: 'url(/assets/asset_3.webp)', backgroundSize: 'cover', backgroundPosition: 'center' }}
         />
         <div className="absolute inset-0 bg-gradient-to-b from-[#162518] via-transparent to-[#162518]" />
 

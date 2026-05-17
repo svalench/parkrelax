@@ -173,9 +173,12 @@ export default function Hero() {
       {/* Логотип в правом верхнем углу — на небе */}
       <div className="hidden lg:block absolute top-16 right-6 xl:right-12 z-10 pointer-events-none">
         <img
-          src="/images/logo.svg"
+          src="/images/logo-park-relax.png"
           alt="Комплекс отдыха Парк Relax"
           className="w-[260px] xl:w-[340px] h-auto object-contain animate-sun-glow opacity-90"
+          width="197"
+          height="86"
+          decoding="async"
         />
       </div>
 
@@ -193,9 +196,12 @@ export default function Hero() {
                     className="absolute right-2 top-1/2 h-16 w-[48%] -translate-y-1/2 rounded-full bg-white/22 blur-2xl"
                   />
                   <img
-                    src="/images/logo.svg"
+                    src="/images/logo-park-relax.png"
                     alt="Комплекс отдыха Парк Relax — лучший комплекс отдыха и размещения на природе"
                     className="relative w-full max-w-[min(100%,420px)] h-auto object-contain drop-shadow-[0_2px_10px_rgba(0,0,0,0.45)] mx-auto md:mx-0"
+                    width="197"
+                    height="86"
+                    decoding="async"
                   />
                 </span>
                 <span className="hidden md:block text-4xl md:text-5xl lg:text-[56px] font-bold leading-[1.15]">
