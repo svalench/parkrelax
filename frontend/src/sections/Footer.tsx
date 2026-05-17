@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import type { ReactNode } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router'
+import { fetchContacts } from '@/lib/contacts'
 
 type FooterHashLink = { label: string; sectionId: string }
 type FooterRouteLink = { label: string; to: string }
@@ -75,6 +76,8 @@ const staticColumns: { title: string; links: FooterLinkItem[] }[] = [
 
 export default function Footer() {
   const [rentalTypes, setRentalTypes] = useState<AccommodationType[]>([])
+  const [phones, setPhones] = useState<string[]>([])
+  const [emails, setEmails] = useState<string[]>([])
 
   useEffect(() => {
     fetch('/api/accommodation/types')
@@ -89,6 +92,15 @@ export default function Footer() {
         }
       })
       .catch(() => setRentalTypes([]))
+
+    fetchContacts()
+      .then((data) => {
+        setPhones(data.phones.map((p) => p.number))
+        setEmails(data.emails.map((e) => e.email))
+      })
+      .catch(() => {
+        // keep defaults
+      })
   }, [])
 
   return (
@@ -152,6 +164,71 @@ export default function Footer() {
               <img src={src} alt={alt} className="h-6 w-auto max-w-[4.75rem] object-contain" loading="lazy" />
             </div>
           ))}
+        </div>
+
+        {/* Юридическая информация */}
+        <div className="border-t border-white/10 pt-8 mb-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-xs text-white/50 leading-relaxed">
+            {/* Левая колонка */}
+            <div className="space-y-1">
+              <p className="text-white/80 font-semibold text-sm mb-2">ООО «Комплекс отдыха Парк Relax»</p>
+              <p>
+                <span className="text-white/70">Юр. адрес:</span>{' '}
+                Республика Беларусь, Минская область, Пинский район, д. Кончицы
+              </p>
+              <p>
+                <span className="text-white/70">Почтовый адрес:</span>{' '}
+                Республика Беларусь, Минская область, Пинский район, д. Кончицы
+              </p>
+              <p>
+                <span className="text-white/70">Режим работы:</span> Круглосуточно
+              </p>
+            </div>
+
+            {/* Правая колонка */}
+            <div className="space-y-1">
+              <p>
+                <span className="text-white/70">УНП:</span>{' '}
+                <span className="text-white/80 font-medium">[УНП компании]</span>
+              </p>
+              <p>
+                <span className="text-white/70">Дата регистрации:</span>{' '}
+                <span className="text-white/80 font-medium">[ДД.ММ.ГГГГ]</span>
+              </p>
+              <p>
+                <span className="text-white/70">Регистрирующий орган:</span>{' '}
+                <span className="text-white/80 font-medium">[Инспекция МНС по Пинскому району]</span>
+              </p>
+              <p>
+                <span className="text-white/70">Телефон:</span>{' '}
+                {phones.length > 0 ? (
+                  phones.map((p) => (
+                    <a key={p} href={`tel:${p.replace(/\s/g, '').replace(/[()-]/g, '')}`} className="text-white/70 hover:text-white transition-colors mr-2">
+                      {p}
+                    </a>
+                  ))
+                ) : (
+                  <span className="text-white/80 font-medium">+375 (29) 500-50-29</span>
+                )}
+              </p>
+              <p>
+                <span className="text-white/70">Email:</span>{' '}
+                {emails.length > 0 ? (
+                  emails.map((e) => (
+                    <a key={e} href={`mailto:${e}`} className="text-white/70 hover:text-white transition-colors mr-2">
+                      {e}
+                    </a>
+                  ))
+                ) : (
+                  <span className="text-white/80 font-medium">[email@parkrelax.by]</span>
+                )}
+              </p>
+              <p>
+                <span className="text-white/70">Лицензия:</span>{' '}
+                <span className="text-white/80 font-medium">[номер лицензии, срок действия]</span>
+              </p>
+            </div>
+          </div>
         </div>
 
         {/* Копирайт */}
