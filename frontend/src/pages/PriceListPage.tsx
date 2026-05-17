@@ -1,6 +1,13 @@
 import { useEffect, useState } from 'react'
-import { Link } from 'react-router'
+import { Link, useLocation } from 'react-router'
 import { ArrowLeft, Download, FileSpreadsheet } from 'lucide-react'
+
+function slugify(str: string) {
+  return str
+    .toLowerCase()
+    .replace(/\s+/g, '-')
+    .replace(/[^а-яa-z0-9-]/g, '')
+}
 
 interface PriceItem {
   category: string
@@ -18,6 +25,17 @@ interface PriceListData {
 export default function PriceListPage() {
   const [priceList, setPriceList] = useState<PriceListData | null>(null)
   const [loading, setLoading] = useState(true)
+  const location = useLocation()
+
+  // Group by category
+  const grouped: Record<string, PriceItem[]> = {}
+  priceList?.data.forEach((item) => {
+    const cat = item.category || 'Разное'
+    if (!grouped[cat]) grouped[cat] = []
+    grouped[cat].push(item)
+  })
+
+  const categories = Object.keys(grouped)
 
   useEffect(() => {
     fetch('/api/price-list')
@@ -29,15 +47,22 @@ export default function PriceListPage() {
       .catch(() => setLoading(false))
   }, [])
 
-  // Group by category
-  const grouped: Record<string, PriceItem[]> = {}
-  priceList?.data.forEach((item) => {
-    const cat = item.category || 'Разное'
-    if (!grouped[cat]) grouped[cat] = []
-    grouped[cat].push(item)
-  })
-
-  const categories = Object.keys(grouped)
+  useEffect(() => {
+    if (categories.length === 0) return
+    const hash = decodeURIComponent(location.hash.replace('#', ''))
+    if (!hash) return
+    const scrollToHash = () => {
+      const el = document.getElementById(hash)
+      if (el) {
+        const headerOffset = 96 // pt-24 = 96px
+        const top = el.getBoundingClientRect().top + window.scrollY - headerOffset
+        window.scrollTo({ top, behavior: 'smooth' })
+      }
+    }
+    // Несколько попыток: сразу после рендера, 100мс и 300мс
+    const timers = [0, 100, 300].map((d) => setTimeout(scrollToHash, d))
+    return () => timers.forEach(clearTimeout)
+  }, [categories.length, location.hash])
 
   return (
     <div className="min-h-screen bg-lightgray pt-24 md:pt-28 pb-12">
@@ -97,6 +122,7 @@ export default function PriceListPage() {
               return (
                 <section
                   key={category}
+                  id={slugify(category)}
                   className="bg-white rounded-2xl border border-border/40 shadow-sm overflow-hidden"
                 >
                   {/* Category header */}

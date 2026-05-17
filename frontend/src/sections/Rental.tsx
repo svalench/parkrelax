@@ -16,72 +16,28 @@ interface RentalItem {
   imageUrl: string
 }
 
-const fallbackRentals: RentalItem[] = [
-  {
-    title: 'Катамаран',
-    info: 'До 4 человек',
-    badge: 'Вода',
-    badgeColor: 'bg-[rgba(30,96,145,0.82)] text-[#caf0f8]',
-    eyebrow: 'Водный спорт',
-    description: 'Прогулки по озеру на комфортабельном катамаране. Идеально для семейного отдыха и романтических прогулок на закате.',
-    duration: '1–2 часа',
-    capacity: 'до 4 чел.',
-    imageUrl: '/assets/catamaran.webp',
-  },
-  {
-    title: 'Лодка с веслами',
-    info: 'До 3 человек',
-    badge: 'Рыбалка',
-    badgeColor: 'bg-[rgba(45,106,79,0.82)] text-[#d8f3dc]',
-    eyebrow: 'Спокойствие',
-    description: 'Тихая гребля по заливам и заливчикам озера. Отличный способ расслабиться и половить рыбу в уединённых местах.',
-    duration: 'от 1 часа',
-    capacity: 'до 3 чел.',
-    imageUrl: '/assets/beach_.webp',
-  },
-  {
-    title: 'Велосипед',
-    info: 'Почасовой прокат',
-    badge: 'Спорт',
-    badgeColor: 'bg-[rgba(231,111,81,0.82)] text-[#fff1ec]',
-    eyebrow: 'Активный отдых',
-    description: 'Велосипеды для взрослых и детей. Катайтесь по лесным тропам и береговой линии, наслаждаясь природой.',
-    duration: 'почасово',
-    capacity: '1 чел.',
-    imageUrl: '/assets/asset_13.jpg',
-  },
-  {
-    title: 'SUP-доски',
-    info: 'Активный отдых',
-    badge: 'Актив',
-    badgeColor: 'bg-[rgba(123,45,139,0.82)] text-[#f3e8ff]',
-    eyebrow: 'Баланс',
-    description: 'SUP-бординг для новичков и опытных. Укрепляйте корпус, наслаждайтесь видами и освежающими купаниями.',
-    duration: 'от 1 часа',
-    capacity: '1 чел.',
-    imageUrl: '/assets/asset_14.jpg',
-  },
-]
-
 /** Максимум полос «шторки» на главной (остальные только в админке). */
 const MAX_RENTAL_PANELS = 10
 
 export default function Rental() {
-  const [rentals, setRentals] = useState<RentalItem[]>(fallbackRentals)
+  const [rentals, setRentals] = useState<RentalItem[]>([])
+  const [loading, setLoading] = useState(true)
   const [activeIndex, setActiveIndex] = useState<number | null>(null)
   const stageRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
+    setLoading(true)
     fetch('/api/rental/items')
       .then((r) => r.json())
       .then((data: RentalItem[]) => {
-        if (Array.isArray(data) && data.length > 0) {
+        if (Array.isArray(data)) {
           setRentals(data)
         }
       })
       .catch(() => {
-        // fallback already set
+        setRentals([])
       })
+      .finally(() => setLoading(false))
   }, [])
 
   const activate = useCallback((index: number) => {
@@ -148,6 +104,19 @@ export default function Rental() {
 
       {/* Curtain Stage */}
       <div className="container-main">
+        {loading ? (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+            {Array.from({ length: 4 }).map((_, i) => (
+              <div key={i} className="rounded-2xl overflow-hidden border border-border/60 bg-gray-100 shadow-sm animate-pulse aspect-[3/4]">
+                <div className="w-full h-full bg-gray-200" />
+              </div>
+            ))}
+          </div>
+        ) : rentals.length === 0 ? (
+          <div className="text-center py-16">
+            <p className="text-graytext text-lg">Активности скоро появятся</p>
+          </div>
+        ) : (
         <div
           ref={stageRef}
           className={`rental-stage w-full rounded-2xl md:rounded-3xl ${activeIndex !== null ? 'rental-stage-active' : ''}`}
@@ -232,6 +201,7 @@ export default function Rental() {
           </div>
         ))}
         </div>
+        )}
       </div>
 
     </section>

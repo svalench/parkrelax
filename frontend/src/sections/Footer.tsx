@@ -69,6 +69,7 @@ const staticColumns: { title: string; links: FooterLinkItem[] }[] = [
       { label: 'Политика конфиденциальности', to: '/legal/privacy-policy' },
       { label: 'Условия использования файлов cookies', to: '/legal/cookie-policy' },
       { label: 'Условия размещения и возврата', to: '/legal/rental-terms' },
+      { label: 'Правила возврата средств', to: '/legal/refund-policy' },
       { label: 'Публичная оферта', to: '/legal/public-offer' },
     ],
   },
@@ -171,17 +172,14 @@ export default function Footer() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-xs text-white/50 leading-relaxed">
             {/* Левая колонка */}
             <div className="space-y-1">
-              <p className="text-white/80 font-semibold text-sm mb-2">ООО «Комплекс отдыха Парк Relax»</p>
+              <p className="text-white/80 font-semibold text-sm mb-2">ООО «ПриватСтандарт»</p>
               <p>
                 <span className="text-white/70">Юр. адрес:</span>{' '}
-                Республика Беларусь, Минская область, Пинский район, д. Кончицы
+                220038, г. Минск, пр-д Бетонный, д. 17, каб. 11
               </p>
               <p>
                 <span className="text-white/70">Почтовый адрес:</span>{' '}
-                Республика Беларусь, Минская область, Пинский район, д. Кончицы
-              </p>
-              <p>
-                <span className="text-white/70">Режим работы:</span> Круглосуточно
+                220012, г. Минск, пер. Калининградский, д. 18Б, ком. 105
               </p>
             </div>
 
@@ -189,15 +187,19 @@ export default function Footer() {
             <div className="space-y-1">
               <p>
                 <span className="text-white/70">УНП:</span>{' '}
-                <span className="text-white/80 font-medium">[УНП компании]</span>
+                <span className="text-white/80 font-medium">192803799</span>
               </p>
               <p>
-                <span className="text-white/70">Дата регистрации:</span>{' '}
-                <span className="text-white/80 font-medium">[ДД.ММ.ГГГГ]</span>
+                <span className="text-white/70">Р/с:</span>{' '}
+                <span className="text-white/80 font-medium">BY93BPSB30121811780119330000</span>
               </p>
               <p>
-                <span className="text-white/70">Регистрирующий орган:</span>{' '}
-                <span className="text-white/80 font-medium">[Инспекция МНС по Пинскому району]</span>
+                <span className="text-white/70">БИК:</span>{' '}
+                <span className="text-white/80 font-medium">BPSBBY2X</span>
+              </p>
+              <p>
+                <span className="text-white/70">Банк:</span>{' '}
+                <span className="text-white/80 font-medium">ОАО «БПС-Сбербанк», г. Минск, ул. Чкалова, 18/2</span>
               </p>
               <p>
                 <span className="text-white/70">Телефон:</span>{' '}
@@ -222,10 +224,6 @@ export default function Footer() {
                 ) : (
                   <span className="text-white/80 font-medium">[email@parkrelax.by]</span>
                 )}
-              </p>
-              <p>
-                <span className="text-white/70">Лицензия:</span>{' '}
-                <span className="text-white/80 font-medium">[номер лицензии, срок действия]</span>
               </p>
             </div>
           </div>

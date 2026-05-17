@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import {
   format,
   parseISO,
@@ -35,6 +35,7 @@ import {
   Trash2,
   XCircle,
   Images,
+  Star,
 } from 'lucide-react'
 
 import { Button } from '@/components/ui/button'
@@ -74,6 +75,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog'
+import { Switch } from '@/components/ui/switch'
 import { Textarea } from '@/components/ui/textarea'
 import { toast } from 'sonner'
 import AccommodationManager from '@/components/AccommodationManager'
@@ -173,6 +175,17 @@ interface AccommodationOption {
 interface TypeOption {
   id: number
   name: string
+}
+
+interface ReviewItem {
+  id: number
+  name: string
+  rating: number
+  text: string
+  avatarUrl?: string | null
+  yandexReviewId?: string | null
+  isActive: boolean
+  createdAt?: string | null
 }
 
 /* ── Helpers ───────────────────────────────────────────────────── */
@@ -341,6 +354,10 @@ export default function AdminDashboardPage() {
               <Images className="w-4 h-4" />
               Размещения
             </TabsTrigger>
+            <TabsTrigger value="reviews" className="gap-1.5">
+              <Star className="w-4 h-4" />
+              Отзывы
+            </TabsTrigger>
           </TabsList>
 
           <TabsContent value="month">
@@ -360,6 +377,9 @@ export default function AdminDashboardPage() {
           </TabsContent>
           <TabsContent value="accommodations">
             <AccommodationManager />
+          </TabsContent>
+          <TabsContent value="reviews">
+            <ReviewsTab />
           </TabsContent>
         </Tabs>
       </div>
@@ -1586,6 +1606,236 @@ function OccupancyTab() {
           </CardContent>
         </Card>
       </div>
+    </div>
+  )
+}
+
+/* ── Reviews Tab ───────────────────────────────────────────────── */
+
+function ReviewsTab() {
+  const [reviews, setReviews] = useState<ReviewItem[]>([])
+  const [loading, setLoading] = useState(false)
+  const [syncLoading, setSyncLoading] = useState(false)
+  const [deleteId, setDeleteId] = useState<number | null>(null)
+
+  const loadReviews = useCallback(async () => {
+    setLoading(true)
+    try {
+      const res = await fetch(`${API_BASE}/review/admin/all`, { credentials: 'include' })
+      if (!res.ok) throw new Error('Ошибка загрузки')
+      const data = await res.json()
+      setReviews(data)
+    } catch {
+      toast.error('Не удалось загрузить отзывы')
+    } finally {
+      setLoading(false)
+    }
+  }, [])
+
+  useEffect(() => {
+    loadReviews()
+  }, [loadReviews])
+
+  const handleSync = async () => {
+    setSyncLoading(true)
+    try {
+      const res = await fetch(`${API_BASE}/review/sync-yandex`, {
+        method: 'POST',
+        credentials: 'include',
+      })
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}))
+        toast.error(err.detail || 'Ошибка синхронизации')
+        return
+      }
+      const result = await res.json()
+      toast.success(
+        `Загружено: ${result.created || 0} новых, пропущено: ${result.skipped || 0}`
+      )
+      await loadReviews()
+    } catch {
+      toast.error('Ошибка сети при синхронизации')
+    } finally {
+      setSyncLoading(false)
+    }
+  }
+
+  const toggleActive = async (review: ReviewItem) => {
+    try {
+      const res = await fetch(`${API_BASE}/review/admin/${review.id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ isActive: !review.isActive }),
+      })
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}))
+        toast.error(err.detail || 'Ошибка обновления')
+        return
+      }
+      toast.success('Статус обновлён')
+      await loadReviews()
+    } catch {
+      toast.error('Ошибка сети')
+    }
+  }
+
+  const handleDelete = async (id: number) => {
+    try {
+      const res = await fetch(`${API_BASE}/review/admin/${id}`, {
+        method: 'DELETE',
+        credentials: 'include',
+      })
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}))
+        toast.error(err.detail || 'Ошибка удаления')
+        return
+      }
+      toast.success('Отзыв удалён')
+      setDeleteId(null)
+      await loadReviews()
+    } catch {
+      toast.error('Ошибка сети')
+    }
+  }
+
+  const activeCount = reviews.filter((r) => r.isActive).length
+
+  return (
+    <div className="space-y-6">
+      {/* Controls */}
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+        <div className="flex items-center gap-3">
+          <Button
+            className="bg-brand hover:bg-brand-hover gap-1"
+            size="sm"
+            onClick={handleSync}
+            disabled={syncLoading}
+          >
+            {syncLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Star className="w-4 h-4" />}
+            Загрузить с Яндекса
+          </Button>
+          <Badge variant="outline" className="gap-1">
+            <Star className="w-3.5 h-3.5" />
+            {reviews.length} отзывов
+          </Badge>
+          <Badge variant="outline" className="gap-1 text-emerald-700 border-emerald-200 bg-emerald-50">
+            Активно: {activeCount}
+          </Badge>
+        </div>
+      </div>
+
+      {/* Table */}
+      <div className="bg-white rounded-2xl border shadow-sm overflow-hidden">
+        <div className="overflow-x-auto">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>ID</TableHead>
+                <TableHead>Имя</TableHead>
+                <TableHead>Оценка</TableHead>
+                <TableHead>Текст</TableHead>
+                <TableHead>Активен</TableHead>
+                <TableHead>Создано</TableHead>
+                <TableHead className="text-right">Действия</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {loading ? (
+                Array.from({ length: 5 }).map((_, i) => (
+                  <TableRow key={i}>
+                    {Array.from({ length: 7 }).map((_, j) => (
+                      <TableCell key={j}>
+                        <div className="h-4 bg-gray-200 rounded animate-pulse w-20" />
+                      </TableCell>
+                    ))}
+                  </TableRow>
+                ))
+              ) : reviews.length === 0 ? (
+                <TableRow>
+                  <TableCell colSpan={7} className="text-center py-12 text-graytext">
+                    Нет отзывов. Нажмите «Загрузить с Яндекса» чтобы импортировать.
+                  </TableCell>
+                </TableRow>
+              ) : (
+                reviews.map((review) => (
+                  <TableRow key={review.id} className="hover:bg-slate-50">
+                    <TableCell className="font-medium">{review.id}</TableCell>
+                    <TableCell>
+                      <div className="flex items-center gap-2">
+                        {review.avatarUrl ? (
+                          <img
+                            src={review.avatarUrl}
+                            alt={review.name}
+                            className="w-8 h-8 rounded-full object-cover"
+                          />
+                        ) : (
+                          <div className="w-8 h-8 rounded-full bg-slate-200 flex items-center justify-center text-xs text-slate-500">
+                            {review.name.charAt(0)}
+                          </div>
+                        )}
+                        <span className="font-medium">{review.name}</span>
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      <div className="flex items-center gap-1">
+                        <Star className="w-3.5 h-3.5 text-amber-500 fill-amber-500" />
+                        <span className="text-sm">{review.rating}</span>
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      <span className="text-sm line-clamp-2 max-w-xs" title={review.text}>
+                        {review.text}
+                      </span>
+                    </TableCell>
+                    <TableCell>
+                      <Switch
+                        checked={review.isActive}
+                        onCheckedChange={() => toggleActive(review)}
+                      />
+                    </TableCell>
+                    <TableCell className="text-xs text-graytext">
+                      {review.createdAt
+                        ? format(parseISO(review.createdAt), 'dd.MM.yyyy HH:mm')
+                        : '—'}
+                    </TableCell>
+                    <TableCell className="text-right">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                        onClick={() => setDeleteId(review.id)}
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </Button>
+                    </TableCell>
+                  </TableRow>
+                ))
+              )}
+            </TableBody>
+          </Table>
+        </div>
+      </div>
+
+      <AlertDialog open={deleteId !== null} onOpenChange={(v) => !v && setDeleteId(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Удалить отзыв?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Отзыв #{deleteId} будет безвозвратно удалён. Это действие нельзя отменить.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={() => setDeleteId(null)}>Отмена</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => deleteId && handleDelete(deleteId)}
+              className="bg-red-600 hover:bg-red-700"
+            >
+              Удалить
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   )
 }
