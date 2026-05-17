@@ -77,6 +77,8 @@ export default function Accommodation() {
                     alt={type.name}
                     className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                     loading="lazy"
+                    width="1472"
+                    height="704"
                   />
                 </div>
                 <div className="p-5">

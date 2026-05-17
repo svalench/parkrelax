@@ -163,6 +163,9 @@ export default function Hero() {
           src="/assets/hero.webp"
           alt="Озеро с деревянным мостком в Комплексе отдыха Парк Relax"
           className="w-full h-full object-cover"
+          width="1600"
+          height="747"
+          fetchPriority="high"
         />
         <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-black/40 to-transparent" />
       </div>

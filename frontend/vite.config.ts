@@ -7,6 +7,20 @@ import { inspectAttr } from 'kimi-plugin-inspect-react'
 export default defineConfig({
   base: '/',
   plugins: [inspectAttr(), react()],
+  build: {
+    sourcemap: false,
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          vendor: ['react', 'react-dom', 'react-router'],
+          ui: ['@radix-ui/react-dialog', '@radix-ui/react-popover', '@radix-ui/react-select', '@radix-ui/react-slot', '@radix-ui/react-switch'],
+          charts: ['recharts'],
+          calendar: ['react-day-picker', 'date-fns'],
+          cropper: ['react-easy-crop'],
+        },
+      },
+    },
+  },
   server: {
     port: 3000,
     proxy: {

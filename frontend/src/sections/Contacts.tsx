@@ -166,6 +166,14 @@ export default function Contacts() {
               <div
                 className="w-full h-full"
                 dangerouslySetInnerHTML={{ __html: mapEmbed }}
+                ref={(node) => {
+                  if (node) {
+                    const iframe = node.querySelector('iframe')
+                    if (iframe && !iframe.hasAttribute('title')) {
+                      iframe.setAttribute('title', 'Карта расположения комплекса отдыха Парк Relax')
+                    }
+                  }
+                }}
               />
             ) : (
               <div className="w-full h-full flex flex-col items-center justify-center text-graytext gap-3">

@@ -1,3 +1,5 @@
+import logging
+
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy import select, desc, and_, func
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -15,6 +17,8 @@ from app.schemas import (
 )
 from app.email_service import generate_temp_password, send_email
 from app.routers.user_auth import _hash_password
+
+logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/booking", tags=["booking"])
 
@@ -37,7 +41,15 @@ async def _check_accommodation_availability(
     if exclude_booking_id:
         stmt = stmt.where(Booking.id != exclude_booking_id)
     result = await db.execute(stmt)
-    return result.scalar_one_or_none() is None
+    conflict = result.scalar_one_or_none()
+    if conflict:
+        logger.warning(
+            "Availability conflict: accommodation_id=%s, requested=%s..%s, "
+            "conflict_booking=%s (%s..%s, status=%s)",
+            accommodation_id, start_date, end_date,
+            conflict.id, conflict.startDate, conflict.endDate, conflict.status,
+        )
+    return conflict is None
 
 
 @router.post("", response_model=BookingPublicResponse, status_code=status.HTTP_201_CREATED)
@@ -145,7 +157,7 @@ async def create_booking(data: BookingCreate, db: AsyncSession = Depends(get_db)
     result = await db.execute(
         select(Booking)
         .options(
-            joinedload(Booking.accommodation).joinedload(Accommodation.type),
+            selectinload(Booking.accommodation).joinedload(Accommodation.type),
             selectinload(Booking.accommodation).selectinload(Accommodation.images),
         )
         .where(Booking.id == booking.id)
@@ -166,7 +178,7 @@ async def list_bookings(
     stmt = (
         select(Booking)
         .options(
-            joinedload(Booking.accommodation).joinedload(Accommodation.type),
+            selectinload(Booking.accommodation).joinedload(Accommodation.type),
             selectinload(Booking.accommodation).selectinload(Accommodation.images),
         )
         .order_by(desc(Booking.createdAt))
@@ -185,7 +197,7 @@ async def my_bookings(
     stmt = (
         select(Booking)
         .options(
-            joinedload(Booking.accommodation).joinedload(Accommodation.type),
+            selectinload(Booking.accommodation).joinedload(Accommodation.type),
             selectinload(Booking.accommodation).selectinload(Accommodation.images),
         )
         .where(Booking.userId == user.id)

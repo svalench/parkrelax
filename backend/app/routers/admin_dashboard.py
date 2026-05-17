@@ -11,6 +11,7 @@ from app.models import Booking, Accommodation, AccommodationType, AccommodationI
 from app.schemas import BookingCreate, BookingUpdate, BookingResponse, RentalItemCreate, RentalItemUpdate, RentalItemResponse
 from app.routers.booking import _check_accommodation_availability
 from app.admin import _convert_to_webp, _delete_image_file
+from app.email_service import send_email, get_active_smtp_settings
 
 router = APIRouter(prefix="/admin/dashboard", tags=["admin-dashboard"])
 
@@ -692,3 +693,44 @@ async def admin_delete_rental_item(
     await db.delete(item)
     await db.commit()
     return None
+
+
+# ── Email / SMTP ───────────────────────────────────────────────────
+
+@router.get("/smtp-status")
+async def smtp_status(
+    db: AsyncSession = Depends(get_db),
+    _admin=Depends(get_current_admin),
+):
+    smtp = await get_active_smtp_settings(db)
+    if not smtp:
+        return {"configured": False}
+    return {
+        "configured": True,
+        "host": smtp.host,
+        "port": smtp.port,
+        "username": smtp.username,
+        "fromEmail": smtp.fromEmail,
+        "fromName": smtp.fromName,
+        "useTls": smtp.useTls,
+        "isActive": smtp.isActive,
+    }
+
+
+@router.post("/test-email")
+async def send_test_email(
+    to: str,
+    db: AsyncSession = Depends(get_db),
+    _admin=Depends(get_current_admin),
+):
+    log = await send_email(
+        db,
+        to_email=to,
+        template_type="welcome",
+        variables={"name": "Тест"},
+    )
+    return {
+        "status": log.status,
+        "error": log.errorMessage,
+        "logId": log.id,
+    }
