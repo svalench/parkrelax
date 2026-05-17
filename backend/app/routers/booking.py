@@ -8,7 +8,7 @@ from fastapi_viewsets import AsyncBaseViewset
 
 from app.database import AsyncSessionLocal
 from app.dependencies import get_db, get_current_user
-from app.models import Booking, Accommodation, User, EmailAddress, SmtpSettings
+from app.models import Booking, Accommodation, User, AdminEmail
 from app.schemas import (
     BookingCreate,
     BookingResponse,
@@ -114,24 +114,15 @@ async def create_booking(data: BookingCreate, db: AsyncSession = Depends(get_db)
     await db.commit()
     await db.refresh(booking)
 
-    # Send notification to admin
-    admin_emails = []
-    email_addrs_result = await db.execute(
-        select(EmailAddress).order_by(EmailAddress.sortOrder)
-    )
-    email_addrs = email_addrs_result.scalars().all()
-    if email_addrs:
-        admin_emails = [ea.email for ea in email_addrs]
-    else:
-        smtp_result = await db.execute(select(SmtpSettings).where(SmtpSettings.isActive == True))
-        smtp = smtp_result.scalar_one_or_none()
-        if smtp and smtp.fromEmail:
-            admin_emails = [smtp.fromEmail]
+    # ── Send emails ──────────────────────────────────────────────────
+    nights = max(1, (data.endDate - data.startDate).days) if accommodation else 0
+    total_price = nights * (accommodation.pricePerNight or 0) if accommodation else 0
+    admin_url = "https://parkrelax.by/admin"
 
+    # 1. Admin notification
+    admin_emails_result = await db.execute(select(AdminEmail).where(AdminEmail.isActive == True))
+    admin_emails = [ae.email for ae in admin_emails_result.scalars().all()]
     if admin_emails and accommodation:
-        nights = max(1, (data.endDate - data.startDate).days)
-        total_price = nights * (accommodation.pricePerNight or 0)
-        admin_url = "https://parkrelax.by/admin"  # production url
         for admin_email in admin_emails:
             await send_email(
                 db,
@@ -142,7 +133,7 @@ async def create_booking(data: BookingCreate, db: AsyncSession = Depends(get_db)
                     "customerName": data.customerName or "—",
                     "customerPhone": data.customerPhone or "—",
                     "customerEmail": data.customerEmail or "—",
-                    "houseName": accommodation.name if accommodation else "—",
+                    "houseName": accommodation.name,
                     "startDate": data.startDate.isoformat(),
                     "endDate": data.endDate.isoformat(),
                     "adults": str(data.adults or 1),
@@ -152,6 +143,23 @@ async def create_booking(data: BookingCreate, db: AsyncSession = Depends(get_db)
                     "adminUrl": admin_url,
                 },
             )
+
+    # 2. Client confirmation (always send if email provided)
+    if data.customerEmail and accommodation:
+        await send_email(
+            db,
+            to_email=data.customerEmail,
+            template_type="booking_confirmation",
+            variables={
+                "name": data.customerName or "Гость",
+                "houseName": accommodation.name,
+                "startDate": data.startDate.isoformat(),
+                "endDate": data.endDate.isoformat(),
+                "adults": str(data.adults or 1),
+                "children": str(data.children or 0),
+                "nights": str(nights),
+            },
+        )
 
     # Reload with relationships for serialization
     result = await db.execute(

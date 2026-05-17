@@ -113,6 +113,31 @@ class EmailAddressResponse(EmailAddressBase):
     updatedAt: datetime | None = None
 
 
+# ── Admin Emails ───────────────────────────────────────────────────
+
+class AdminEmailBase(BaseModel):
+    email: str
+    name: Optional[str] = None
+    isActive: bool = True
+
+
+class AdminEmailCreate(AdminEmailBase):
+    pass
+
+
+class AdminEmailUpdate(BaseModel):
+    email: Optional[str] = None
+    name: Optional[str] = None
+    isActive: Optional[bool] = None
+
+
+class AdminEmailResponse(AdminEmailBase):
+    model_config = ConfigDict(from_attributes=True)
+    id: int | None = None
+    createdAt: datetime | None = None
+    updatedAt: datetime | None = None
+
+
 class ContactPublicResponse(BaseModel):
     contact: Optional[ContactResponse] = None
     phones: list[PhoneNumberResponse] = []

@@ -7,11 +7,16 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import joinedload
 
 from app.dependencies import get_db, get_current_admin
-from app.models import Booking, Accommodation, AccommodationType, AccommodationImage, RentalItem
-from app.schemas import BookingCreate, BookingUpdate, BookingResponse, RentalItemCreate, RentalItemUpdate, RentalItemResponse
+from app.models import Booking, Accommodation, AccommodationType, AccommodationImage, RentalItem, AdminEmail, User
+from app.schemas import (
+    BookingCreate, BookingUpdate, BookingResponse,
+    RentalItemCreate, RentalItemUpdate, RentalItemResponse,
+    AdminEmailCreate, AdminEmailUpdate, AdminEmailResponse,
+)
 from app.routers.booking import _check_accommodation_availability
+from app.routers.user_auth import _hash_password
 from app.admin import _convert_to_webp, _delete_image_file
-from app.email_service import send_email, get_active_smtp_settings
+from app.email_service import send_email, get_active_smtp_settings, generate_temp_password
 
 router = APIRouter(prefix="/admin/dashboard", tags=["admin-dashboard"])
 
@@ -452,8 +457,97 @@ async def admin_create_booking(
 
     booking = Booking(**data.model_dump(exclude_unset=True))
     db.add(booking)
+    await db.flush()
+
+    accommodation = None
+    if data.accommodationId:
+        acc_result = await db.execute(
+            select(Accommodation).where(Accommodation.id == data.accommodationId)
+        )
+        accommodation = acc_result.scalar_one_or_none()
+
+    is_new_user = False
+    temp_password = None
+
+    if data.customerEmail:
+        email = data.customerEmail.strip().lower()
+        result = await db.execute(select(User).where(User.email == email))
+        user = result.scalar_one_or_none()
+        if not user:
+            is_new_user = True
+            temp_password = generate_temp_password()
+            user = User(
+                unionId=f"email:{email}",
+                email=email,
+                name=data.customerName,
+                passwordHash=_hash_password(temp_password),
+                emailVerified=False,
+            )
+            db.add(user)
+            await db.flush()
+            await send_email(
+                db,
+                to_email=email,
+                template_type="temp_password",
+                variables={
+                    "name": data.customerName or "Гость",
+                    "password": temp_password,
+                    "startDate": data.startDate.isoformat(),
+                    "endDate": data.endDate.isoformat(),
+                    "houseName": accommodation.name if accommodation else "—",
+                },
+            )
+        booking.userId = user.id
+
     await db.commit()
     await db.refresh(booking)
+
+    # ── Send emails ──────────────────────────────────────────────────
+    nights = max(1, (data.endDate - data.startDate).days) if accommodation else 0
+    total_price = nights * (accommodation.pricePerNight or 0) if accommodation else 0
+    admin_url = "https://parkrelax.by/admin"
+
+    # 1. Admin notification
+    admin_emails_result = await db.execute(select(AdminEmail).where(AdminEmail.isActive == True))
+    admin_emails = [ae.email for ae in admin_emails_result.scalars().all()]
+    if admin_emails and accommodation:
+        for admin_email in admin_emails:
+            await send_email(
+                db,
+                to_email=admin_email,
+                template_type="new_booking_admin",
+                variables={
+                    "bookingId": str(booking.id),
+                    "customerName": data.customerName or "—",
+                    "customerPhone": data.customerPhone or "—",
+                    "customerEmail": data.customerEmail or "—",
+                    "houseName": accommodation.name,
+                    "startDate": data.startDate.isoformat(),
+                    "endDate": data.endDate.isoformat(),
+                    "adults": str(data.adults or 1),
+                    "children": str(data.children or 0),
+                    "nights": str(nights),
+                    "totalPrice": str(total_price),
+                    "adminUrl": admin_url,
+                },
+            )
+
+    # 2. Client confirmation
+    if data.customerEmail and accommodation:
+        await send_email(
+            db,
+            to_email=data.customerEmail,
+            template_type="booking_confirmation",
+            variables={
+                "name": data.customerName or "Гость",
+                "houseName": accommodation.name,
+                "startDate": data.startDate.isoformat(),
+                "endDate": data.endDate.isoformat(),
+                "adults": str(data.adults or 1),
+                "children": str(data.children or 0),
+                "nights": str(nights),
+            },
+        )
 
     result = await db.execute(
         select(Booking)
@@ -715,6 +809,92 @@ async def smtp_status(
         "useTls": smtp.useTls,
         "isActive": smtp.isActive,
     }
+
+
+@router.get("/smtp-test-connection")
+async def test_smtp_connection(
+    db: AsyncSession = Depends(get_db),
+    _admin=Depends(get_current_admin),
+):
+    """Test raw TCP connectivity to the SMTP server."""
+    import asyncio
+    smtp = await get_active_smtp_settings(db)
+    if not smtp:
+        raise HTTPException(status_code=400, detail="SMTP not configured or inactive")
+    try:
+        reader, writer = await asyncio.wait_for(
+            asyncio.open_connection(smtp.host, smtp.port),
+            timeout=10,
+        )
+        writer.close()
+        await writer.wait_closed()
+        return {"reachable": True, "host": smtp.host, "port": smtp.port}
+    except asyncio.TimeoutError:
+        return {
+            "reachable": False,
+            "host": smtp.host,
+            "port": smtp.port,
+            "error": "Connection timed out. Firewall may be blocking outgoing SMTP ports (25, 465, 587). Contact your hosting provider to unblock them.",
+        }
+    except Exception as exc:
+        return {"reachable": False, "host": smtp.host, "port": smtp.port, "error": str(exc)}
+
+
+# ── Admin Emails CRUD ──────────────────────────────────────────────
+
+@router.get("/admin-emails", response_model=list[AdminEmailResponse])
+async def list_admin_emails(
+    db: AsyncSession = Depends(get_db),
+    _admin=Depends(get_current_admin),
+):
+    result = await db.execute(select(AdminEmail).order_by(AdminEmail.createdAt))
+    return result.scalars().all()
+
+
+@router.post("/admin-emails", response_model=AdminEmailResponse, status_code=201)
+async def create_admin_email(
+    data: AdminEmailCreate,
+    db: AsyncSession = Depends(get_db),
+    _admin=Depends(get_current_admin),
+):
+    item = AdminEmail(**data.model_dump())
+    db.add(item)
+    await db.commit()
+    await db.refresh(item)
+    return item
+
+
+@router.patch("/admin-emails/{item_id}", response_model=AdminEmailResponse)
+async def update_admin_email(
+    item_id: int,
+    data: AdminEmailUpdate,
+    db: AsyncSession = Depends(get_db),
+    _admin=Depends(get_current_admin),
+):
+    result = await db.execute(select(AdminEmail).where(AdminEmail.id == item_id))
+    item = result.scalar_one_or_none()
+    if not item:
+        raise HTTPException(status_code=404, detail="Email not found")
+    for key, value in data.model_dump(exclude_unset=True).items():
+        setattr(item, key, value)
+    await db.commit()
+    await db.refresh(item)
+    return item
+
+
+@router.delete("/admin-emails/{item_id}", status_code=204)
+async def delete_admin_email(
+    item_id: int,
+    db: AsyncSession = Depends(get_db),
+    _admin=Depends(get_current_admin),
+):
+    result = await db.execute(select(AdminEmail).where(AdminEmail.id == item_id))
+    item = result.scalar_one_or_none()
+    if not item:
+        raise HTTPException(status_code=404, detail="Email not found")
+    await db.delete(item)
+    await db.commit()
+    return None
 
 
 import traceback as _traceback

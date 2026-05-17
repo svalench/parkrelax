@@ -1,7 +1,7 @@
 from datetime import date
 from typing import Optional
 from fastapi import APIRouter, Depends, HTTPException, Query
-from sqlalchemy import select, asc, and_, or_, func
+from sqlalchemy import select, asc, and_, or_, func, case
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import joinedload, selectinload
 from fastapi_viewsets import AsyncBaseViewset
@@ -73,6 +73,7 @@ async def check_availability(
     stmt = (
         select(Accommodation)
         .options(joinedload(Accommodation.type), selectinload(Accommodation.images))
+        .join(AccommodationType)
         .where(Accommodation.isActive == True)
     )
     if type_id:
@@ -80,7 +81,11 @@ async def check_availability(
 
     total_guests = (adults or 0) + (children or 0)
     if total_guests > 0:
-        stmt = stmt.where(Accommodation.capacity >= total_guests)
+        effective_capacity = case(
+            (Accommodation.capacity > 0, Accommodation.capacity),
+            else_=AccommodationType.capacity,
+        )
+        stmt = stmt.where(effective_capacity >= total_guests)
 
     if check_in and check_out:
         if check_out <= check_in:

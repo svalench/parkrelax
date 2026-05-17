@@ -64,6 +64,17 @@ class EmailAddress(Base):
     updatedAt = Column(DateTime, default=func.now(), onupdate=func.now(), nullable=True)
 
 
+class AdminEmail(Base):
+    __tablename__ = "admin_emails"
+
+    id = Column(Integer, primary_key=True, index=True)
+    email = Column(String(320), nullable=False)
+    name = Column(String(100), nullable=True)
+    isActive = Column(Boolean, default=True, nullable=False)
+    createdAt = Column(DateTime, default=func.now(), nullable=True)
+    updatedAt = Column(DateTime, default=func.now(), onupdate=func.now(), nullable=True)
+
+
 class Review(Base):
     __tablename__ = "reviews"
 

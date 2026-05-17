@@ -62,6 +62,21 @@ DEFAULT_TEMPLATES = {
 <p>С уважением, команда Комплекса отдыха Парк Relax</p>
 """.strip(),
     },
+    "booking_confirmation": {
+        "subject": "Бронирование подтверждено — Комплекс отдыха Парк Relax",
+        "bodyHtml": """
+<h2>Здравствуйте, {{name}}!</h2>
+<p>Ваше бронирование в <strong>Комплексе отдыха Парк Relax</strong> оформлено.</p>
+<p><strong>Дом:</strong> {{houseName}}</p>
+<p><strong>Даты:</strong> {{startDate}} — {{endDate}}</p>
+<p><strong>Гости:</strong> {{adults}} взрослых, {{children}} детей</p>
+<p><strong>Ночей:</strong> {{nights}}</p>
+<hr>
+<p>Для входа в личный кабинет используйте email и пароль. Если вы забыли пароль, восстановите его на сайте.</p>
+<hr>
+<p>С уважением, команда Комплекса отдыха Парк Relax</p>
+""".strip(),
+    },
     "new_booking_admin": {
         "subject": "Новая заявка на бронирование — Комплекс отдыха Парк Relax",
         "bodyHtml": """
@@ -194,14 +209,28 @@ async def send_email(
     msg.attach(MIMEText(body, "html", "utf-8"))
 
     try:
-        await aiosmtplib.send(
-            msg,
-            hostname=smtp.host,
-            port=smtp.port,
-            username=smtp.username,
-            password=smtp.password,
-            start_tls=smtp.useTls,
-        )
+        # Port 465 requires SSL/TLS immediately (use_tls=True)
+        # Port 587 uses STARTTLS (start_tls=True)
+        if smtp.port == 465:
+            await aiosmtplib.send(
+                msg,
+                hostname=smtp.host,
+                port=smtp.port,
+                username=smtp.username,
+                password=smtp.password,
+                use_tls=True,
+                timeout=30,
+            )
+        else:
+            await aiosmtplib.send(
+                msg,
+                hostname=smtp.host,
+                port=smtp.port,
+                username=smtp.username,
+                password=smtp.password,
+                start_tls=smtp.useTls,
+                timeout=30,
+            )
         log.status = "sent"
         log.sentAt = datetime.utcnow()
     except Exception as exc:
