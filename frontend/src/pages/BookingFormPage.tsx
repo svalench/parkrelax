@@ -267,11 +267,11 @@ export default function BookingFormPage() {
             )}
           </div>
 
-          <DialogFooter className="flex-col sm:flex-row gap-2">
-            <Button variant="outline" onClick={() => navigate('/')} className="w-full">
+          <DialogFooter className="flex-col-reverse sm:flex-row gap-2">
+            <Button variant="outline" onClick={() => navigate('/')} className="w-full sm:w-auto">
               На главную
             </Button>
-            <Button onClick={() => navigate('/profile')} className="w-full bg-brand hover:bg-brand-hover text-white">
+            <Button onClick={() => navigate('/profile')} className="w-full sm:w-auto bg-brand hover:bg-brand-hover text-white">
               Перейти в профиль
             </Button>
           </DialogFooter>

@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 56 32" role="img" aria-label="Мир">
+  <title>Мир</title>
+  <!-- Упрощённая цветовая схема платёжной системы «Мир» -->
+  <rect width="56" height="32" rx="4" fill="#0B9C51"/>
+  <text
+    x="50%"
+    y="52%"
+    dominant-baseline="middle"
+    text-anchor="middle"
+    fill="#fff"
+    font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif"
+    font-size="12"
+    font-weight="700"
+    letter-spacing="0.06em"
+  >МИР</text>
+</svg>

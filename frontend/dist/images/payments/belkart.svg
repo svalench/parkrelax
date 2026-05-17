@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 76 32" role="img" aria-label="Белкарт">
+  <title>Белкарт</title>
+  <defs>
+    <clipPath id="belkart-card">
+      <rect width="76" height="32" rx="4" />
+    </clipPath>
+  </defs>
+  <g clip-path="url(#belkart-card)">
+    <rect width="76" height="32" fill="#fff" />
+    <rect width="8" height="32" fill="#E30613" />
+  </g>
+  <text
+    x="46"
+    y="52%"
+    dominant-baseline="middle"
+    text-anchor="middle"
+    fill="#1a1a1a"
+    font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif"
+    font-size="9"
+    font-weight="700"
+    letter-spacing="0.04em"
+  >БЕЛКАРТ</text>
+</svg>
