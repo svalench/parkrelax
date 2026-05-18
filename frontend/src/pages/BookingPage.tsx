@@ -575,7 +575,7 @@ export default function BookingPage() {
                   key={obj.id}
                   className="group bg-white rounded-xl overflow-hidden border shadow-sm hover:shadow-md transition-shadow"
                 >
-                  <div className="aspect-[16/10] overflow-hidden relative">
+                  <div className="aspect-[16/10] overflow-hidden relative bg-gray-100">
                     {obj.images && obj.images.length > 0 ? (
                       <Carousel className="w-full h-full">
                         <CarouselContent className="h-full">
@@ -584,7 +584,7 @@ export default function BookingPage() {
                               <img
                                 src={img.imageUrl}
                                 alt={obj.name}
-                                className="w-full h-full object-cover"
+                                className="w-full h-full object-contain"
                               />
                             </CarouselItem>
                           ))}
@@ -596,7 +596,7 @@ export default function BookingPage() {
                       <img
                         src={obj.imageUrl || '/assets/asset_7.webp'}
                         alt={obj.name}
-                        className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                        className="w-full h-full object-contain transition-transform duration-500 group-hover:scale-105"
                       />
                     )}
                     <div className="absolute top-3 left-3 z-10">

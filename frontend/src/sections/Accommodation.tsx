@@ -71,11 +71,11 @@ export default function Accommodation() {
                 onClick={() => navigate(`/accommodation/${type.id}`)}
                 className="group cursor-pointer rounded-2xl overflow-hidden border border-border/60 bg-white shadow-sm hover:shadow-xl hover:border-brand/30 transition-all duration-300"
               >
-                <div className="relative aspect-[4/3] overflow-hidden">
+                <div className="relative aspect-[4/3] overflow-hidden bg-gray-100">
                   <img
                     src={type.imageUrl || '/assets/asset_7.webp'}
                     alt={type.name}
-                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                    className="w-full h-full object-contain transition-transform duration-500 group-hover:scale-105"
                     loading="lazy"
                     width="1472"
                     height="704"

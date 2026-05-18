@@ -89,7 +89,7 @@ function ImageSlider({
 
   return (
     <>
-      <div className="aspect-[16/10] overflow-hidden relative group/slider cursor-pointer">
+      <div className="aspect-[16/10] overflow-hidden relative group/slider cursor-pointer bg-gray-100">
         {images.map((src, idx) => (
           <img
             key={idx}
@@ -99,7 +99,7 @@ function ImageSlider({
               setCurrent(idx)
               setLightboxOpen(true)
             }}
-            className={`absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-105 transition-opacity duration-300 ${
+            className={`absolute inset-0 w-full h-full object-contain transition-transform duration-500 group-hover:scale-105 transition-opacity duration-300 ${
               idx === current ? 'opacity-100 z-10' : 'opacity-0 z-0'
             }`}
             loading="lazy"
