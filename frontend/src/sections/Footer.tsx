@@ -191,15 +191,11 @@ export default function Footer() {
               </p>
               <p>
                 <span className="text-white/70">Р/с:</span>{' '}
-                <span className="text-white/80 font-medium">BY93BPSB30121811780119330000</span>
-              </p>
-              <p>
-                <span className="text-white/70">БИК:</span>{' '}
-                <span className="text-white/80 font-medium">BPSBBY2X</span>
+                <span className="text-white/80 font-medium">BY03BAPB30128903300100000000</span>
               </p>
               <p>
                 <span className="text-white/70">Банк:</span>{' '}
-                <span className="text-white/80 font-medium">ОАО «БПС-Сбербанк», г. Минск, ул. Чкалова, 18/2</span>
+                <span className="text-white/80 font-medium">ОАО «Белагропромбанк», Минск, пр-т Победителей, 119-492</span>
               </p>
               <p>
                 <span className="text-white/70">Телефон:</span>{' '}
@@ -222,7 +218,7 @@ export default function Footer() {
                     </a>
                   ))
                 ) : (
-                  <span className="text-white/80 font-medium">[email@parkrelax.by]</span>
+                  <span className="text-white/80 font-medium">email@parkrelax.by</span>
                 )}
               </p>
             </div>
