@@ -226,6 +226,15 @@ export default function About() {
             </div>
           </div>
 
+          <div className="mb-16 rounded-2xl overflow-hidden shadow-xl border border-black/5 h-[380px] md:h-[460px] min-h-[320px]">
+            <iframe
+              title="Маршруты к базе отдыха Park Relax: Брест, Минск, Гомель"
+              src="/park-relax-map-light.html?embed=1"
+              className="w-full h-full border-0 block"
+              loading="lazy"
+            />
+          </div>
+
           {/* Categories */}
           <div className="grid grid-cols-2 lg:grid-cols-3 gap-6">
             {categories.map((cat, i) => (

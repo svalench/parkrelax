@@ -148,21 +148,28 @@ export default function Footer() {
           </div>
         </div>
 
-        {/* Способы оплаты — SVG в public/images/payments */}
-        <div className="flex flex-wrap items-center justify-center gap-3 mb-8">
+        {/* Способы оплаты — порядок знаков как в руководстве БАПБ (п. 1); ассеты из Wikimedia Commons */}
+        <div className="flex flex-wrap items-center justify-center gap-4 mb-8 px-1">
           {(
             [
-              { src: '/images/payments/visa.svg', alt: 'Visa' },
-              { src: '/images/payments/mastercard.svg', alt: 'Mastercard' },
-              { src: '/images/payments/mir.svg', alt: 'Мир' },
-              { src: '/images/payments/belkart.svg', alt: 'Белкарт' },
+              { src: '/images/payments/belkart.png', alt: 'Белкарт', maxW: 'max-w-[6.5rem]' },
+              { src: '/images/payments/mastercard.svg', alt: 'Mastercard', maxW: 'max-w-[5.5rem]' },
+              { src: '/images/payments/visa.svg', alt: 'Visa', maxW: 'max-w-[5rem]' },
+              { src: '/images/payments/mir.svg', alt: 'Мир', maxW: 'max-w-[6rem]' },
+              { src: '/images/payments/unionpay.svg', alt: 'UnionPay', maxW: 'max-w-[7.5rem]' },
             ] as const
-          ).map(({ src, alt }) => (
+          ).map(({ src, alt, maxW }) => (
             <div
               key={src}
-              className="flex h-9 items-center rounded-md bg-white/95 px-2.5 shadow-sm ring-1 ring-white/10"
+              className="flex h-10 min-w-[4.5rem] items-center justify-center rounded-md bg-white px-3 py-1 shadow-sm ring-1 ring-black/10"
             >
-              <img src={src} alt={alt} className="h-6 w-auto max-w-[4.75rem] object-contain" loading="lazy" />
+              <img
+                src={src}
+                alt={alt}
+                className={`h-7 w-auto ${maxW} object-contain object-center`}
+                loading="lazy"
+                decoding="async"
+              />
             </div>
           ))}
         </div>
