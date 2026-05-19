@@ -20,6 +20,8 @@ import {
 
 import { Calendar } from '@/components/ui/calendar'
 import { Button } from '@/components/ui/button'
+import { BookingStubButton } from '@/components/BookingStubButton'
+import { BOOKING_PUBLIC_ENABLED } from '@/config/features'
 import {
   Dialog,
   DialogContent,
@@ -702,20 +704,24 @@ export default function AccommodationTypePage() {
                           </span>
                         )}
                       </div>
-                      <button
-                        onClick={() => {
-                          const params = new URLSearchParams()
-                          params.set('accommodationId', String(obj.id))
-                          if (dateRange?.from) params.set('checkIn', format(dateRange.from, 'yyyy-MM-dd'))
-                          if (dateRange?.to) params.set('checkOut', format(dateRange.to, 'yyyy-MM-dd'))
-                          params.set('adults', String(adults))
-                          params.set('children', String(children))
-                          window.location.href = `/booking/form?${params.toString()}`
-                        }}
-                        className="px-4 py-2 bg-brand hover:bg-brand-hover text-white text-sm font-semibold rounded-lg transition-colors"
-                      >
-                        Забронировать
-                      </button>
+                      {BOOKING_PUBLIC_ENABLED ? (
+                        <button
+                          onClick={() => {
+                            const params = new URLSearchParams()
+                            params.set('accommodationId', String(obj.id))
+                            if (dateRange?.from) params.set('checkIn', format(dateRange.from, 'yyyy-MM-dd'))
+                            if (dateRange?.to) params.set('checkOut', format(dateRange.to, 'yyyy-MM-dd'))
+                            params.set('adults', String(adults))
+                            params.set('children', String(children))
+                            window.location.href = `/booking/form?${params.toString()}`
+                          }}
+                          className="px-4 py-2 bg-brand hover:bg-brand-hover text-white text-sm font-semibold rounded-lg transition-colors"
+                        >
+                          Забронировать
+                        </button>
+                      ) : (
+                        <BookingStubButton size="compact" />
+                      )}
                     </div>
                   </div>
                 </div>

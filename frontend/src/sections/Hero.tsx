@@ -18,6 +18,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
+import { BookingStubButton } from '@/components/BookingStubButton'
+import { BOOKING_PUBLIC_ENABLED } from '@/config/features'
 
 const MAX_ADULTS = 20
 const MAX_CHILDREN = 10
@@ -431,13 +433,17 @@ export default function Hero() {
               </div>
 
               {/* Кнопка */}
-              <button
-                type="button"
-                className="w-full lg:w-auto inline-flex items-center justify-center px-6 py-2.5 rounded-xl text-sm font-semibold text-white bg-[#2563EB] hover:bg-[#1D4ED8] transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] whitespace-nowrap"
-                onClick={handleBook}
-              >
-                Забронировать
-              </button>
+              {BOOKING_PUBLIC_ENABLED ? (
+                <button
+                  type="button"
+                  className="w-full lg:w-auto inline-flex items-center justify-center px-6 py-2.5 rounded-xl text-sm font-semibold text-white bg-[#2563EB] hover:bg-[#1D4ED8] transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] whitespace-nowrap"
+                  onClick={handleBook}
+                >
+                  Забронировать
+                </button>
+              ) : (
+                <BookingStubButton className="w-full lg:w-auto" />
+              )}
             </div>
           </div>
         </div>

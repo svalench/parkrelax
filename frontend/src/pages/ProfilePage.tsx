@@ -135,9 +135,10 @@ export default function ProfilePage() {
             <p className="text-graytext">У вас пока нет бронирований</p>
             <Button
               onClick={() => navigate('/booking')}
-              className="mt-4 bg-brand hover:bg-brand-hover text-white rounded-xl"
+              variant="outline"
+              className="mt-4 rounded-xl"
             >
-              Забронировать размещение
+              Онлайн-бронирование скоро появится
             </Button>
           </div>
         ) : (
