@@ -1,11 +1,8 @@
 import { useEffect, useState, useCallback, useMemo } from 'react'
 import { useParams, useNavigate } from 'react-router'
-import { format, addDays, startOfToday, compareAsc, startOfDay, isSameDay, isAfter, isBefore, differenceInDays } from 'date-fns'
-import { ru } from 'date-fns/locale'
-import type { DateRange, OnSelectHandler } from 'react-day-picker'
+import { format, addDays, startOfToday, differenceInDays } from 'date-fns'
+import type { DateRange } from 'react-day-picker'
 import {
-  Baby,
-  CalendarIcon,
   Users,
   BedDouble,
   Minus,
@@ -14,24 +11,17 @@ import {
   Loader2,
   Home,
   X,
-  ChevronLeft,
-  ChevronRight,
 } from 'lucide-react'
 
-import { Calendar } from '@/components/ui/calendar'
+import { DateRangePicker } from '@/components/DateRangePicker'
 import { Button } from '@/components/ui/button'
-import { BookingStubButton } from '@/components/BookingStubButton'
 import { BOOKING_PUBLIC_ENABLED } from '@/config/features'
-import {
-  Dialog,
-  DialogContent,
-} from '@/components/ui/dialog'
+import { AccommodationCard } from '@/components/AccommodationCard'
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
 } from '@/components/ui/popover'
-import { plainTextFromHtml } from '@/lib/safeHtml'
 
 const API_BASE = '/api'
 
@@ -65,160 +55,20 @@ interface Accommodation {
   sortOrder: number
   type?: AccommodationType
   images?: AccommodationImage[]
+  isBookedForDates?: boolean
 }
 
-function ImageSlider({
-  images,
-  alt,
-  badge,
-}: {
-  images: string[]
-  alt: string
-  badge: string
-}) {
-  const [current, setCurrent] = useState(0)
-  const [lightboxOpen, setLightboxOpen] = useState(false)
-  const hasMultiple = images.length > 1
-
-  const prev = (e?: React.MouseEvent) => {
-    e?.stopPropagation()
-    setCurrent((c) => (c === 0 ? images.length - 1 : c - 1))
-  }
-  const next = (e?: React.MouseEvent) => {
-    e?.stopPropagation()
-    setCurrent((c) => (c === images.length - 1 ? 0 : c + 1))
-  }
-
-  return (
-    <>
-      <div className="aspect-[16/10] overflow-hidden relative group/slider cursor-pointer bg-gray-100">
-        {images.map((src, idx) => (
-          <img
-            key={idx}
-            src={src}
-            alt={`${alt} — фото ${idx + 1}`}
-            onClick={() => {
-              setCurrent(idx)
-              setLightboxOpen(true)
-            }}
-            className={`absolute inset-0 w-full h-full object-contain transition-transform duration-500 group-hover:scale-105 transition-opacity duration-300 ${
-              idx === current ? 'opacity-100 z-10' : 'opacity-0 z-0'
-            }`}
-            loading="lazy"
-          />
-        ))}
-
-        {/* Badge */}
-        <div className="absolute top-3 left-3 z-20">
-          <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold text-white bg-black/40 backdrop-blur-md border border-white/20">
-            {badge}
-          </span>
-        </div>
-
-        {/* Arrows */}
-        {hasMultiple && (
-          <>
-            <button
-              onClick={prev}
-              className="absolute left-2 top-1/2 -translate-y-1/2 z-20 w-8 h-8 rounded-full bg-white/80 hover:bg-white text-dark flex items-center justify-center opacity-0 group-hover/slider:opacity-100 transition-opacity"
-              aria-label="Предыдущее фото"
-            >
-              <ChevronLeft className="w-4 h-4" />
-            </button>
-            <button
-              onClick={next}
-              className="absolute right-2 top-1/2 -translate-y-1/2 z-20 w-8 h-8 rounded-full bg-white/80 hover:bg-white text-dark flex items-center justify-center opacity-0 group-hover/slider:opacity-100 transition-opacity"
-              aria-label="Следующее фото"
-            >
-              <ChevronRight className="w-4 h-4" />
-            </button>
-
-            {/* Dots */}
-            <div className="absolute bottom-2 left-1/2 -translate-x-1/2 z-20 flex items-center gap-1.5">
-              {images.map((_, idx) => (
-                <button
-                  key={idx}
-                  onClick={(e) => {
-                    e.stopPropagation()
-                    setCurrent(idx)
-                  }}
-                  className={`w-2 h-2 rounded-full transition-all ${
-                    idx === current ? 'bg-white w-4' : 'bg-white/60 hover:bg-white/80'
-                  }`}
-                  aria-label={`Фото ${idx + 1}`}
-                />
-              ))}
-            </div>
-          </>
-        )}
-      </div>
-
-      {/* Lightbox */}
-      <Dialog open={lightboxOpen} onOpenChange={setLightboxOpen}>
-        <DialogContent className="max-w-[95vw] w-auto max-h-[95vh] p-0 bg-black/95 border-none shadow-2xl overflow-hidden">
-          <div className="relative flex items-center justify-center min-h-[60vh] max-h-[90vh]">
-            <img
-              src={images[current]}
-              alt={`${alt} — фото ${current + 1}`}
-              className="max-w-full max-h-[85vh] object-contain"
-            />
-
-            {/* Close */}
-            <button
-              onClick={() => setLightboxOpen(false)}
-              className="absolute top-3 right-3 z-50 w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 text-white flex items-center justify-center transition-colors"
-              aria-label="Закрыть"
-            >
-              <X className="w-5 h-5" />
-            </button>
-
-            {hasMultiple && (
-              <>
-                <button
-                  onClick={prev}
-                  className="absolute left-3 top-1/2 -translate-y-1/2 z-50 w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 text-white flex items-center justify-center transition-colors"
-                  aria-label="Предыдущее фото"
-                >
-                  <ChevronLeft className="w-5 h-5" />
-                </button>
-                <button
-                  onClick={next}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 z-50 w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 text-white flex items-center justify-center transition-colors"
-                  aria-label="Следующее фото"
-                >
-                  <ChevronRight className="w-5 h-5" />
-                </button>
-                <div className="absolute bottom-3 left-1/2 -translate-x-1/2 z-50 text-white/80 text-sm font-medium bg-black/40 px-3 py-1 rounded-full">
-                  {current + 1} / {images.length}
-                </div>
-              </>
-            )}
-          </div>
-        </DialogContent>
-      </Dialog>
-    </>
-  )
-}
-
-function formatShortDate(d: Date | undefined): string {
-  if (!d) return '—'
-  return format(d, 'dd.MM.yyyy')
-}
-
-function formatGuestsLabel(adults: number, children: number): string {
-  const adultWord = adults % 10 === 1 && adults % 100 !== 11 ? 'взрослый' : 'взрослых'
-  if (children === 0) {
-    return `${adults} ${adultWord}`
-  }
-  let childWord: string
-  if (children % 10 === 1 && children % 100 !== 11) {
-    childWord = 'ребёнок'
-  } else if (children % 10 >= 2 && children % 10 <= 4 && (children % 100 < 10 || children % 100 >= 20)) {
-    childWord = 'ребёнка'
+/** Склонение для строки гостей «N человек». */
+function formatGuestsLabel(people: number): string {
+  let word: string
+  if (people % 10 === 1 && people % 100 !== 11) {
+    word = 'человек'
+  } else if (people % 10 >= 2 && people % 10 <= 4 && (people % 100 < 10 || people % 100 >= 20)) {
+    word = 'человека'
   } else {
-    childWord = 'детей'
+    word = 'человек'
   }
-  return `${adults} ${adultWord}, ${children} ${childWord}`
+  return `${people} ${word}`
 }
 
 export default function AccommodationTypePage() {
@@ -237,32 +87,9 @@ export default function AccommodationTypePage() {
     const t = startOfToday()
     return { from: addDays(t, 1), to: addDays(t, 2) }
   })
-  const [adults, setAdults] = useState<number>(2)
-  const [children, setChildren] = useState<number>(0)
+  const [people, setPeople] = useState<number>(2)
   const [guestsOpen, setGuestsOpen] = useState(false)
-  const [datesOpen, setDatesOpen] = useState(false)
-  const [hoverDate, setHoverDate] = useState<Date | undefined>(undefined)
   const [bookedDates, setBookedDates] = useState<Date[]>([])
-
-  const hoverFrom = dateRange?.from && !dateRange?.to && hoverDate
-    ? (compareAsc(startOfDay(dateRange.from), startOfDay(hoverDate)) > 0
-        ? startOfDay(hoverDate)
-        : startOfDay(dateRange.from))
-    : undefined
-  const hoverTo = dateRange?.from && !dateRange?.to && hoverDate
-    ? (compareAsc(startOfDay(dateRange.from), startOfDay(hoverDate)) > 0
-        ? startOfDay(dateRange.from)
-        : startOfDay(hoverDate))
-    : undefined
-
-  const [calendarMonths, setCalendarMonths] = useState(1)
-  useEffect(() => {
-    const mq = window.matchMedia('(min-width: 1024px)')
-    const sync = () => setCalendarMonths(mq.matches ? 2 : 1)
-    sync()
-    mq.addEventListener('change', sync)
-    return () => mq.removeEventListener('change', sync)
-  }, [])
 
   // Load type info
   useEffect(() => {
@@ -285,45 +112,21 @@ export default function AccommodationTypePage() {
       .finally(() => setTypeLoading(false))
   }, [typeId])
 
-  // Determine if user has changed filters from defaults
-  const isFiltered = useMemo(() => {
-    const t = startOfToday()
-    const defaultFrom = addDays(t, 1)
-    const defaultTo = addDays(t, 2)
-    const isDefaultDates = dateRange?.from && dateRange?.to &&
-      isSameDay(dateRange.from, defaultFrom) &&
-      isSameDay(dateRange.to, defaultTo)
-    const isDefaultGuests = adults === 2 && children === 0
-    return !(isDefaultDates && isDefaultGuests)
-  }, [dateRange, adults, children])
-
-  // Load availability or all objects
+  // Загрузка списка с учётом занятости на выбранные даты
   const loadData = useCallback(async () => {
     if (!typeId) return
-    setLoading(true)
-
-    if (!isFiltered) {
-      const params = new URLSearchParams()
-      params.set('typeId', String(typeId))
-      params.set('activeOnly', 'true')
-      try {
-        const res = await fetch(`${API_BASE}/accommodation/objects?${params.toString()}`)
-        const data: Accommodation[] = await res.json()
-        setObjects(data)
-      } catch {
-        setObjects([])
-      } finally {
-        setLoading(false)
-      }
+    if (!dateRange?.from || !dateRange?.to) {
+      setObjects([])
       return
     }
 
+    setLoading(true)
+
     const params = new URLSearchParams()
     params.set('typeId', String(typeId))
-    if (dateRange?.from) params.set('checkIn', format(dateRange.from, 'yyyy-MM-dd'))
-    if (dateRange?.to) params.set('checkOut', format(dateRange.to, 'yyyy-MM-dd'))
-    params.set('adults', String(adults))
-    params.set('children', String(children))
+    params.set('checkIn', format(dateRange.from, 'yyyy-MM-dd'))
+    params.set('checkOut', format(dateRange.to, 'yyyy-MM-dd'))
+    params.set('people', String(people))
 
     try {
       const res = await fetch(`${API_BASE}/accommodation/availability?${params.toString()}`)
@@ -334,7 +137,7 @@ export default function AccommodationTypePage() {
     } finally {
       setLoading(false)
     }
-  }, [typeId, isFiltered, dateRange, adults, children])
+  }, [typeId, dateRange, people])
 
   useEffect(() => {
     if (type && !typeError) {
@@ -369,41 +172,7 @@ export default function AccommodationTypePage() {
   const handleResetFilters = () => {
     const t = startOfToday()
     setDateRange({ from: addDays(t, 1), to: addDays(t, 2) })
-    setAdults(2)
-    setChildren(0)
-  }
-
-  const handleRangeSelect: OnSelectHandler<DateRange | undefined> = (
-    _range,
-    triggerDate,
-  ) => {
-    if (!triggerDate) return
-    const day = startOfDay(triggerDate)
-
-    let shouldClose = false
-    setDateRange((prev) => {
-      let next: DateRange | undefined
-      if (prev?.from && prev?.to) {
-        next = { from: day, to: undefined }
-      } else if (prev?.from && !prev.to) {
-        let from = startOfDay(prev.from)
-        let to = day
-        if (compareAsc(from, to) > 0) {
-          const t = from
-          from = to
-          to = t
-        }
-        next = { from, to }
-        shouldClose = true
-      } else {
-        next = { from: day, to: undefined }
-      }
-      return next
-    })
-
-    if (shouldClose) {
-      queueMicrotask(() => setDatesOpen(false))
-    }
+    setPeople(2)
   }
 
   const nights = useMemo(() => {
@@ -484,52 +253,13 @@ export default function AccommodationTypePage() {
               </div>
             </div>
 
-            {/* Dates */}
-            <div className="flex-[1_1_280px] min-w-[280px]">
-              <label className="text-sm font-medium text-dark mb-1.5 block">Даты размещения</label>
-              <Popover open={datesOpen} onOpenChange={setDatesOpen}>
-                <PopoverTrigger asChild>
-                  <button
-                    type="button"
-                    className="flex w-full items-center gap-3 rounded-xl border border-input bg-transparent px-3 py-2.5 text-left outline-none transition-all hover:bg-accent focus-visible:ring-2 focus-visible:ring-ring"
-                  >
-                    <CalendarIcon className="w-5 h-5 text-brand shrink-0" />
-                    <div className="flex items-center gap-2 text-sm">
-                      <span className="font-medium">{formatShortDate(dateRange?.from)}</span>
-                      <span className="text-muted-foreground">—</span>
-                      <span className="font-medium">{formatShortDate(dateRange?.to)}</span>
-                    </div>
-                  </button>
-                </PopoverTrigger>
-                <PopoverContent
-                  align="start"
-                  side="bottom"
-                  sideOffset={8}
-                  className="w-auto max-w-[calc(100vw-2rem)] overflow-hidden rounded-2xl border border-border/70 bg-popover p-0 shadow-2xl"
-                >
-                  <Calendar
-                    mode="range"
-                    locale={ru}
-                    numberOfMonths={calendarMonths}
-                    selected={dateRange}
-                    onSelect={handleRangeSelect}
-                    disabled={[...bookedDates, { before: startOfToday() }]}
-                    defaultMonth={dateRange?.from ?? addDays(startOfToday(), 1)}
-                    modifiers={{
-                      hoverStart: (d) => hoverFrom ? isSameDay(d, hoverFrom) : false,
-                      hoverMiddle: (d) => hoverFrom && hoverTo ? (isAfter(d, hoverFrom) && isBefore(d, hoverTo)) : false,
-                      hoverEnd: (d) => hoverTo ? isSameDay(d, hoverTo) : false,
-                    }}
-                    onDayMouseEnter={(day) => {
-                      if (dateRange?.from && !dateRange?.to) {
-                        setHoverDate(day)
-                      }
-                    }}
-                    onDayMouseLeave={() => setHoverDate(undefined)}
-                  />
-                </PopoverContent>
-              </Popover>
-            </div>
+            <DateRangePicker
+              label="Даты размещения"
+              value={dateRange}
+              onChange={setDateRange}
+              disabled={[...bookedDates, { before: startOfToday() }]}
+              className="flex-[1_1_240px] min-w-[200px]"
+            />
 
             {/* Guests */}
             <div className="flex-[1_1_200px] min-w-[200px]">
@@ -542,7 +272,7 @@ export default function AccommodationTypePage() {
                   >
                     <Users className="w-5 h-5 text-brand shrink-0" />
                     <div className="flex items-center gap-2 text-sm">
-                      <span className="font-medium">{formatGuestsLabel(adults, children)}</span>
+                      <span className="font-medium">{formatGuestsLabel(people)}</span>
                     </div>
                   </button>
                 </PopoverTrigger>
@@ -552,7 +282,7 @@ export default function AccommodationTypePage() {
                   sideOffset={8}
                   className="w-80 rounded-2xl border border-border/70 bg-white p-5 shadow-2xl"
                 >
-                  <div className="text-sm font-semibold text-dark mb-4">Количество гостей</div>
+                  <div className="text-sm font-semibold text-dark mb-4">Количество человек</div>
                   <div className="space-y-5">
                     <div className="flex items-center justify-between gap-3">
                       <div className="flex items-center gap-3">
@@ -560,60 +290,27 @@ export default function AccommodationTypePage() {
                           <Users className="w-5 h-5 text-brand" />
                         </div>
                         <div>
-                          <div className="text-sm font-medium text-dark">Взрослые</div>
-                          <div className="text-xs text-graytext">от 18 лет</div>
+                          <div className="text-sm font-medium text-dark">Гости</div>
+                          <div className="text-xs text-graytext">всего человек</div>
                         </div>
                       </div>
                       <div className="flex items-center gap-3">
                         <button
                           type="button"
                           className="w-8 h-8 rounded-full bg-brand/10 flex items-center justify-center text-brand hover:bg-brand hover:text-white transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
-                          disabled={adults <= 1}
-                          onClick={() => setAdults((a) => Math.max(1, a - 1))}
-                          aria-label="Уменьшить число взрослых"
+                          disabled={people <= 1}
+                          onClick={() => setPeople((p) => Math.max(1, p - 1))}
+                          aria-label="Уменьшить число человек"
                         >
                           <Minus className="w-4 h-4" />
                         </button>
-                        <span className="w-6 text-center text-sm font-semibold tabular-nums">{adults}</span>
+                        <span className="w-6 text-center text-sm font-semibold tabular-nums">{people}</span>
                         <button
                           type="button"
                           className="w-8 h-8 rounded-full bg-brand/10 flex items-center justify-center text-brand hover:bg-brand hover:text-white transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
-                          disabled={adults >= 20}
-                          onClick={() => setAdults((a) => Math.min(20, a + 1))}
-                          aria-label="Увеличить число взрослых"
-                        >
-                          <Plus className="w-4 h-4" />
-                        </button>
-                      </div>
-                    </div>
-                    <div className="h-px bg-gray-100" />
-                    <div className="flex items-center justify-between gap-3">
-                      <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-xl bg-brand/10 flex items-center justify-center">
-                          <Baby className="w-5 h-5 text-brand" />
-                        </div>
-                        <div>
-                          <div className="text-sm font-medium text-dark">Дети</div>
-                          <div className="text-xs text-graytext">до 18 лет</div>
-                        </div>
-                      </div>
-                      <div className="flex items-center gap-3">
-                        <button
-                          type="button"
-                          className="w-8 h-8 rounded-full bg-brand/10 flex items-center justify-center text-brand hover:bg-brand hover:text-white transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
-                          disabled={children <= 0}
-                          onClick={() => setChildren((c) => Math.max(0, c - 1))}
-                          aria-label="Уменьшить число детей"
-                        >
-                          <Minus className="w-4 h-4" />
-                        </button>
-                        <span className="w-6 text-center text-sm font-semibold tabular-nums">{children}</span>
-                        <button
-                          type="button"
-                          className="w-8 h-8 rounded-full bg-brand/10 flex items-center justify-center text-brand hover:bg-brand hover:text-white transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
-                          disabled={children >= 10}
-                          onClick={() => setChildren((c) => Math.min(10, c + 1))}
-                          aria-label="Увеличить число детей"
+                          disabled={people >= 30}
+                          onClick={() => setPeople((p) => Math.min(30, p + 1))}
+                          aria-label="Увеличить число человек"
                         >
                           <Plus className="w-4 h-4" />
                         </button>
@@ -670,61 +367,25 @@ export default function AccommodationTypePage() {
             </div>
             <div className="grid md:grid-cols-2 gap-5">
               {objects.map((obj) => (
-                <div
+                <AccommodationCard
                   key={obj.id}
-                  className="group bg-white rounded-xl overflow-hidden border shadow-sm hover:shadow-md transition-shadow"
-                >
-                  <ImageSlider
-                    images={(() => {
-                      const cover = obj.imageUrl || '/assets/asset_7.webp'
-                      const gallery = (obj.images || []).map((i) => i.imageUrl).filter((url) => url !== cover)
-                      return [cover, ...gallery]
-                    })()}
-                    alt={obj.name}
-                    badge={obj.type?.name || 'Размещение'}
-                  />
-                  <div className="p-5">
-                    <h3 className="text-lg font-semibold text-dark mb-1">{obj.name}</h3>
-                    {obj.description && (
-                      <p className="text-sm text-graytext mb-3 line-clamp-2">
-                        {plainTextFromHtml(obj.description)}
-                      </p>
-                    )}
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-4 text-sm text-graytext">
-                        {(obj.capacity || obj.type?.capacity) && (
-                          <span className="flex items-center gap-1">
-                            <Users className="w-4 h-4" />
-                            До {obj.capacity || obj.type?.capacity} чел.
-                          </span>
-                        )}
-                        {(obj.pricePerNight || obj.type?.pricePerNight) && (
-                          <span className="font-medium text-dark">
-                            {(obj.pricePerNight || obj.type?.pricePerNight || 0).toLocaleString('ru-RU')} Br/{obj.type?.priceUnit || 'ночь'}
-                          </span>
-                        )}
-                      </div>
-                      {BOOKING_PUBLIC_ENABLED ? (
-                        <button
-                          onClick={() => {
-                            const params = new URLSearchParams()
-                            params.set('accommodationId', String(obj.id))
-                            if (dateRange?.from) params.set('checkIn', format(dateRange.from, 'yyyy-MM-dd'))
-                            if (dateRange?.to) params.set('checkOut', format(dateRange.to, 'yyyy-MM-dd'))
-                            params.set('adults', String(adults))
-                            params.set('children', String(children))
-                            window.location.href = `/booking/form?${params.toString()}`
-                          }}
-                          className="px-4 py-2 bg-brand hover:bg-brand-hover text-white text-sm font-semibold rounded-lg transition-colors"
-                        >
-                          Забронировать
-                        </button>
-                      ) : (
-                        <BookingStubButton size="compact" />
-                      )}
-                    </div>
-                  </div>
-                </div>
+                  obj={obj}
+                  showCalendar
+                  showStubButton={!BOOKING_PUBLIC_ENABLED}
+                  isBooked={Boolean(obj.isBookedForDates)}
+                  onBookClick={
+                    obj.isBookedForDates
+                      ? undefined
+                      : () => {
+                          const params = new URLSearchParams()
+                          params.set('accommodationId', String(obj.id))
+                          if (dateRange?.from) params.set('checkIn', format(dateRange.from, 'yyyy-MM-dd'))
+                          if (dateRange?.to) params.set('checkOut', format(dateRange.to, 'yyyy-MM-dd'))
+                          params.set('people', String(people))
+                          window.location.href = `/booking/form?${params.toString()}`
+                        }
+                  }
+                />
               ))}
             </div>
           </>

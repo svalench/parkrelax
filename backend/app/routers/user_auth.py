@@ -1,23 +1,14 @@
 from fastapi import APIRouter, Request, Depends, HTTPException, status, Response
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
-import bcrypt
 
 from app.dependencies import get_db, CookieSettings, get_current_user
 from app.auth import sign_session_token, SESSION_COOKIE_NAME, SESSION_MAX_AGE
 from app.models import User
 from app.schemas import UserResponse, EmailLoginRequest, RequestPasswordRequest
-from app.email_service import generate_temp_password, send_email
+from app.user_password_service import reset_user_password_and_email, verify_password
 
 router = APIRouter(prefix="/auth", tags=["auth"])
-
-
-def _hash_password(password: str) -> str:
-    return bcrypt.hashpw(password.encode(), bcrypt.gensalt()).decode()
-
-
-def _verify_password(password: str, hashed: str) -> bool:
-    return bcrypt.checkpw(password.encode(), hashed.encode())
 
 
 def _set_session_cookie(response: Response, request: Request, payload: dict) -> None:
@@ -46,7 +37,7 @@ async def email_login(
     user = result.scalar_one_or_none()
     if not user or not user.passwordHash:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Неверный email или пароль")
-    if not _verify_password(data.password, user.passwordHash):
+    if not verify_password(data.password, user.passwordHash):
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Неверный email или пароль")
     user.lastSignInAt = __import__("datetime").datetime.utcnow()
     await db.commit()
@@ -66,21 +57,7 @@ async def request_password(
     if not user:
         # Don't reveal whether email exists
         return {"success": True, "message": "Если указанный email зарегистрирован, пароль будет отправлен"}
-    new_password = generate_temp_password()
-    user.passwordHash = _hash_password(new_password)
-    await db.commit()
-    await send_email(
-        db,
-        to_email=user.email,
-        template_type="temp_password",
-        variables={
-            "name": user.name or "Гость",
-            "password": new_password,
-            "startDate": "—",
-            "endDate": "—",
-            "houseName": "—",
-        },
-    )
+    await reset_user_password_and_email(db, user, raise_on_email_error=False)
     return {"success": True, "message": "Если указанный email зарегистрирован, пароль будет отправлен"}
 
 

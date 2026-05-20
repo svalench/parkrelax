@@ -1,8 +1,8 @@
 import logging
 from fastapi import APIRouter, Depends, HTTPException
-from sqlalchemy import select, desc, or_
+from sqlalchemy import select, desc, or_, func
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.orm import joinedload
+from sqlalchemy.orm import joinedload, selectinload
 
 from app.dependencies import get_db, get_current_user
 from app.models import User, Booking, Accommodation
@@ -40,7 +40,7 @@ async def get_my_bookings(
     try:
         filters = [Booking.userId == user.id]
         if user.email:
-            filters.append(Booking.customerEmail == user.email)
+            filters.append(func.lower(Booking.customerEmail) == user.email.lower())
 
         logger.info(
             "get_my_bookings called: user_id=%s user_email=%s filters_count=%s",
@@ -51,7 +51,10 @@ async def get_my_bookings(
 
         stmt = (
             select(Booking)
-            .options(joinedload(Booking.accommodation).joinedload(Accommodation.type))
+            .options(
+                selectinload(Booking.accommodation).joinedload(Accommodation.type),
+                selectinload(Booking.accommodation).selectinload(Accommodation.images),
+            )
             .where(or_(*filters))
             .order_by(desc(Booking.createdAt))
         )

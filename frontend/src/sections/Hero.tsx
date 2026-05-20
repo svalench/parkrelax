@@ -1,11 +1,10 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router'
-import { addDays, compareAsc, format, isAfter, isBefore, isSameDay, startOfDay, startOfToday } from 'date-fns'
-import { ru } from 'date-fns/locale'
-import type { DateRange, OnSelectHandler } from 'react-day-picker'
-import { Baby, Calendar as CalendarIcon, ChevronDown, Minus, Plus, Users } from 'lucide-react'
+import { addDays, format, startOfToday } from 'date-fns'
+import type { DateRange } from 'react-day-picker'
+import { ChevronDown, Minus, Plus, Users } from 'lucide-react'
 
-import { Calendar } from '@/components/ui/calendar'
+import { DateRangePicker } from '@/components/DateRangePicker'
 import {
   Popover,
   PopoverContent,
@@ -21,8 +20,7 @@ import {
 import { BookingStubButton } from '@/components/BookingStubButton'
 import { BOOKING_PUBLIC_ENABLED } from '@/config/features'
 
-const MAX_ADULTS = 20
-const MAX_CHILDREN = 10
+const MAX_PEOPLE = 30
 
 /** Типы размещения с бэка (как в секции «Размещение» и на странице бронирования). */
 interface AccommodationType {
@@ -32,27 +30,17 @@ interface AccommodationType {
   sortOrder: number
 }
 
-/** Короткий формат даты как на макете: 25.06.2025 */
-function formatShortDate(d: Date | undefined): string {
-  if (!d) return '—'
-  return format(d, 'dd.MM.yyyy')
-}
-
-/** Склонение для строки гостей «N взрослых, M детей». */
-function formatGuestsLabel(adults: number, children: number): string {
-  const adultWord = adults % 10 === 1 && adults % 100 !== 11 ? 'взрослый' : 'взрослых'
-  if (children === 0) {
-    return `${adults} ${adultWord}`
-  }
-  let childWord: string
-  if (children % 10 === 1 && children % 100 !== 11) {
-    childWord = 'ребёнок'
-  } else if (children % 10 >= 2 && children % 10 <= 4 && (children % 100 < 10 || children % 100 >= 20)) {
-    childWord = 'ребёнка'
+/** Склонение для строки гостей «N человек». */
+function formatGuestsLabel(people: number): string {
+  let word: string
+  if (people % 10 === 1 && people % 100 !== 11) {
+    word = 'человек'
+  } else if (people % 10 >= 2 && people % 10 <= 4 && (people % 100 < 10 || people % 100 >= 20)) {
+    word = 'человека'
   } else {
-    childWord = 'детей'
+    word = 'человек'
   }
-  return `${adults} ${adultWord}, ${children} ${childWord}`
+  return `${people} ${word}`
 }
 
 export default function Hero() {
@@ -65,20 +53,7 @@ export default function Hero() {
 
   const [datesOpen, setDatesOpen] = useState(false)
   const [guestsOpen, setGuestsOpen] = useState(false)
-  const [hoverDate, setHoverDate] = useState<Date | undefined>(undefined)
-
-  const hoverFrom = dateRange?.from && !dateRange?.to && hoverDate
-    ? (compareAsc(startOfDay(dateRange.from), startOfDay(hoverDate)) > 0
-        ? startOfDay(hoverDate)
-        : startOfDay(dateRange.from))
-    : undefined
-  const hoverTo = dateRange?.from && !dateRange?.to && hoverDate
-    ? (compareAsc(startOfDay(dateRange.from), startOfDay(hoverDate)) > 0
-        ? startOfDay(dateRange.from)
-        : startOfDay(hoverDate))
-    : undefined
-  const [adults, setAdults] = useState(2)
-  const [childrenCount, setChildrenCount] = useState(0)
+  const [people, setPeople] = useState(2)
   /** «Любой» или id типа из админки. */
   const [typeFilterId, setTypeFilterId] = useState<string>('any')
   const [accommodationTypes, setAccommodationTypes] = useState<AccommodationType[]>([])
@@ -98,58 +73,11 @@ export default function Hero() {
       .catch(() => setAccommodationTypes([]))
   }, [])
 
-  // Два месяца рядом только на десктопе (lg ≥ 1024px); планшет/мобайл — один месяц
-  const [calendarMonths, setCalendarMonths] = useState(1)
-  useEffect(() => {
-    const mq = window.matchMedia('(min-width: 1024px)')
-    const sync = () => setCalendarMonths(mq.matches ? 2 : 1)
-    sync()
-    mq.addEventListener('change', sync)
-    return () => mq.removeEventListener('change', sync)
-  }, [])
-
-  /** 1-й клик — начало, 2-й — конец (меньшая дата заезд, большая выезд); при полном диапазоне следующий клик снова задаёт только начало. */
-  const handleRangeSelect: OnSelectHandler<DateRange | undefined> = (
-    _range,
-    triggerDate,
-  ) => {
-    if (!triggerDate) return
-    const day = startOfDay(triggerDate)
-
-    let shouldClose = false
-    setDateRange((prev) => {
-      let next: DateRange | undefined
-
-      if (prev?.from && prev?.to) {
-        next = { from: day, to: undefined }
-      } else if (prev?.from && !prev.to) {
-        let from = startOfDay(prev.from)
-        let to = day
-        if (compareAsc(from, to) > 0) {
-          const t = from
-          from = to
-          to = t
-        }
-        next = { from, to }
-        shouldClose = true
-      } else {
-        next = { from: day, to: undefined }
-      }
-
-      return next
-    })
-
-    if (shouldClose) {
-      queueMicrotask(() => setDatesOpen(false))
-    }
-  }
-
   const handleBook = () => {
     const params = new URLSearchParams()
     if (dateRange?.from) params.set('checkIn', format(dateRange.from, 'yyyy-MM-dd'))
     if (dateRange?.to) params.set('checkOut', format(dateRange.to, 'yyyy-MM-dd'))
-    params.set('adults', String(adults))
-    params.set('children', String(childrenCount))
+    params.set('people', String(people))
     if (typeFilterId !== 'any') params.set('typeId', typeFilterId)
     navigate({
       pathname: '/booking',
@@ -233,78 +161,21 @@ export default function Hero() {
           </h3>
           <div className="bg-white/[0.08] backdrop-blur-xl rounded-2xl border border-white/20 shadow-2xl p-3 md:p-4 animate-in fade-in slide-in-from-bottom-4 duration-700">
             <div className="flex flex-col lg:flex-row items-stretch lg:items-center gap-3">
-              {/* Даты */}
-              <Popover
-                open={datesOpen}
-                onOpenChange={(open) => {
-                  setDatesOpen(open)
-                  if (open) setGuestsOpen(false)
-                }}
-              >
-                <div className="flex flex-col sm:flex-row flex-1 gap-4 sm:gap-0">
-                  {/* Заезд */}
-                  <div className="flex-1 flex items-center gap-3 sm:border-r border-gray-100 sm:pr-4">
-                    <PopoverTrigger asChild>
-                      <button
-                        type="button"
-                        className="group flex w-full items-center gap-3 rounded-xl bg-transparent p-1.5 -m-1.5 text-left outline-none transition-all duration-200 hover:bg-white/15 hover:shadow-[0_4px_20px_rgba(0,0,0,0.25),inset_0_1px_0_rgba(255,255,255,0.4)] hover:scale-[1.02] active:scale-[0.98] focus-visible:ring-2 focus-visible:ring-brand cursor-pointer"
-                      >
-                        <CalendarIcon className="w-6 h-6 text-brand shrink-0" />
-                        <div className="flex-1">
-                          <div className="text-sm text-white/90 font-semibold mb-0.5 drop-shadow-sm">Заезд</div>
-                          <div className="text-lg font-extrabold text-white drop-shadow-md">
-                            {formatShortDate(dateRange?.from)}
-                          </div>
-                        </div>
-                      </button>
-                    </PopoverTrigger>
-                  </div>
-                  {/* Выезд */}
-                  <div className="flex-1 flex items-center gap-3 sm:pl-4">
-                    <PopoverTrigger asChild>
-                      <button
-                        type="button"
-                        className="group flex w-full items-center gap-3 rounded-xl bg-transparent p-1.5 -m-1.5 text-left outline-none transition-all duration-200 hover:bg-white/15 hover:shadow-[0_4px_20px_rgba(0,0,0,0.25),inset_0_1px_0_rgba(255,255,255,0.4)] hover:scale-[1.02] active:scale-[0.98] focus-visible:ring-2 focus-visible:ring-brand cursor-pointer"
-                      >
-                        <CalendarIcon className="w-6 h-6 text-brand shrink-0" />
-                        <div className="flex-1">
-                          <div className="text-sm text-white/90 font-semibold mb-0.5 drop-shadow-sm">Выезд</div>
-                          <div className="text-lg font-extrabold text-white drop-shadow-md">
-                            {formatShortDate(dateRange?.to)}
-                          </div>
-                        </div>
-                      </button>
-                    </PopoverTrigger>
-                  </div>
-                </div>
-                <PopoverContent
-                  align="start"
+              {/* Даты — один триггер и общая логика выбора диапазона */}
+              <div className="flex-[1_1_200px] min-w-0 lg:border-r lg:border-white/15 lg:pr-3">
+                <DateRangePicker
+                  variant="hero"
+                  value={dateRange}
+                  onChange={setDateRange}
                   side="top"
-                  sideOffset={12}
-                  className="w-auto max-w-[calc(100vw-2rem)] overflow-hidden rounded-2xl border border-border/70 bg-popover p-0 shadow-2xl shadow-black/15 ring-1 ring-black/5"
-                >
-                  <Calendar
-                    mode="range"
-                    locale={ru}
-                    numberOfMonths={calendarMonths}
-                    selected={dateRange}
-                    onSelect={handleRangeSelect}
-                    disabled={{ before: startOfToday() }}
-                    defaultMonth={dateRange?.from ?? addDays(startOfToday(), 1)}
-                    modifiers={{
-                      hoverStart: (d) => hoverFrom ? isSameDay(d, hoverFrom) : false,
-                      hoverMiddle: (d) => hoverFrom && hoverTo ? (isAfter(d, hoverFrom) && isBefore(d, hoverTo)) : false,
-                      hoverEnd: (d) => hoverTo ? isSameDay(d, hoverTo) : false,
-                    }}
-                    onDayMouseEnter={(day) => {
-                      if (dateRange?.from && !dateRange?.to) {
-                        setHoverDate(day)
-                      }
-                    }}
-                    onDayMouseLeave={() => setHoverDate(undefined)}
-                  />
-                </PopoverContent>
-              </Popover>
+                  align="start"
+                  open={datesOpen}
+                  onOpenChange={(open) => {
+                    setDatesOpen(open)
+                    if (open) setGuestsOpen(false)
+                  }}
+                />
+              </div>
 
               {/* Гости */}
               <Popover
@@ -324,7 +195,7 @@ export default function Hero() {
                       <div className="flex-1">
                         <div className="text-sm text-white/90 font-semibold mb-0.5 drop-shadow-sm">Гости</div>
                         <div className="text-lg font-extrabold text-white drop-shadow-md">
-                          {formatGuestsLabel(adults, childrenCount)}
+                          {formatGuestsLabel(people)}
                         </div>
                       </div>
                       <ChevronDown className="w-4 h-4 text-white/70 shrink-0" />
@@ -337,7 +208,7 @@ export default function Hero() {
                   sideOffset={12}
                   className="w-80 rounded-2xl border border-border/70 bg-white p-5 shadow-2xl shadow-black/15 ring-1 ring-black/5"
                 >
-                  <div className="text-sm font-semibold text-dark mb-4">Количество гостей</div>
+                  <div className="text-sm font-semibold text-dark mb-4">Количество человек</div>
                   <div className="space-y-5">
                     <div className="flex items-center justify-between gap-3">
                       <div className="flex items-center gap-3">
@@ -345,64 +216,29 @@ export default function Hero() {
                           <Users className="w-5 h-5 text-brand" />
                         </div>
                         <div>
-                          <div className="text-sm font-medium text-dark">Взрослые</div>
-                          <div className="text-xs text-graytext">от 18 лет</div>
+                          <div className="text-sm font-medium text-dark">Гости</div>
+                          <div className="text-xs text-graytext">всего человек</div>
                         </div>
                       </div>
                       <div className="flex items-center gap-3">
                         <button
                           type="button"
                           className="w-8 h-8 rounded-full bg-brand/10 flex items-center justify-center text-brand hover:bg-brand hover:text-white transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
-                          disabled={adults <= 1}
-                          onClick={() => setAdults((a) => Math.max(1, a - 1))}
-                          aria-label="Уменьшить число взрослых"
+                          disabled={people <= 1}
+                          onClick={() => setPeople((p) => Math.max(1, p - 1))}
+                          aria-label="Уменьшить число человек"
                         >
                           <Minus className="w-4 h-4" />
                         </button>
                         <span className="w-6 text-center text-sm font-semibold tabular-nums">
-                          {adults}
+                          {people}
                         </span>
                         <button
                           type="button"
                           className="w-8 h-8 rounded-full bg-brand/10 flex items-center justify-center text-brand hover:bg-brand hover:text-white transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
-                          disabled={adults >= MAX_ADULTS}
-                          onClick={() => setAdults((a) => Math.min(MAX_ADULTS, a + 1))}
-                          aria-label="Увеличить число взрослых"
-                        >
-                          <Plus className="w-4 h-4" />
-                        </button>
-                      </div>
-                    </div>
-                    <div className="h-px bg-gray-100" />
-                    <div className="flex items-center justify-between gap-3">
-                      <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-xl bg-brand/10 flex items-center justify-center">
-                          <Baby className="w-5 h-5 text-brand" />
-                        </div>
-                        <div>
-                          <div className="text-sm font-medium text-dark">Дети</div>
-                          <div className="text-xs text-graytext">до 18 лет</div>
-                        </div>
-                      </div>
-                      <div className="flex items-center gap-3">
-                        <button
-                          type="button"
-                          className="w-8 h-8 rounded-full bg-brand/10 flex items-center justify-center text-brand hover:bg-brand hover:text-white transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
-                          disabled={childrenCount <= 0}
-                          onClick={() => setChildrenCount((c) => Math.max(0, c - 1))}
-                          aria-label="Уменьшить число детей"
-                        >
-                          <Minus className="w-4 h-4" />
-                        </button>
-                        <span className="w-6 text-center text-sm font-semibold tabular-nums">
-                          {childrenCount}
-                        </span>
-                        <button
-                          type="button"
-                          className="w-8 h-8 rounded-full bg-brand/10 flex items-center justify-center text-brand hover:bg-brand hover:text-white transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
-                          disabled={childrenCount >= MAX_CHILDREN}
-                          onClick={() => setChildrenCount((c) => Math.min(MAX_CHILDREN, c + 1))}
-                          aria-label="Увеличить число детей"
+                          disabled={people >= MAX_PEOPLE}
+                          onClick={() => setPeople((p) => Math.min(MAX_PEOPLE, p + 1))}
+                          aria-label="Увеличить число человек"
                         >
                           <Plus className="w-4 h-4" />
                         </button>

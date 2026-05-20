@@ -9,7 +9,8 @@ from starlette.responses import Response
 from starlette_admin.auth import AuthProvider
 from starlette_admin.contrib.sqla import Admin, ModelView
 from starlette_admin.views import CustomView, DropDown
-from starlette_admin.exceptions import LoginFailed
+from starlette_admin.exceptions import LoginFailed, ActionFailed
+from starlette_admin.actions import row_action
 from dataclasses import dataclass
 from starlette_admin.fields import (
     IntegerField,
@@ -62,9 +63,14 @@ from app.models import (
     EmailLog,
     PriceListData,
     AccommodationImage,
+    AmenitySection,
+    AmenityQuickTag,
+    AmenityCategory,
+    AmenityItem,
 )
 
 from app.html_sanitize import sanitize_rich_html
+from app.user_password_service import reset_user_password_and_email
 
 
 def _apply_sanitized_rich_text(obj: object, *attr_names: str) -> None:
@@ -288,6 +294,26 @@ class UserAdminView(ModelView):
         DateTimeField("updatedAt", label="Обновлён", read_only=True),
         DateTimeField("lastSignInAt", label="Последний вход", read_only=True),
     ]
+
+    @row_action(
+        name="reset_password",
+        text="Сбросить пароль",
+        confirmation="Сгенерировать новый пароль и отправить его на email пользователя?",
+        icon_class="fa-solid fa-key",
+        submit_btn_text="Да, сбросить",
+        submit_btn_class="btn-warning",
+        action_btn_class="btn-warning",
+    )
+    async def reset_password_row_action(self, request: Request, pk: object) -> str:
+        user = await self.find_by_pk(request, pk)
+        if not user:
+            raise ActionFailed("Пользователь не найден")
+        await reset_user_password_and_email(
+            request.state.session,
+            user,
+            raise_on_email_error=True,
+        )
+        return f"Новый пароль отправлен на {user.email}"
 
 
 class ContactAdminView(ModelView):
@@ -634,7 +660,12 @@ class EmailTemplateView(ModelView):
         StringField("subject", label="Тема письма"),
         FileField("uploadPath", label="HTML файл (импорт)"),
         TextAreaField("bodyHtml", label="HTML шаблон"),
-        RelativeURLField("previewUrl", label="Предпросмотр"),
+        RelativeURLField(
+            "previewUrl",
+            label="Предпросмотр",
+            exclude_from_edit=True,
+            exclude_from_create=True,
+        ),
         BooleanField("isActive", label="Активен"),
         DateTimeField("createdAt", label="Создан", read_only=True),
         DateTimeField("updatedAt", label="Обновлён", read_only=True),
@@ -671,7 +702,12 @@ class EmailLogView(ModelView):
         IntegerField("id", read_only=True),
         StringField("toEmail", label="Получатель"),
         StringField("subject", label="Тема"),
-        RelativeURLField("previewUrl", label="Предпросмотр"),
+        RelativeURLField(
+            "previewUrl",
+            label="Предпросмотр",
+            exclude_from_edit=True,
+            exclude_from_create=True,
+        ),
         TextAreaField("bodyPreview", label="Предпросмотр (обрезано)"),
         TextAreaField("bodyHtml", label="Полное HTML письма"),
         StringField("templateType", label="Тип шаблона"),
@@ -738,70 +774,6 @@ class PriceListDataView(ModelView):
                 data["uploadFile"] = None
 
 
-# ── Настройка админки ───────────────────────────────────────────────
-
-_templates_dir = str(Path(__file__).resolve().parent / "templates")
-
-admin = Admin(
-    engine=async_engine,
-    title="Комплекс отдыха Парк Relax — админка",
-    base_url="/admin",
-    auth_provider=AdminAuthProvider(),
-    i18n_config=I18nConfig(default_locale="ru"),
-    templates_dir=_templates_dir,
-    index_view=CustomView(
-        label="Дашборд",
-        icon="fa fa-dashboard",
-        path="/",
-        template_path="dashboard.html",
-    ),
-)
-
-# ── Разделы ───────────────────────────────────────────────────────
-
-admin.add_view(UserAdminView(User, icon="fa fa-user", label="Пользователи", identity="users"))
-admin.add_view(ContactAdminView(Contact, icon="fa fa-address-book", label="Контакты", identity="contacts"))
-admin.add_view(PhoneNumberAdminView(PhoneNumber, icon="fa fa-phone", label="Телефоны", identity="phone-numbers"))
-admin.add_view(EmailAddressAdminView(EmailAddress, icon="fa fa-envelope", label="Email адреса", identity="email-addresses"))
-admin.add_view(ReviewAdminView(Review, icon="fa fa-star", label="Отзывы", identity="reviews"))
-admin.add_view(
-    DropDown(
-        "Слайдер",
-        icon="fa fa-images",
-        views=[
-            GalleryItemAdminView(GalleryItem, label="Галерея", identity="gallery"),
-            AboutSliderItemAdminView(AboutSliderItem, label="Слайдер О нас", identity="about-slider"),
-        ],
-    )
-)
-admin.add_view(BookingView(Booking, icon="fa fa-calendar-check", label="Бронирования", identity="booking"))
-admin.add_view(
-    AccommodationTypeAdminView(
-        AccommodationType,
-        icon="fa fa-bed",
-        label="Типы размещения",
-        identity="accommodation-type",
-    )
-)
-admin.add_view(AccommodationView(Accommodation, icon="fa fa-home", label="Размещения", identity="accommodations"))
-admin.add_view(AccommodationImageView(AccommodationImage, icon="fa fa-images", label="Галерея апартаментов", identity="accommodation-images"))
-admin.add_view(AdminAccountView(AdminModel, icon="fa fa-user-shield", label="Администраторы", identity="admins"))
-admin.add_view(LegalPageAdminView(LegalPage, icon="fa fa-file-contract", label="Юридические страницы", identity="legal-pages"))
-admin.add_view(RentalItemView(RentalItem, icon="fa fa-bicycle", label="Аренда и услуги", identity="rental-items"))
-admin.add_view(
-    DropDown(
-        "Почта",
-        icon="fa fa-envelope",
-        views=[
-            SmtpSettingsView(SmtpSettings, label="SMTP настройки", identity="smtp-settings"),
-            EmailTemplateView(EmailTemplate, label="Шаблоны писем", identity="email-templates"),
-            EmailLogView(EmailLog, label="Отправленные письма", identity="email-logs"),
-        ],
-    )
-)
-admin.add_view(PriceListDataView(PriceListData, icon="fa fa-table", label="Прайс-лист", identity="price-list"))
-
-
 class AreaItemAdminView(ModelView):
     fields = [
         IntegerField("id", read_only=True),
@@ -843,4 +815,174 @@ class AreaItemAdminView(ModelView):
         return None
 
 
+LUCIDE_ICON_LIST = [
+    "Home", "Bed", "CircleCheck", "PartyPopper", "Bike", "Flame", "Anchor",
+    "Waves", "Wifi", "Umbrella", "Car", "Baby", "Fish", "Ship", "UtensilsCrossed",
+    "Refrigerator", "Tv", "PawPrint", "Droplets", "Star", "Heart", "MapPin",
+    "Phone", "Mail", "Globe", "Clock", "Calendar", "Search", "User", "Users",
+    "Settings", "Plus", "Minus", "Check", "X", "ChevronLeft", "ChevronRight",
+    "ChevronDown", "ArrowRight", "ArrowLeft", "ExternalLink", "Link", "Image",
+    "Camera", "Music", "Video", "FileText", "Book", "Bookmark", "Flag", "Tag",
+    "Bell", "Shield", "Lock", "Key", "Zap", "Sun", "Moon", "Cloud",
+    "Thermometer", "Coffee", "Gift", "Award", "Trophy", "Target", "TrendingUp",
+    "Activity", "BarChart", "PieChart", "Layout", "Grid", "List", "Monitor",
+    "Smartphone", "Printer", "Lightbulb", "Pin", "Scissors", "Trash", "Edit",
+    "Copy", "Save", "Download", "Upload", "Share", "Send", "MessageSquare",
+    "HelpCircle", "Info", "AlertCircle", "AlertTriangle", "Volume2", "VolumeX",
+    "Mic", "Headphones", "Eye", "EyeOff", "Smile", "ThumbsUp", "ThumbsDown",
+    "Play", "Pause", "SkipForward", "SkipBack", "Square", "Compass", "Map",
+    "Navigation", "TreePine", "Mountain", "Tent", "Binoculars", "Watch",
+    "AlarmClock", "Timer", "Hourglass", "Wallet", "CreditCard", "Receipt",
+    "Ticket", "Plane", "Train", "Bus", "Anchor", "Sailboat", "Anchor",
+]
+
+
+@dataclass
+class LucideIconField(StringField):
+    """StringField с inline-сеткой для выбора Lucide-иконки."""
+
+    form_template: str = "forms/lucide_icons.html"
+    icon_list: list[str] = None
+
+    def __post_init__(self):
+        if self.icon_list is None:
+            self.icon_list = LUCIDE_ICON_LIST
+        super().__post_init__()
+
+
+class AmenitySectionView(ModelView):
+    fields = [
+        IntegerField("id", read_only=True),
+        StringField("label", label="Лейбл секции"),
+        StringField("title", label="Заголовок (H2)"),
+        TinyMCEEditorField(
+            "description",
+            label="Описание",
+            height=300,
+            extra_options=RICHTEXT_TINYMCE_EXTRA,
+        ),
+        DateTimeField("updatedAt", label="Обновлено", read_only=True),
+    ]
+
+    def can_create(self, request) -> bool:
+        return False
+
+    def can_delete(self, request) -> bool:
+        return False
+
+
+class AmenityQuickTagView(ModelView):
+    fields = [
+        IntegerField("id", read_only=True),
+        LucideIconField("iconName", label="Иконка"),
+        StringField("label", label="Текст"),
+        StringField("link", label="Ссылка"),
+        IntegerField("sortOrder", label="Порядок сортировки"),
+        BooleanField("isActive", label="Активно"),
+        DateTimeField("createdAt", label="Создано", read_only=True),
+        DateTimeField("updatedAt", label="Обновлено", read_only=True),
+    ]
+
+
+class AmenityCategoryView(ModelView):
+    fields = [
+        IntegerField("id", read_only=True),
+        LucideIconField("iconName", label="Иконка"),
+        StringField("title", label="Название категории"),
+        IntegerField("sortOrder", label="Порядок сортировки"),
+        BooleanField("isActive", label="Активно"),
+        DateTimeField("createdAt", label="Создано", read_only=True),
+        DateTimeField("updatedAt", label="Обновлено", read_only=True),
+    ]
+
+
+class AmenityItemView(ModelView):
+    fields = [
+        IntegerField("id", read_only=True),
+        HasOne("category", identity="amenity-categories", label="Категория"),
+        StringField("title", label="Название пункта"),
+        StringField("link", label="Ссылка"),
+        IntegerField("sortOrder", label="Порядок сортировки"),
+        BooleanField("isActive", label="Активно"),
+        DateTimeField("createdAt", label="Создано", read_only=True),
+        DateTimeField("updatedAt", label="Обновлено", read_only=True),
+    ]
+
+
+# ── Настройка админки ───────────────────────────────────────────────
+
+_templates_dir = str(Path(__file__).resolve().parent / "templates")
+
+admin = Admin(
+    engine=async_engine,
+    title="Комплекс отдыха Парк Relax — админка",
+    base_url="/admin",
+    auth_provider=AdminAuthProvider(),
+    i18n_config=I18nConfig(default_locale="ru"),
+    templates_dir=_templates_dir,
+    index_view=CustomView(
+        label="Дашборд",
+        icon="fa fa-dashboard",
+        path="/",
+        template_path="dashboard.html",
+    ),
+)
+
+# ── Разделы ───────────────────────────────────────────────────────
+
+admin.add_view(UserAdminView(User, icon="fa fa-user", label="Пользователи", identity="users"))
+admin.add_view(BookingView(Booking, icon="fa fa-calendar-check", label="Бронирование", identity="booking"))
+admin.add_view(
+    AccommodationTypeAdminView(
+        AccommodationType,
+        icon="fa fa-bed",
+        label="Типы размещения",
+        identity="accommodation-type",
+    )
+)
+admin.add_view(AccommodationView(Accommodation, icon="fa fa-home", label="Размещения", identity="accommodations"))
+admin.add_view(AccommodationImageView(AccommodationImage, icon="fa fa-images", label="Галерея апартаментов", identity="accommodation-images"))
+admin.add_view(RentalItemView(RentalItem, icon="fa fa-bicycle", label="Аренда и услуги", identity="rental-items"))
 admin.add_view(AreaItemAdminView(AreaItem, icon="fa fa-map-marker-alt", label="Зоны отдыха (аренда)", identity="area-items"))
+admin.add_view(
+    DropDown(
+        "Удобства",
+        icon="fa fa-concierge-bell",
+        views=[
+            AmenitySectionView(AmenitySection, label="Настройки секции", identity="amenity-section"),
+            AmenityQuickTagView(AmenityQuickTag, label="Быстрые теги", identity="amenity-quick-tags"),
+            AmenityCategoryView(AmenityCategory, label="Категории", identity="amenity-categories"),
+            AmenityItemView(AmenityItem, label="Пункты", identity="amenity-items"),
+        ],
+    )
+)
+admin.add_view(PriceListDataView(PriceListData, icon="fa fa-table", label="Прайс-лист", identity="price-list"))
+admin.add_view(LegalPageAdminView(LegalPage, icon="fa fa-file-contract", label="Юридические страницы", identity="legal-pages"))
+admin.add_view(ContactAdminView(Contact, icon="fa fa-address-book", label="Контакты", identity="contacts"))
+admin.add_view(PhoneNumberAdminView(PhoneNumber, icon="fa fa-phone", label="Телефоны", identity="phone-numbers"))
+admin.add_view(EmailAddressAdminView(EmailAddress, icon="fa fa-envelope", label="Email адреса", identity="email-addresses"))
+admin.add_view(ReviewAdminView(Review, icon="fa fa-star", label="Отзывы", identity="reviews"))
+admin.add_view(
+    DropDown(
+        "Почта",
+        icon="fa fa-envelope",
+        views=[
+            SmtpSettingsView(SmtpSettings, label="SMTP настройки", identity="smtp-settings"),
+            EmailTemplateView(EmailTemplate, label="Шаблоны писем", identity="email-templates"),
+            EmailLogView(EmailLog, label="Отправленные письма", identity="email-logs"),
+        ],
+    )
+)
+admin.add_view(
+    DropDown(
+        "Слайдер",
+        icon="fa fa-images",
+        views=[
+            GalleryItemAdminView(GalleryItem, label="Галерея", identity="gallery"),
+            AboutSliderItemAdminView(AboutSliderItem, label="Слайдер О нас", identity="about-slider"),
+        ],
+    )
+)
+admin.add_view(AdminAccountView(AdminModel, icon="fa fa-user-shield", label="Администраторы", identity="admins"))
+
+

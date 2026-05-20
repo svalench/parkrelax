@@ -4,7 +4,7 @@ from pydantic import BaseModel
 from fastapi import APIRouter, Depends, Query, HTTPException, UploadFile, File
 from sqlalchemy import select, func, and_, desc, asc
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.orm import joinedload
+from sqlalchemy.orm import joinedload, selectinload
 
 from app.dependencies import get_db, get_current_admin
 from app.models import Booking, Accommodation, AccommodationType, AccommodationImage, RentalItem, AdminEmail, User
@@ -14,11 +14,20 @@ from app.schemas import (
     AdminEmailCreate, AdminEmailUpdate, AdminEmailResponse,
 )
 from app.routers.booking import _check_accommodation_availability
-from app.routers.user_auth import _hash_password
+from app.services.booking_availability import booking_occupies_dates_filter
+from app.user_password_service import hash_password
 from app.admin import _convert_to_webp, _delete_image_file
 from app.email_service import send_email, get_active_smtp_settings, generate_temp_password
 
 router = APIRouter(prefix="/admin/dashboard", tags=["admin-dashboard"])
+
+
+def _booking_load_options():
+    """Eager-load accommodation для BookingResponse (type + images)."""
+    return (
+        selectinload(Booking.accommodation).joinedload(Accommodation.type),
+        selectinload(Booking.accommodation).selectinload(Accommodation.images),
+    )
 
 
 def _week_bounds(d: date):
@@ -62,7 +71,7 @@ async def week_dashboard(
         .options(joinedload(Booking.accommodation))
         .where(
             and_(
-                Booking.status.in_(["pending", "confirmed", "paid", "pending_confirmation"]),
+                booking_occupies_dates_filter(),
                 Booking.startDate <= sunday,
                 Booking.endDate >= monday,
             )
@@ -158,7 +167,7 @@ async def month_dashboard(
         .options(joinedload(Booking.accommodation))
         .where(
             and_(
-                Booking.status.in_(["pending", "confirmed", "paid", "pending_confirmation"]),
+                booking_occupies_dates_filter(),
                 Booking.startDate <= month_end,
                 Booking.endDate >= month_start,
             )
@@ -335,8 +344,8 @@ async def dashboard_stats(
         .where(Booking.status.in_(["confirmed", "paid"]))
     )
     row = revenue_result.one_or_none()
-    total_nights = row.total_nights if row else 0
-    avg_price = row.avg_price if row else 0
+    total_nights = row.total_nights if row and row.total_nights is not None else 0
+    avg_price = row.avg_price if row and row.avg_price is not None else 0
     estimated_revenue = int(total_nights * avg_price)
 
     # Active bookings count (currently ongoing)
@@ -345,7 +354,7 @@ async def dashboard_stats(
         .select_from(Booking)
         .where(
             and_(
-                Booking.status.in_(["pending", "confirmed", "paid", "pending_confirmation"]),
+                booking_occupies_dates_filter(),
                 Booking.startDate <= today,
                 Booking.endDate >= today,
             )
@@ -394,7 +403,7 @@ async def occupancy_by_type(
         .join(Accommodation, Booking.accommodationId == Accommodation.id)
         .where(
             and_(
-                Booking.status.in_(["pending", "confirmed", "paid", "pending_confirmation"]),
+                booking_occupies_dates_filter(),
                 Booking.startDate <= end,
                 Booking.endDate >= start,
             )
@@ -480,7 +489,7 @@ async def admin_create_booking(
                 unionId=f"email:{email}",
                 email=email,
                 name=data.customerName,
-                passwordHash=_hash_password(temp_password),
+                passwordHash=hash_password(temp_password),
                 emailVerified=False,
             )
             db.add(user)
@@ -551,10 +560,27 @@ async def admin_create_booking(
 
     result = await db.execute(
         select(Booking)
-        .options(joinedload(Booking.accommodation).joinedload(Accommodation.type))
+        .options(*_booking_load_options())
         .where(Booking.id == booking.id)
     )
     return result.unique().scalar_one()
+
+
+@router.get("/bookings/{booking_id}", response_model=BookingResponse)
+async def admin_get_booking(
+    booking_id: int,
+    db: AsyncSession = Depends(get_db),
+    _admin=Depends(get_current_admin),
+):
+    result = await db.execute(
+        select(Booking)
+        .options(*_booking_load_options())
+        .where(Booking.id == booking_id)
+    )
+    booking = result.unique().scalar_one_or_none()
+    if not booking:
+        raise HTTPException(status_code=404, detail="Booking not found")
+    return booking
 
 
 @router.patch("/bookings/{booking_id}", response_model=BookingResponse)
@@ -578,7 +604,18 @@ async def admin_update_booking(
     new_start = update_data.get("startDate", booking.startDate)
     new_end = update_data.get("endDate", booking.endDate)
 
+    new_status = update_data.get("status", booking.status)
+
     if "accommodationId" in update_data or "startDate" in update_data or "endDate" in update_data:
+        if new_acc:
+            available = await _check_accommodation_availability(
+                db, new_acc, new_start, new_end, exclude_booking_id=booking_id
+            )
+            if not available:
+                raise HTTPException(status_code=409, detail="Данный дом занят на выбранный период")
+
+    # Смена статуса на неотменённый — проверяем пересечение с другими бронями
+    if "status" in update_data and new_status.strip().lower() not in ("cancelled", "canceled"):
         if new_acc:
             available = await _check_accommodation_availability(
                 db, new_acc, new_start, new_end, exclude_booking_id=booking_id
@@ -594,7 +631,7 @@ async def admin_update_booking(
 
     result = await db.execute(
         select(Booking)
-        .options(joinedload(Booking.accommodation).joinedload(Accommodation.type))
+        .options(*_booking_load_options())
         .where(Booking.id == booking.id)
     )
     return result.unique().scalar_one()

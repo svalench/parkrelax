@@ -11,9 +11,16 @@ from app.dependencies import get_db, get_current_admin
 from app.models import Accommodation, AccommodationType, Booking, AccommodationImage
 from app.schemas import (
     AccommodationResponse,
+    AccommodationAvailabilityResponse,
+    AccommodationBookingCheckResponse,
     AccommodationCreate,
     AccommodationUpdate,
     AccommodationTypeResponse,
+)
+from app.services.booking_availability import (
+    booking_occupies_dates_filter,
+    get_booked_accommodation_ids,
+    is_accommodation_available,
 )
 
 router = APIRouter(prefix="/accommodation", tags=["accommodation"])
@@ -45,6 +52,7 @@ async def list_objects(
     type_id: Optional[int] = Query(None, alias="typeId"),
     active_only: bool = Query(True, alias="activeOnly"),
     show_on_main: Optional[bool] = Query(None, alias="showOnMain"),
+    people: Optional[int] = Query(None, ge=1, alias="people"),
     db: AsyncSession = Depends(get_db),
 ):
     stmt = select(Accommodation).options(joinedload(Accommodation.type), selectinload(Accommodation.images))
@@ -54,18 +62,25 @@ async def list_objects(
         stmt = stmt.where(Accommodation.typeId == type_id)
     if show_on_main is not None:
         stmt = stmt.where(Accommodation.showOnMain == show_on_main)
+    if people is not None and people > 0:
+        effective_capacity = case(
+            (Accommodation.capacity > 0, Accommodation.capacity),
+            else_=AccommodationType.capacity,
+        )
+        stmt = stmt.join(AccommodationType).where(effective_capacity >= people)
     stmt = stmt.order_by(asc(Accommodation.sortOrder))
     result = await db.execute(stmt)
     return result.unique().scalars().all()
 
 
-@router.get("/availability", response_model=list[AccommodationResponse])
+@router.get("/availability", response_model=list[AccommodationAvailabilityResponse])
 async def check_availability(
     type_id: Optional[int] = Query(None, alias="typeId"),
     check_in: Optional[date] = Query(None, alias="checkIn"),
     check_out: Optional[date] = Query(None, alias="checkOut"),
     adults: Optional[int] = Query(None, ge=1),
     children: Optional[int] = Query(None, ge=0),
+    people: Optional[int] = Query(None, ge=1, alias="people"),
     page: int = Query(1, ge=1),
     page_size: int = Query(10, ge=1, le=100, alias="pageSize"),
     db: AsyncSession = Depends(get_db),
@@ -79,7 +94,7 @@ async def check_availability(
     if type_id:
         stmt = stmt.where(Accommodation.typeId == type_id)
 
-    total_guests = (adults or 0) + (children or 0)
+    total_guests = people if people is not None else ((adults or 0) + (children or 0))
     if total_guests > 0:
         effective_capacity = case(
             (Accommodation.capacity > 0, Accommodation.capacity),
@@ -87,25 +102,20 @@ async def check_availability(
         )
         stmt = stmt.where(effective_capacity >= total_guests)
 
+    booked_ids: set[int] = set()
     if check_in and check_out:
         if check_out <= check_in:
             raise HTTPException(status_code=400, detail="checkOut must be after checkIn")
 
-        # Find bookings that overlap with the requested range
-        overlap_stmt = select(Booking.accommodationId).where(
-            and_(
-                Booking.accommodationId.isnot(None),
-                Booking.status.in_(["pending", "confirmed", "paid", "pending_confirmation"]),
-                Booking.startDate < check_out,
-                Booking.endDate > check_in,
-            )
-        )
-        overlap_result = await db.execute(overlap_stmt)
-        booked_ids = {row for row in overlap_result.scalars().all()}
-        if booked_ids:
-            stmt = stmt.where(Accommodation.id.notin_(booked_ids))
+        booked_ids = await get_booked_accommodation_ids(db, check_in, check_out)
 
-    stmt = stmt.order_by(asc(Accommodation.sortOrder))
+    if booked_ids:
+        stmt = stmt.order_by(
+            case((Accommodation.id.in_(booked_ids), 1), else_=0),
+            asc(Accommodation.sortOrder),
+        )
+    else:
+        stmt = stmt.order_by(asc(Accommodation.sortOrder))
 
     # Pagination
     count_stmt = select(func.count()).select_from(stmt.subquery())
@@ -116,9 +126,13 @@ async def check_availability(
     result = await db.execute(stmt)
     items = result.unique().scalars().all()
 
-    # Attach pagination metadata via headers (or we could use a wrapper schema)
-    # For simplicity we'll return just the list; frontend can infer has-more by length
-    return items
+    return [
+        AccommodationAvailabilityResponse(
+            **AccommodationResponse.model_validate(item).model_dump(),
+            isBookedForDates=item.id in booked_ids,
+        )
+        for item in items
+    ]
 
 
 @router.get("/booked-dates")
@@ -138,7 +152,7 @@ async def get_booked_dates(
     stmt = select(Booking).where(
         and_(
             Booking.accommodationId.in_(acc_ids),
-            Booking.status.in_(["pending", "confirmed", "paid", "pending_confirmation"]),
+            booking_occupies_dates_filter(),
         )
     ).order_by(asc(Booking.startDate))
     result = await db.execute(stmt)
@@ -149,6 +163,47 @@ async def get_booked_dates(
     ]
 
 
+@router.get(
+    "/objects/{object_id}/availability-check",
+    response_model=AccommodationBookingCheckResponse,
+)
+async def check_object_availability_for_booking(
+    object_id: int,
+    check_in: date = Query(..., alias="checkIn"),
+    check_out: date = Query(..., alias="checkOut"),
+    people: Optional[int] = Query(None, ge=1),
+    db: AsyncSession = Depends(get_db),
+):
+    """Проверка перед формой бронирования (в т.ч. после обновления страницы)."""
+    if check_out <= check_in:
+        raise HTTPException(status_code=400, detail="checkOut must be after checkIn")
+
+    result = await db.execute(
+        select(Accommodation)
+        .options(joinedload(Accommodation.type), selectinload(Accommodation.images))
+        .join(AccommodationType)
+        .where(Accommodation.id == object_id, Accommodation.isActive == True)
+    )
+    item = result.unique().scalar_one_or_none()
+    if not item:
+        return AccommodationBookingCheckResponse(available=False, accommodation=None)
+
+    if people is not None and people > 0:
+        effective_capacity = item.capacity if item.capacity > 0 else (item.type.capacity if item.type else 0)
+        if effective_capacity < people:
+            return AccommodationBookingCheckResponse(available=False, accommodation=None)
+
+    dates_free = await is_accommodation_available(db, object_id, check_in, check_out)
+    acc_response = AccommodationAvailabilityResponse(
+        **AccommodationResponse.model_validate(item).model_dump(),
+        isBookedForDates=not dates_free,
+    )
+    return AccommodationBookingCheckResponse(
+        available=dates_free,
+        accommodation=acc_response if dates_free else None,
+    )
+
+
 @router.get("/objects/{object_id}/booked-dates")
 async def get_object_booked_dates(
     object_id: int,
@@ -157,7 +212,7 @@ async def get_object_booked_dates(
     stmt = select(Booking).where(
         and_(
             Booking.accommodationId == object_id,
-            Booking.status.in_(["pending", "confirmed", "paid", "pending_confirmation"]),
+            booking_occupies_dates_filter(),
         )
     ).order_by(asc(Booking.startDate))
     result = await db.execute(stmt)

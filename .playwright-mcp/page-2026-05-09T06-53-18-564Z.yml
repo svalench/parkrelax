@@ -1,9 +1,0 @@
-- generic [active] [ref=e1]:
-  - heading "Path 0 (opacity 0.271)" [level=2] [ref=e2]
-  - img [ref=e4]
-  - heading "Path 1 (opacity 0.328)" [level=2] [ref=e5]
-  - img [ref=e7]
-  - heading "Path 2 (opacity 0.151)" [level=2] [ref=e8]
-  - img [ref=e10]
-  - heading "Path 3 (opacity 0.519)" [level=2] [ref=e11]
-  - img [ref=e13]

@@ -271,6 +271,19 @@ class AccommodationResponse(AccommodationBase):
     images: list[AccommodationImageResponse] = []
 
 
+class AccommodationAvailabilityResponse(AccommodationResponse):
+    """Размещение с флагом занятости на выбранный диапазон дат."""
+
+    isBookedForDates: bool = False
+
+
+class AccommodationBookingCheckResponse(BaseModel):
+    """Проверка перед оформлением: свободно ли размещение на даты."""
+
+    available: bool
+    accommodation: Optional[AccommodationAvailabilityResponse] = None
+
+
 # ── Bookings ───────────────────────────────────────────────────────
 
 class BookingBase(BaseModel):
@@ -620,4 +633,107 @@ class PriceListDataResponse(BaseModel):
     model_config = ConfigDict(from_attributes=True)
     id: int
     data: list[dict] = []
+    updatedAt: datetime | None = None
+
+
+# ── Amenities ──────────────────────────────────────────────────────
+
+class AmenitySectionBase(BaseModel):
+    label: str = "УДОБСТВА"
+    title: str = ""
+    description: str = ""
+
+
+class AmenitySectionCreate(AmenitySectionBase):
+    pass
+
+
+class AmenitySectionUpdate(BaseModel):
+    label: Optional[str] = None
+    title: Optional[str] = None
+    description: Optional[str] = None
+
+
+class AmenitySectionResponse(AmenitySectionBase):
+    model_config = ConfigDict(from_attributes=True)
+    id: int | None = None
+    updatedAt: datetime | None = None
+
+
+class AmenityQuickTagBase(BaseModel):
+    iconName: str = ""
+    label: str = ""
+    link: str = "/prices"
+    sortOrder: int = 0
+    isActive: bool = True
+
+
+class AmenityQuickTagCreate(AmenityQuickTagBase):
+    pass
+
+
+class AmenityQuickTagUpdate(BaseModel):
+    iconName: Optional[str] = None
+    label: Optional[str] = None
+    link: Optional[str] = None
+    sortOrder: Optional[int] = None
+    isActive: Optional[bool] = None
+
+
+class AmenityQuickTagResponse(AmenityQuickTagBase):
+    model_config = ConfigDict(from_attributes=True)
+    id: int | None = None
+    createdAt: datetime | None = None
+    updatedAt: datetime | None = None
+
+
+class AmenityCategoryBase(BaseModel):
+    iconName: str = ""
+    title: str = ""
+    sortOrder: int = 0
+    isActive: bool = True
+
+
+class AmenityCategoryCreate(AmenityCategoryBase):
+    pass
+
+
+class AmenityCategoryUpdate(BaseModel):
+    iconName: Optional[str] = None
+    title: Optional[str] = None
+    sortOrder: Optional[int] = None
+    isActive: Optional[bool] = None
+
+
+class AmenityCategoryResponse(AmenityCategoryBase):
+    model_config = ConfigDict(from_attributes=True)
+    id: int | None = None
+    createdAt: datetime | None = None
+    updatedAt: datetime | None = None
+
+
+class AmenityItemBase(BaseModel):
+    categoryId: int
+    title: str = ""
+    link: str = "/prices"
+    sortOrder: int = 0
+    isActive: bool = True
+
+
+class AmenityItemCreate(AmenityItemBase):
+    pass
+
+
+class AmenityItemUpdate(BaseModel):
+    categoryId: Optional[int] = None
+    title: Optional[str] = None
+    link: Optional[str] = None
+    sortOrder: Optional[int] = None
+    isActive: Optional[bool] = None
+
+
+class AmenityItemResponse(AmenityItemBase):
+    model_config = ConfigDict(from_attributes=True)
+    id: int | None = None
+    createdAt: datetime | None = None
     updatedAt: datetime | None = None

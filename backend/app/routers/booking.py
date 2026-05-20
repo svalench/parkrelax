@@ -16,7 +16,7 @@ from app.schemas import (
     BookingPublicResponse,
 )
 from app.email_service import generate_temp_password, send_email
-from app.routers.user_auth import _hash_password
+from app.user_password_service import hash_password
 
 logger = logging.getLogger(__name__)
 
@@ -30,26 +30,23 @@ async def _check_accommodation_availability(
     end_date,
     exclude_booking_id: int | None = None,
 ) -> bool:
-    stmt = select(Booking).where(
-        and_(
-            Booking.accommodationId == accommodation_id,
-            Booking.status.in_(["pending", "confirmed", "paid", "pending_confirmation"]),
-            Booking.startDate < end_date,
-            Booking.endDate > start_date,
-        )
+    from app.services.booking_availability import is_accommodation_available
+
+    available = await is_accommodation_available(
+        db,
+        accommodation_id,
+        start_date,
+        end_date,
+        exclude_booking_id=exclude_booking_id,
     )
-    if exclude_booking_id:
-        stmt = stmt.where(Booking.id != exclude_booking_id)
-    result = await db.execute(stmt)
-    conflict = result.scalar_one_or_none()
-    if conflict:
+    if not available:
         logger.warning(
-            "Availability conflict: accommodation_id=%s, requested=%s..%s, "
-            "conflict_booking=%s (%s..%s, status=%s)",
-            accommodation_id, start_date, end_date,
-            conflict.id, conflict.startDate, conflict.endDate, conflict.status,
+            "Availability conflict: accommodation_id=%s, requested=%s..%s",
+            accommodation_id,
+            start_date,
+            end_date,
         )
-    return conflict is None
+    return available
 
 
 @router.post("", response_model=BookingPublicResponse, status_code=status.HTTP_201_CREATED)
@@ -75,6 +72,8 @@ async def create_booking(data: BookingCreate, db: AsyncSession = Depends(get_db)
     booking = Booking(**data.model_dump())
     # New public bookings always start as pending_confirmation
     booking.status = "pending_confirmation"
+    if data.customerEmail:
+        booking.customerEmail = data.customerEmail.strip().lower()
     db.add(booking)
     await db.flush()
 
@@ -82,7 +81,7 @@ async def create_booking(data: BookingCreate, db: AsyncSession = Depends(get_db)
     temp_password = None
 
     if data.customerEmail:
-        email = data.customerEmail.strip().lower()
+        email = booking.customerEmail
         result = await db.execute(select(User).where(User.email == email))
         user = result.scalar_one_or_none()
         if not user:
@@ -92,7 +91,7 @@ async def create_booking(data: BookingCreate, db: AsyncSession = Depends(get_db)
                 unionId=f"email:{email}",
                 email=email,
                 name=data.customerName,
-                passwordHash=_hash_password(temp_password),
+                passwordHash=hash_password(temp_password),
                 emailVerified=False,
             )
             db.add(user)
@@ -204,7 +203,7 @@ async def my_bookings(
 ):
     filters = [Booking.userId == user.id]
     if user.email:
-        filters.append(Booking.customerEmail == user.email)
+        filters.append(func.lower(Booking.customerEmail) == user.email.lower())
 
     logger.info(
         "my_bookings called: user_id=%s user_email=%s filters_count=%s",

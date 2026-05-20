@@ -38,6 +38,7 @@ import {
   Star,
   Bike,
   Mail,
+  Pencil,
 } from 'lucide-react'
 
 import { Button } from '@/components/ui/button'
@@ -420,6 +421,7 @@ function MonthTab() {
   const [selectedBooking, setSelectedBooking] = useState<WeekBooking | null>(null)
   const [showForm, setShowForm] = useState(false)
   const [formInitial, setFormInitial] = useState<{ accommodationId?: number; startDate?: string; endDate?: string }>({})
+  const [editingId, setEditingId] = useState<number | null>(null)
 
   const loadData = () => {
     setLoading(true)
@@ -583,12 +585,20 @@ function MonthTab() {
         open={!!selectedBooking}
         onOpenChange={(v) => !v && setSelectedBooking(null)}
         onRefresh={loadData}
+        onEdit={(b) => setEditingId(b.id)}
       />
       <BookingFormDialog
-        open={showForm}
-        onOpenChange={setShowForm}
+        open={showForm || editingId !== null}
+        onOpenChange={(v) => {
+          setShowForm(v)
+          if (!v) setEditingId(null)
+        }}
         initialData={formInitial}
-        onSuccess={loadData}
+        onSuccess={() => {
+          loadData()
+          setEditingId(null)
+        }}
+        editingId={editingId}
       />
     </div>
   )
@@ -601,11 +611,13 @@ function BookingDetailDialog({
   open,
   onOpenChange,
   onRefresh,
+  onEdit,
 }: {
   booking: WeekBooking | null
   open: boolean
   onOpenChange: (v: boolean) => void
   onRefresh: () => void
+  onEdit?: (booking: WeekBooking) => void
 }) {
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
 
@@ -698,6 +710,12 @@ function BookingDetailDialog({
                 </div>
               )}
               <div className="flex gap-2 pt-3 border-t">
+                {onEdit && (
+                  <Button variant="outline" className="flex-1 gap-1 text-blue-700 border-blue-200 hover:bg-blue-50" onClick={() => { onEdit(booking); onOpenChange(false) }}>
+                    <Pencil className="w-4 h-4" />
+                    Редактировать
+                  </Button>
+                )}
                 {booking.status !== 'cancelled' && (
                   <Button variant="outline" className="flex-1 gap-1 text-amber-700 border-amber-200 hover:bg-amber-50" onClick={handleCancel}>
                     <XCircle className="w-4 h-4" />
@@ -743,8 +761,7 @@ interface BookingFormData {
   customerName: string
   customerPhone: string
   customerEmail: string
-  adults: number
-  children: number
+  people: number
   status: string
   notes: string
 }
@@ -754,14 +771,17 @@ function BookingFormDialog({
   onOpenChange,
   initialData,
   onSuccess,
+  editingId,
 }: {
   open: boolean
   onOpenChange: (v: boolean) => void
   initialData?: { accommodationId?: number; startDate?: string; endDate?: string }
   onSuccess: () => void
+  editingId?: number | null
 }) {
   const [accommodations, setAccommodations] = useState<AccommodationOption[]>([])
   const [loading, setLoading] = useState(false)
+  const [loadingBooking, setLoadingBooking] = useState(false)
   const [form, setForm] = useState<BookingFormData>({
     accommodationId: initialData?.accommodationId ? String(initialData.accommodationId) : '',
     startDate: initialData?.startDate || '',
@@ -769,8 +789,7 @@ function BookingFormDialog({
     customerName: '',
     customerPhone: '',
     customerEmail: '',
-    adults: 1,
-    children: 0,
+    people: 1,
     status: 'confirmed',
     notes: '',
   })
@@ -782,7 +801,34 @@ function BookingFormDialog({
   }, [])
 
   useEffect(() => {
-    if (open) {
+    if (open && editingId) {
+      setLoadingBooking(true)
+      fetch(`${API_BASE}/admin/dashboard/bookings/${editingId}`, { credentials: 'include' })
+        .then(async (r) => {
+          if (!r.ok) {
+            const err = await r.json().catch(() => ({}))
+            toast.error(err.detail || 'Не удалось загрузить бронирование')
+            return null
+          }
+          return r.json()
+        })
+        .then((data) => {
+          if (data) {
+            setForm({
+              accommodationId: data.accommodationId ? String(data.accommodationId) : '',
+              startDate: data.startDate?.slice?.(0, 10) || data.startDate || '',
+              endDate: data.endDate?.slice?.(0, 10) || data.endDate || '',
+              customerName: data.customerName || '',
+              customerPhone: data.customerPhone || '',
+              customerEmail: data.customerEmail || '',
+              people: data.adults || 1,
+              status: data.status || 'confirmed',
+              notes: data.notes || '',
+            })
+          }
+        })
+        .finally(() => setLoadingBooking(false))
+    } else if (open) {
       setForm({
         accommodationId: initialData?.accommodationId ? String(initialData.accommodationId) : '',
         startDate: initialData?.startDate || '',
@@ -790,13 +836,12 @@ function BookingFormDialog({
         customerName: '',
         customerPhone: '',
         customerEmail: '',
-        adults: 1,
-        children: 0,
+        people: 1,
         status: 'confirmed',
         notes: '',
       })
     }
-  }, [open, initialData])
+  }, [open, initialData, editingId])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -810,24 +855,31 @@ function BookingFormDialog({
     }
     setLoading(true)
     try {
-      const res = await fetch(`${API_BASE}/admin/dashboard/bookings`, {
-        method: 'POST',
+      const url = editingId
+        ? `${API_BASE}/admin/dashboard/bookings/${editingId}`
+        : `${API_BASE}/admin/dashboard/bookings`
+      const method = editingId ? 'PATCH' : 'POST'
+      const res = await fetch(url, {
+        method,
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
         body: JSON.stringify({
           ...form,
           accommodationId: Number(form.accommodationId),
-          adults: Number(form.adults),
-          children: Number(form.children),
+          adults: Number(form.people),
+          children: 0,
         }),
       })
       if (res.ok) {
-        toast.success('Бронирование создано')
+        toast.success(editingId ? 'Бронирование обновлено' : 'Бронирование создано')
         onOpenChange(false)
         onSuccess()
+      } else if (res.status === 409) {
+        const err = await res.json().catch(() => ({}))
+        toast.error(err.detail || 'Данный дом занят на выбранный период')
       } else {
         const err = await res.json().catch(() => ({}))
-        toast.error(err.detail || 'Ошибка создания бронирования')
+        toast.error(err.detail || (editingId ? 'Ошибка обновления' : 'Ошибка создания бронирования'))
       }
     } catch {
       toast.error('Ошибка сети')
@@ -840,9 +892,16 @@ function BookingFormDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-lg max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>Новое бронирование</DialogTitle>
+          <DialogTitle>{editingId ? 'Редактирование бронирования' : 'Новое бронирование'}</DialogTitle>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4">
+          {loadingBooking && (
+            <div className="flex items-center justify-center py-8 text-graytext">
+              <Loader2 className="w-6 h-6 animate-spin mr-2" />
+              Загрузка…
+            </div>
+          )}
+          {!loadingBooking && (<>
           <div>
             <label className="text-sm font-medium mb-1 block">Дом <span className="text-red-500">*</span></label>
             <Select value={form.accommodationId} onValueChange={(v) => setForm((p) => ({ ...p, accommodationId: v }))}>
@@ -880,14 +939,10 @@ function BookingFormDialog({
               <Input type="email" value={form.customerEmail} onChange={(e) => setForm((p) => ({ ...p, customerEmail: e.target.value }))} />
             </div>
           </div>
-          <div className="grid grid-cols-3 gap-3">
+          <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="text-sm font-medium mb-1 block">Взрослые</label>
-              <Input type="number" min={1} value={form.adults} onChange={(e) => setForm((p) => ({ ...p, adults: Number(e.target.value) }))} />
-            </div>
-            <div>
-              <label className="text-sm font-medium mb-1 block">Дети</label>
-              <Input type="number" min={0} value={form.children} onChange={(e) => setForm((p) => ({ ...p, children: Number(e.target.value) }))} />
+              <label className="text-sm font-medium mb-1 block">Количество человек</label>
+              <Input type="number" min={1} value={form.people} onChange={(e) => setForm((p) => ({ ...p, people: Number(e.target.value) }))} />
             </div>
             <div>
               <label className="text-sm font-medium mb-1 block">Статус</label>
@@ -911,9 +966,10 @@ function BookingFormDialog({
           <div className="flex justify-end gap-2 pt-2">
             <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>Отмена</Button>
             <Button type="submit" className="bg-brand hover:bg-brand-hover" disabled={loading}>
-              {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Создать бронирование'}
+              {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : editingId ? 'Сохранить изменения' : 'Создать бронирование'}
             </Button>
           </div>
+          </>)}
         </form>
       </DialogContent>
     </Dialog>
@@ -929,6 +985,7 @@ function WeekTab() {
   const [selectedBooking, setSelectedBooking] = useState<WeekBooking | null>(null)
   const [showForm, setShowForm] = useState(false)
   const [formInitial, setFormInitial] = useState<{ accommodationId?: number; startDate?: string; endDate?: string }>({})
+  const [editingId, setEditingId] = useState<number | null>(null)
 
   const weekStart = useMemo(() => startOfWeek(currentDate, { weekStartsOn: 1 }), [currentDate])
   const weekEnd = useMemo(() => endOfWeek(currentDate, { weekStartsOn: 1 }), [currentDate])
@@ -1077,12 +1134,20 @@ function WeekTab() {
         open={!!selectedBooking}
         onOpenChange={(v) => !v && setSelectedBooking(null)}
         onRefresh={loadData}
+        onEdit={(b) => setEditingId(b.id)}
       />
       <BookingFormDialog
-        open={showForm}
-        onOpenChange={setShowForm}
+        open={showForm || editingId !== null}
+        onOpenChange={(v) => {
+          setShowForm(v)
+          if (!v) setEditingId(null)
+        }}
         initialData={formInitial}
-        onSuccess={loadData}
+        onSuccess={() => {
+          loadData()
+          setEditingId(null)
+        }}
+        editingId={editingId}
       />
     </div>
   )
@@ -1098,6 +1163,7 @@ function HistoryTab() {
   const [loading, setLoading] = useState(false)
   const [selectedItem, setSelectedItem] = useState<HistoryItem | null>(null)
   const [showForm, setShowForm] = useState(false)
+  const [editingId, setEditingId] = useState<number | null>(null)
 
   const [accommodations, setAccommodations] = useState<AccommodationOption[]>([])
   const [types, setTypes] = useState<TypeOption[]>([])
@@ -1349,12 +1415,20 @@ function HistoryTab() {
         open={!!selectedItem}
         onOpenChange={(v) => !v && setSelectedItem(null)}
         onRefresh={loadHistory}
+        onEdit={(b) => setEditingId(b.id)}
       />
       <BookingFormDialog
-        open={showForm}
-        onOpenChange={setShowForm}
+        open={showForm || editingId !== null}
+        onOpenChange={(v) => {
+          setShowForm(v)
+          if (!v) setEditingId(null)
+        }}
         initialData={{}}
-        onSuccess={loadHistory}
+        onSuccess={() => {
+          loadHistory()
+          setEditingId(null)
+        }}
+        editingId={editingId}
       />
     </div>
   )

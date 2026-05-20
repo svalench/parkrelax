@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router'
 import { useAuth } from '@/contexts/AuthContext'
 import { Button } from '@/components/ui/button'
-import { Loader2, Calendar, Home, Users, LogOut, Mail, User, Shield, Cookie, FileText } from 'lucide-react'
+import { Loader2, Calendar, Home, Users, LogOut, Mail, User, Shield, Cookie, FileText, CreditCard } from 'lucide-react'
 import { format, differenceInDays } from 'date-fns'
 import { Link } from 'react-router'
 import { revokeCookieConsent } from '@/components/CookieBanner'
@@ -24,11 +24,36 @@ interface BookingItem {
   }
 }
 
+const STATUS_LABELS: Record<string, string> = {
+  pending_confirmation: 'Ожидает подтверждения',
+  pending: 'Ожидает оплаты',
+  paid: 'Оплачено',
+  confirmed: 'Подтверждено',
+  cancelled: 'Отменено',
+}
+
+function statusBadgeClass(status: string): string {
+  switch (status) {
+    case 'paid':
+    case 'confirmed':
+      return 'bg-green-100 text-green-700'
+    case 'pending':
+      return 'bg-yellow-100 text-yellow-700'
+    case 'pending_confirmation':
+      return 'bg-amber-100 text-amber-800'
+    case 'cancelled':
+      return 'bg-red-100 text-red-700'
+    default:
+      return 'bg-gray-100 text-gray-700'
+  }
+}
+
 export default function ProfilePage() {
   const navigate = useNavigate()
   const { user, loading: authLoading, logout } = useAuth()
   const [bookings, setBookings] = useState<BookingItem[]>([])
   const [loading, setLoading] = useState(true)
+  const [loadError, setLoadError] = useState('')
 
   useEffect(() => {
     if (authLoading) return
@@ -36,10 +61,23 @@ export default function ProfilePage() {
       navigate('/login')
       return
     }
+    setLoadError('')
     fetch(`${API_BASE}/profile/bookings`, { credentials: 'include' })
-      .then((r) => r.json())
-      .then((data) => setBookings(data))
-      .catch(() => setBookings([]))
+      .then(async (r) => {
+        const data = await r.json()
+        if (!r.ok) {
+          const detail = typeof data.detail === 'string' ? data.detail : 'Не удалось загрузить бронирования'
+          throw new Error(detail)
+        }
+        if (!Array.isArray(data)) {
+          throw new Error('Некорректный ответ сервера')
+        }
+        setBookings(data)
+      })
+      .catch((err: Error) => {
+        setBookings([])
+        setLoadError(err.message || 'Не удалось загрузить бронирования')
+      })
       .finally(() => setLoading(false))
   }, [user, authLoading, navigate])
 
@@ -57,13 +95,6 @@ export default function ProfilePage() {
   }
 
   if (!user) return null
-
-  const statusLabels: Record<string, string> = {
-    pending: 'Ожидает оплаты',
-    paid: 'Оплачено',
-    confirmed: 'Подтверждено',
-    cancelled: 'Отменено',
-  }
 
   return (
     <div className="min-h-screen bg-lightgray pt-24 md:pt-28 pb-12">
@@ -129,7 +160,13 @@ export default function ProfilePage() {
 
         <h2 className="text-xl font-bold text-dark mb-4">Мои бронирования</h2>
 
-        {bookings.length === 0 ? (
+        {loadError && (
+          <div className="bg-white rounded-2xl border border-red-200 shadow-sm p-6 mb-4 text-center">
+            <p className="text-red-600 text-sm">{loadError}</p>
+          </div>
+        )}
+
+        {!loadError && bookings.length === 0 ? (
           <div className="bg-white rounded-2xl border shadow-sm p-8 text-center">
             <Home className="w-12 h-12 text-gray-300 mx-auto mb-4" />
             <p className="text-graytext">У вас пока нет бронирований</p>
@@ -138,7 +175,7 @@ export default function ProfilePage() {
               variant="outline"
               className="mt-4 rounded-xl"
             >
-              Онлайн-бронирование скоро появится
+              Забронировать размещение
             </Button>
           </div>
         ) : (
@@ -154,14 +191,10 @@ export default function ProfilePage() {
                     className="w-full md:w-40 h-32 object-cover rounded-xl"
                   />
                   <div className="flex-1">
-                    <div className="flex items-center justify-between mb-2">
+                    <div className="flex items-center justify-between mb-2 gap-2">
                       <h3 className="font-semibold text-dark text-lg">{b.accommodation?.name || 'Размещение'}</h3>
-                      <span className={`px-3 py-1 rounded-full text-xs font-semibold ${
-                        b.status === 'paid' ? 'bg-green-100 text-green-700' :
-                        b.status === 'pending' ? 'bg-yellow-100 text-yellow-700' :
-                        'bg-gray-100 text-gray-700'
-                      }`}>
-                        {statusLabels[b.status] || b.status}
+                      <span className={`px-3 py-1 rounded-full text-xs font-semibold shrink-0 ${statusBadgeClass(b.status)}`}>
+                        {STATUS_LABELS[b.status] || b.status}
                       </span>
                     </div>
                     <div className="grid grid-cols-2 gap-y-2 gap-x-4 text-sm text-graytext">
@@ -174,6 +207,15 @@ export default function ProfilePage() {
                     </div>
                     {total > 0 && (
                       <p className="mt-3 text-brand font-bold">{total.toLocaleString('ru-RU')} Br</p>
+                    )}
+                    {b.status === 'pending' && (
+                      <Button
+                        onClick={() => navigate(`/payment?bookingId=${b.id}`)}
+                        className="mt-4 rounded-xl bg-brand hover:bg-brand-hover text-white"
+                      >
+                        <CreditCard className="w-4 h-4 mr-2" />
+                        Оплатить
+                      </Button>
                     )}
                   </div>
                 </div>

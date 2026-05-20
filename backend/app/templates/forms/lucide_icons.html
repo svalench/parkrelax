@@ -1,0 +1,158 @@
+<div class="{% if error %}{{ field.error_class }}{% endif %}">
+  <input
+    type="hidden"
+    id="{{ field.id }}"
+    name="{{ field.id }}"
+    value="{{ data[field.id] or '' }}"
+  />
+
+  <div class="mb-2">
+    <span class="text-muted small">Выбрано:</span>
+    <span id="lucide-selected-label-{{ field.id }}" class="fw-bold ms-1">
+      {{ data[field.id] or '—' }}
+    </span>
+    <span id="lucide-selected-preview-{{ field.id }}" class="ms-2 align-middle" style="display:inline-block; vertical-align:middle;"></span>
+  </div>
+
+  <button
+    type="button"
+    class="btn btn-sm btn-outline-secondary mb-2"
+    onclick="document.getElementById('lucide-grid-{{ field.id }}').classList.toggle('d-none')"
+  >
+    <i class="fa fa-icons"></i> Показать/скрыть иконки
+  </button>
+
+  <div id="lucide-grid-{{ field.id }}" class="d-none">
+    <div
+      class="lucide-icon-grid"
+      style="display: grid; grid-template-columns: repeat(auto-fill, minmax(56px, 1fr)); gap: 6px; max-height: 260px; overflow-y: auto; border: 1px solid #dee2e6; border-radius: .375rem; padding: 8px; background: #fff;"
+    >
+      {% for icon in field.icon_list %}
+        <div
+          class="lucide-icon-option text-center p-2 rounded"
+          data-icon="{{ icon }}"
+          data-field="{{ field.id }}"
+          style="cursor: pointer; border: 2px solid transparent; transition: all .15s;"
+          title="{{ icon }}"
+        >
+          <span class="lucide-icon-placeholder" data-icon-name="{{ icon }}" style="width: 20px; height: 20px; display: block; margin: 0 auto;"></span>
+          <div class="mt-1" style="font-size: 9px; line-height: 1.1; word-break: break-all; color: #6c757d;">
+            {{ icon }}
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+
+  {% if field.help_text %}
+    <small class="form-hint">{{ field.help_text }}</small>
+  {% endif %}
+</div>
+
+{% include "forms/_error.html" %}
+
+<script src="https://cdn.jsdelivr.net/npm/lucide@1.16.0/dist/umd/lucide.min.js"></script>
+<script>
+(function () {
+  var fieldId = '{{ field.id }}';
+  var grid = document.getElementById('lucide-grid-' + fieldId);
+  var input = document.getElementById(fieldId);
+  var label = document.getElementById('lucide-selected-label-' + fieldId);
+  var preview = document.getElementById('lucide-selected-preview-' + fieldId);
+
+  function toPascalCase(name) {
+    var camel = name.replace(/^([A-Z])|[\s-_]+(\w)/g, function (m, p1, p2) {
+      return p2 ? p2.toUpperCase() : p1.toLowerCase();
+    });
+    return camel.charAt(0).toUpperCase() + camel.slice(1);
+  }
+
+  function getIconNode(name) {
+    if (!window.lucide) return null;
+    var icons = lucide.icons || lucide;
+    return icons[name] || icons[toPascalCase(name)] || null;
+  }
+
+  function createLucideSvg(name, size) {
+    size = size || 20;
+    var iconNode = getIconNode(name);
+    if (iconNode && window.lucide && typeof lucide.createElement === 'function') {
+      return lucide.createElement(iconNode, {
+        width: size,
+        height: size,
+        'stroke-width': 1.5,
+      });
+    }
+    // Lucide < 1.x: SVG path string в icon.body
+    if (iconNode && iconNode.body) {
+      var svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+      svg.setAttribute('width', size);
+      svg.setAttribute('height', size);
+      svg.setAttribute('viewBox', '0 0 24 24');
+      svg.setAttribute('fill', 'none');
+      svg.setAttribute('stroke', 'currentColor');
+      svg.setAttribute('stroke-width', '1.5');
+      svg.setAttribute('stroke-linecap', 'round');
+      svg.setAttribute('stroke-linejoin', 'round');
+      svg.innerHTML = iconNode.body;
+      return svg;
+    }
+    var fallback = document.createElement('span');
+    fallback.textContent = '?';
+    fallback.style.cssText = 'width:' + size + 'px;height:' + size + 'px;display:block;line-height:' + size + 'px;text-align:center;color:#999;';
+    return fallback;
+  }
+
+  function renderGridIcons() {
+    grid.querySelectorAll('.lucide-icon-placeholder').forEach(function (el) {
+      var name = el.dataset.iconName;
+      var svg = createLucideSvg(name, 20);
+      el.innerHTML = '';
+      el.appendChild(svg);
+    });
+  }
+
+  function updateSelection() {
+    var val = input.value;
+    label.textContent = val || '—';
+    preview.innerHTML = '';
+    if (val) {
+      var svg = createLucideSvg(val, 18);
+      preview.appendChild(svg);
+    }
+
+    grid.querySelectorAll('.lucide-icon-option').forEach(function (el) {
+      if (el.dataset.icon === val) {
+        el.style.borderColor = '#8BA84B';
+        el.style.background = '#E8F0D0';
+      } else {
+        el.style.borderColor = 'transparent';
+        el.style.background = 'transparent';
+      }
+    });
+  }
+
+  grid.addEventListener('click', function (e) {
+    var option = e.target.closest('.lucide-icon-option');
+    if (!option) return;
+    input.value = option.dataset.icon;
+    updateSelection();
+  });
+
+  // Wait for lucide script to load
+  function init() {
+    if (window.lucide && (lucide.createElement || lucide.icons)) {
+      renderGridIcons();
+      updateSelection();
+    } else {
+      setTimeout(init, 200);
+    }
+  }
+  // Also try on window load as fallback
+  if (document.readyState === 'complete') {
+    init();
+  } else {
+    window.addEventListener('load', init);
+  }
+})();
+</script>

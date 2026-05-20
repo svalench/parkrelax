@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useSearchParams, useNavigate } from 'react-router'
 import { format, differenceInDays } from 'date-fns'
 import { Button } from '@/components/ui/button'
@@ -12,7 +12,10 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog'
-import { Loader2, Calendar, Users, ArrowLeft, Home, Phone, Mail, User, CheckCircle } from 'lucide-react'
+import { Loader2, Calendar, Users, ArrowLeft, Home, Phone, Mail, User, CheckCircle, Clock } from 'lucide-react'
+import { useBookingSession } from '@/hooks/use-booking-session'
+import { formatGuestsLabel } from '@/lib/guests'
+import { useAuth } from '@/contexts/AuthContext'
 
 const API_BASE = '/api'
 
@@ -21,10 +24,12 @@ interface Accommodation {
   name: string
   imageUrl?: string
   type?: { name: string; capacity: number; pricePerNight: number }
+  isBookedForDates?: boolean
 }
 
 export default function BookingFormPage() {
   const navigate = useNavigate()
+  const { user } = useAuth()
   const [searchParams] = useSearchParams()
   const accommodationId = Number(searchParams.get('accommodationId'))
   const checkIn = searchParams.get('checkIn')
@@ -34,33 +39,103 @@ export default function BookingFormPage() {
   const [loading, setLoading] = useState(false)
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState('')
+  const [formReady, setFormReady] = useState(false)
   const [showConfirm, setShowConfirm] = useState(false)
   const [showSuccess, setShowSuccess] = useState(false)
   const [bookingId, setBookingId] = useState<number | null>(null)
 
+  const people = Number(searchParams.get('people') || '2')
+
   const [name, setName] = useState('')
   const [phone, setPhone] = useState('')
   const [email, setEmail] = useState('')
-  const [adults, setAdults] = useState(Number(searchParams.get('adults') || '2'))
-  const [children, setChildren] = useState(Number(searchParams.get('children') || '0'))
   const [privacyConsent, setPrivacyConsent] = useState(false)
+
+  useEffect(() => {
+    if (!user) return
+    if (user.name && !name) setName(user.name)
+    if (user.email && !email) setEmail(user.email)
+  }, [user, name, email])
+
+  const sessionParams = useMemo(() => {
+    if (!accommodationId || !checkIn || !checkOut) return null
+    return { accommodationId, checkIn, checkOut, people }
+  }, [accommodationId, checkIn, checkOut, people])
+
+  const bookingListUrl = useMemo(() => {
+    const params = new URLSearchParams()
+    if (checkIn) params.set('checkIn', checkIn)
+    if (checkOut) params.set('checkOut', checkOut)
+    params.set('people', String(people))
+    const q = params.toString()
+    return q ? `/booking?${q}` : '/booking'
+  }, [checkIn, checkOut, people])
+
+  const { active: sessionActive, countdown, isUrgent } = useBookingSession(sessionParams, {
+    enabled: formReady && Boolean(sessionParams),
+    onExpireNavigateTo: bookingListUrl,
+  })
+
+  const backToBookingSelection = () => {
+    const params = new URLSearchParams()
+    if (checkIn) params.set('checkIn', checkIn)
+    if (checkOut) params.set('checkOut', checkOut)
+    params.set('people', String(people))
+    navigate(`/booking?${params.toString()}`)
+  }
 
   useEffect(() => {
     if (!accommodationId || !checkIn || !checkOut) {
       setError('Не указаны параметры бронирования')
+      setFormReady(false)
+      setAccommodation(null)
       return
     }
+
+    let cancelled = false
     setLoading(true)
-    fetch(`${API_BASE}/accommodation/objects?activeOnly=true`)
-      .then((r) => r.json())
-      .then((data: Accommodation[]) => {
-        const found = data.find((a) => a.id === accommodationId)
-        if (found) setAccommodation(found)
-        else setError('Размещение не найдено')
+    setError('')
+    setFormReady(false)
+    setAccommodation(null)
+
+    const params = new URLSearchParams()
+    params.set('checkIn', checkIn)
+    params.set('checkOut', checkOut)
+    params.set('people', String(people))
+
+    fetch(`${API_BASE}/accommodation/objects/${accommodationId}/availability-check?${params.toString()}`)
+      .then(async (r) => {
+        const data = await r.json()
+        if (cancelled) return
+
+        if (!r.ok) {
+          setError(typeof data.detail === 'string' ? data.detail : 'Не удалось проверить доступность')
+          return
+        }
+
+        const result = data as { available: boolean; accommodation?: Accommodation }
+        if (!result.available || !result.accommodation) {
+          navigate(bookingListUrl, {
+            replace: true,
+            state: { accommodationOccupied: true },
+          })
+          return
+        }
+
+        setAccommodation(result.accommodation)
+        setFormReady(true)
       })
-      .catch(() => setError('Не удалось загрузить данные'))
-      .finally(() => setLoading(false))
-  }, [accommodationId, checkIn, checkOut])
+      .catch(() => {
+        if (!cancelled) setError('Не удалось загрузить данные')
+      })
+      .finally(() => {
+        if (!cancelled) setLoading(false)
+      })
+
+    return () => {
+      cancelled = true
+    }
+  }, [accommodationId, checkIn, checkOut, people, bookingListUrl, navigate])
 
   const nights = checkIn && checkOut ? Math.max(1, differenceInDays(new Date(checkOut), new Date(checkIn))) : 0
   const totalPrice = accommodation?.type?.pricePerNight ? nights * accommodation.type.pricePerNight : 0
@@ -88,10 +163,9 @@ export default function BookingFormPage() {
           customerEmail: email,
           startDate: checkIn,
           endDate: checkOut,
-          adults,
-          children,
+          adults: people,
+          children: 0,
           accommodationId,
-          status: 'pending_confirmation',
         }),
       })
       const data = await res.json()
@@ -119,6 +193,25 @@ export default function BookingFormPage() {
     )
   }
 
+  if (error && !accommodation) {
+    return (
+      <div className="min-h-screen bg-lightgray pt-24 md:pt-28 pb-12">
+        <div className="container-main max-w-2xl">
+          <div className="bg-white rounded-2xl border shadow-sm p-6 md:p-8 text-center">
+            <p className="text-red-500 mb-6">{error}</p>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={backToBookingSelection}
+            >
+              Вернуться к выбору
+            </Button>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
   return (
     <div className="min-h-screen bg-lightgray pt-24 md:pt-28 pb-12">
       <div className="container-main max-w-2xl">
@@ -132,6 +225,23 @@ export default function BookingFormPage() {
 
         <div className="bg-white rounded-2xl border shadow-sm p-6 md:p-8">
           <h1 className="text-2xl md:text-3xl font-bold text-dark mb-2">Оформление бронирования</h1>
+
+          {sessionActive && (
+            <div
+              className={`flex items-center gap-2 mt-3 mb-1 rounded-lg px-3 py-2 text-sm ${
+                isUrgent
+                  ? 'bg-amber-50 text-amber-900 border border-amber-200'
+                  : 'bg-gray-50 text-graytext border border-gray-100'
+              }`}
+              role="status"
+              aria-live="polite"
+            >
+              <Clock className={`w-4 h-4 shrink-0 ${isUrgent ? 'text-amber-600' : 'text-brand'}`} />
+              <span>
+                Сессия бронирования: осталось <strong className="tabular-nums text-dark">{countdown}</strong>
+              </span>
+            </div>
+          )}
 
           {accommodation && (
             <div className="flex items-start gap-4 mt-4 mb-6 p-4 bg-gray-50 rounded-xl">
@@ -151,14 +261,24 @@ export default function BookingFormPage() {
             </div>
           )}
 
-          <div className="grid grid-cols-2 gap-4 mb-6">
-            <div className="p-3 bg-gray-50 rounded-xl text-center">
-              <p className="text-xs text-graytext">Заезд</p>
-              <p className="font-semibold text-dark">{checkIn ? format(new Date(checkIn), 'dd.MM.yyyy') : '—'}</p>
+          <div className="flex flex-wrap gap-2 mb-6" aria-label="Параметры бронирования (нельзя изменить)">
+            <div className="inline-flex items-center gap-2 rounded-lg border border-gray-100 bg-gray-50 px-3 py-2 text-sm">
+              <Calendar className="w-4 h-4 text-brand shrink-0" />
+              <span className="text-graytext">Заезд</span>
+              <span className="font-semibold text-dark tabular-nums">
+                {checkIn ? format(new Date(checkIn), 'dd.MM.yyyy') : '—'}
+              </span>
             </div>
-            <div className="p-3 bg-gray-50 rounded-xl text-center">
-              <p className="text-xs text-graytext">Выезд</p>
-              <p className="font-semibold text-dark">{checkOut ? format(new Date(checkOut), 'dd.MM.yyyy') : '—'}</p>
+            <div className="inline-flex items-center gap-2 rounded-lg border border-gray-100 bg-gray-50 px-3 py-2 text-sm">
+              <Calendar className="w-4 h-4 text-brand shrink-0" />
+              <span className="text-graytext">Выезд</span>
+              <span className="font-semibold text-dark tabular-nums">
+                {checkOut ? format(new Date(checkOut), 'dd.MM.yyyy') : '—'}
+              </span>
+            </div>
+            <div className="inline-flex items-center gap-2 rounded-lg border border-gray-100 bg-gray-50 px-3 py-2 text-sm">
+              <Users className="w-4 h-4 text-brand shrink-0" />
+              <span className="font-semibold text-dark">{formatGuestsLabel(people)}</span>
             </div>
           </div>
 
@@ -181,16 +301,6 @@ export default function BookingFormPage() {
             <div>
               <Label htmlFor="email" className="text-sm font-medium text-dark">Email</Label>
               <Input id="email" type="email" required value={email} onChange={(e) => setEmail(e.target.value)} className="mt-1.5" placeholder="your@email.com" />
-            </div>
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <Label htmlFor="adults" className="text-sm font-medium text-dark">Взрослые</Label>
-                <Input id="adults" type="number" min={1} required value={adults} onChange={(e) => setAdults(Number(e.target.value))} className="mt-1.5" />
-              </div>
-              <div>
-                <Label htmlFor="children" className="text-sm font-medium text-dark">Дети</Label>
-                <Input id="children" type="number" min={0} required value={children} onChange={(e) => setChildren(Number(e.target.value))} className="mt-1.5" />
-              </div>
             </div>
 
             <div className="flex items-start gap-3 p-3 bg-gray-50 rounded-xl">
@@ -345,8 +455,8 @@ export default function BookingFormPage() {
               <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-xl">
                 <Users className="w-5 h-5 text-brand shrink-0" />
                 <div>
-                  <p className="text-sm text-graytext">Взрослые / Дети</p>
-                  <p className="font-semibold text-dark">{adults} / {children}</p>
+                  <p className="text-sm text-graytext">Количество человек</p>
+                  <p className="font-semibold text-dark">{people}</p>
                 </div>
               </div>
               <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-xl">

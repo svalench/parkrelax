@@ -1,5 +1,0 @@
-- generic [active] [ref=e1]:
-  - heading "Path 0 without s27" [level=2] [ref=e2]
-  - img [ref=e4]
-  - heading "Path 0 only s27" [level=2] [ref=e5]
-  - img [ref=e7]

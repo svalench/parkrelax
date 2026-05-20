@@ -339,3 +339,57 @@ class PriceListData(Base):
     id = Column(Integer, primary_key=True, autoincrement=False, default=1)
     data = Column(Text, default="[]", nullable=False)
     updatedAt = Column(DateTime, default=func.now(), onupdate=func.now(), nullable=True)
+
+
+# ── Amenities ──────────────────────────────────────────────────────
+
+class AmenitySection(Base):
+    __tablename__ = "amenity_sections"
+
+    id = Column(Integer, primary_key=True, index=True)
+    label = Column(String(100), nullable=False, default="УДОБСТВА")
+    title = Column(String(500), nullable=False, default="")
+    description = Column(Text, nullable=False, default="")
+    updatedAt = Column(DateTime, default=func.now(), onupdate=func.now(), nullable=True)
+
+
+class AmenityQuickTag(Base):
+    __tablename__ = "amenity_quick_tags"
+
+    id = Column(Integer, primary_key=True, index=True)
+    iconName = Column(String(100), nullable=False, default="")
+    label = Column(String(200), nullable=False, default="")
+    link = Column(String(500), nullable=False, default="/prices")
+    sortOrder = Column(Integer, default=0, nullable=False)
+    isActive = Column(Boolean, default=True, nullable=False)
+    createdAt = Column(DateTime, default=func.now(), nullable=True)
+    updatedAt = Column(DateTime, default=func.now(), onupdate=func.now(), nullable=True)
+
+
+class AmenityCategory(Base):
+    __tablename__ = "amenity_categories"
+
+    id = Column(Integer, primary_key=True, index=True)
+    iconName = Column(String(100), nullable=False, default="")
+    title = Column(String(200), nullable=False, default="")
+    sortOrder = Column(Integer, default=0, nullable=False)
+    isActive = Column(Boolean, default=True, nullable=False)
+    createdAt = Column(DateTime, default=func.now(), nullable=True)
+    updatedAt = Column(DateTime, default=func.now(), onupdate=func.now(), nullable=True)
+
+    items = relationship("AmenityItem", back_populates="category", cascade="all, delete-orphan", order_by="AmenityItem.sortOrder")
+
+
+class AmenityItem(Base):
+    __tablename__ = "amenity_items"
+
+    id = Column(Integer, primary_key=True, index=True)
+    categoryId = Column(Integer, ForeignKey("amenity_categories.id", ondelete="CASCADE"), nullable=False)
+    title = Column(String(200), nullable=False, default="")
+    link = Column(String(500), nullable=False, default="/prices")
+    sortOrder = Column(Integer, default=0, nullable=False)
+    isActive = Column(Boolean, default=True, nullable=False)
+    createdAt = Column(DateTime, default=func.now(), nullable=True)
+    updatedAt = Column(DateTime, default=func.now(), onupdate=func.now(), nullable=True)
+
+    category = relationship("AmenityCategory", back_populates="items")
