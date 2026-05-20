@@ -130,15 +130,15 @@ def upgrade() -> None:
     ]
     cat_ids = {}
     for idx, (icon, title) in enumerate(categories):
-        result = conn.execute(
+        cat_id = idx + 1
+        conn.execute(
             sa.text("""
-                INSERT INTO amenity_categories (iconName, title, sortOrder, isActive, createdAt, updatedAt)
-                VALUES (:iconName, :title, :sortOrder, 1, :now, :now)
-                RETURNING id
+                INSERT INTO amenity_categories (id, iconName, title, sortOrder, isActive, createdAt, updatedAt)
+                VALUES (:id, :iconName, :title, :sortOrder, 1, :now, :now)
             """),
-            {'iconName': icon, 'title': title, 'sortOrder': idx, 'now': now}
+            {'id': cat_id, 'iconName': icon, 'title': title, 'sortOrder': idx, 'now': now},
         )
-        cat_ids[title] = result.scalar()
+        cat_ids[title] = cat_id
 
     # Items by category
     items_data = {

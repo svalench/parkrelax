@@ -58,4 +58,6 @@ EmailTemplate edit 500: `previewUrl` — read-only property; в `EmailTemplateVi
 
 Личный кабинет — брони: `GET /profile/bookings` — `selectinload(images)` (без 500 MissingGreenlet); фильтр email через `func.lower`; при создании брони `customerEmail` в lowercase. `ProfilePage` — статусы `pending_confirmation`/`pending`/…, `loadError`, кнопка «Оплатить» для `pending`. `BookingFormPage` — prefill из `useAuth`, без лишнего `status` в POST.
 
+Alembic `ba2566789d10`: seed категорий amenities без `RETURNING id` — явные `id` 1..8 для MySQL.
+
 DONE
