@@ -14,7 +14,6 @@ import {
 } from '@/components/ui/dialog'
 import { Loader2, Calendar, Users, ArrowLeft, Home, Phone, Mail, User, CheckCircle, Clock } from 'lucide-react'
 import { useBookingSession } from '@/hooks/use-booking-session'
-import { formatGuestsLabel } from '@/lib/guests'
 import { useAuth } from '@/contexts/AuthContext'
 
 const API_BASE = '/api'
@@ -44,8 +43,6 @@ export default function BookingFormPage() {
   const [showSuccess, setShowSuccess] = useState(false)
   const [bookingId, setBookingId] = useState<number | null>(null)
 
-  const people = Number(searchParams.get('people') || '2')
-
   const [name, setName] = useState('')
   const [phone, setPhone] = useState('')
   const [email, setEmail] = useState('')
@@ -59,17 +56,16 @@ export default function BookingFormPage() {
 
   const sessionParams = useMemo(() => {
     if (!accommodationId || !checkIn || !checkOut) return null
-    return { accommodationId, checkIn, checkOut, people }
-  }, [accommodationId, checkIn, checkOut, people])
+    return { accommodationId, checkIn, checkOut }
+  }, [accommodationId, checkIn, checkOut])
 
   const bookingListUrl = useMemo(() => {
     const params = new URLSearchParams()
     if (checkIn) params.set('checkIn', checkIn)
     if (checkOut) params.set('checkOut', checkOut)
-    params.set('people', String(people))
     const q = params.toString()
     return q ? `/booking?${q}` : '/booking'
-  }, [checkIn, checkOut, people])
+  }, [checkIn, checkOut])
 
   const { active: sessionActive, countdown, isUrgent } = useBookingSession(sessionParams, {
     enabled: formReady && Boolean(sessionParams),
@@ -80,7 +76,6 @@ export default function BookingFormPage() {
     const params = new URLSearchParams()
     if (checkIn) params.set('checkIn', checkIn)
     if (checkOut) params.set('checkOut', checkOut)
-    params.set('people', String(people))
     navigate(`/booking?${params.toString()}`)
   }
 
@@ -101,7 +96,6 @@ export default function BookingFormPage() {
     const params = new URLSearchParams()
     params.set('checkIn', checkIn)
     params.set('checkOut', checkOut)
-    params.set('people', String(people))
 
     fetch(`${API_BASE}/accommodation/objects/${accommodationId}/availability-check?${params.toString()}`)
       .then(async (r) => {
@@ -135,7 +129,7 @@ export default function BookingFormPage() {
     return () => {
       cancelled = true
     }
-  }, [accommodationId, checkIn, checkOut, people, bookingListUrl, navigate])
+  }, [accommodationId, checkIn, checkOut, bookingListUrl, navigate])
 
   const nights = checkIn && checkOut ? Math.max(1, differenceInDays(new Date(checkOut), new Date(checkIn))) : 0
   const totalPrice = accommodation?.type?.pricePerNight ? nights * accommodation.type.pricePerNight : 0
@@ -163,7 +157,7 @@ export default function BookingFormPage() {
           customerEmail: email,
           startDate: checkIn,
           endDate: checkOut,
-          adults: people,
+          adults: 1,
           children: 0,
           accommodationId,
         }),
@@ -275,10 +269,6 @@ export default function BookingFormPage() {
               <span className="font-semibold text-dark tabular-nums">
                 {checkOut ? format(new Date(checkOut), 'dd.MM.yyyy') : '—'}
               </span>
-            </div>
-            <div className="inline-flex items-center gap-2 rounded-lg border border-gray-100 bg-gray-50 px-3 py-2 text-sm">
-              <Users className="w-4 h-4 text-brand shrink-0" />
-              <span className="font-semibold text-dark">{formatGuestsLabel(people)}</span>
             </div>
           </div>
 
@@ -451,20 +441,11 @@ export default function BookingFormPage() {
               </div>
             </div>
 
-            <div className="grid grid-cols-2 gap-3">
-              <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-xl">
-                <Users className="w-5 h-5 text-brand shrink-0" />
-                <div>
-                  <p className="text-sm text-graytext">Количество человек</p>
-                  <p className="font-semibold text-dark">{people}</p>
-                </div>
-              </div>
-              <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-xl">
-                <Calendar className="w-5 h-5 text-brand shrink-0" />
-                <div>
-                  <p className="text-sm text-graytext">Ночей</p>
-                  <p className="font-semibold text-dark">{nights}</p>
-                </div>
+            <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-xl">
+              <Calendar className="w-5 h-5 text-brand shrink-0" />
+              <div>
+                <p className="text-sm text-graytext">Ночей</p>
+                <p className="font-semibold text-dark">{nights}</p>
               </div>
             </div>
 

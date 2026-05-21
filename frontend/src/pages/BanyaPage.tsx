@@ -91,20 +91,17 @@ export default function BanyaPage() {
 
   return (
     <div className="min-h-screen bg-dark text-white">
-      <header className="fixed top-0 left-0 right-0 z-50 pointer-events-none">
-        <div className="container-main pt-24 md:pt-28 pb-4 pointer-events-auto">
-          <button
-            type="button"
-            onClick={() => navigate('/')}
-            className="inline-flex items-center gap-2 text-white/80 hover:text-white text-sm px-3 py-2 rounded-lg bg-black/35 backdrop-blur-md border border-white/10 transition-colors"
-          >
-            <ArrowLeft className="w-4 h-4" />
-            На главную
-          </button>
-        </div>
-      </header>
+      <button
+        type="button"
+        onClick={() => navigate('/')}
+        className="fixed left-4 top-[4.5rem] z-40 inline-flex items-center gap-2 text-white/80 hover:text-white text-sm px-3 py-2 rounded-lg bg-black/35 backdrop-blur-md border border-white/10 transition-colors md:left-6 md:top-[5.5rem]"
+        aria-label="На главную"
+      >
+        <ArrowLeft className="w-4 h-4" />
+        На главную
+      </button>
 
-      <div className="banya-snap-root">
+      <div className="banya-snap-root banya-snap-root--below-nav">
         {sections.length > 0 ? (
           sections.map((section, index) => (
             <section
@@ -115,7 +112,7 @@ export default function BanyaPage() {
               }}
             >
               <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/50 to-black/30" />
-              <div className="relative z-10 container-main w-full pb-16 md:pb-24 pt-36 md:pt-40">
+              <div className="relative z-10 container-main w-full pb-16 md:pb-24 pt-8 md:pt-12">
                 {index === 0 && (
                   <div className="mb-8 md:mb-10">
                     {settings?.eyebrow && (
@@ -175,7 +172,7 @@ export default function BanyaPage() {
             style={{ backgroundImage: `url(${FALLBACK_IMAGE})` }}
           >
             <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/50 to-black/30" />
-            <div className="relative z-10 container-main w-full pb-16 md:pb-24 pt-36 md:pt-40">
+            <div className="relative z-10 container-main w-full pb-16 md:pb-24 pt-8 md:pt-12">
               {settings?.eyebrow && (
                 <span className="section-label mb-3 block text-white/50">{settings.eyebrow}</span>
               )}

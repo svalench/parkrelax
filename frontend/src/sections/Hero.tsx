@@ -2,14 +2,8 @@ import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router'
 import { addDays, format, startOfToday } from 'date-fns'
 import type { DateRange } from 'react-day-picker'
-import { ChevronDown, Minus, Plus, Users } from 'lucide-react'
 
 import { DateRangePicker } from '@/components/DateRangePicker'
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from '@/components/ui/popover'
 import {
   Select,
   SelectContent,
@@ -18,8 +12,6 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 
-const MAX_PEOPLE = 30
-
 /** Типы размещения с бэка (как в секции «Размещение» и на странице бронирования). */
 interface AccommodationType {
   id: number
@@ -27,19 +19,6 @@ interface AccommodationType {
   isActive: boolean
   showInListing?: boolean
   sortOrder: number
-}
-
-/** Склонение для строки гостей «N человек». */
-function formatGuestsLabel(people: number): string {
-  let word: string
-  if (people % 10 === 1 && people % 100 !== 11) {
-    word = 'человек'
-  } else if (people % 10 >= 2 && people % 10 <= 4 && (people % 100 < 10 || people % 100 >= 20)) {
-    word = 'человека'
-  } else {
-    word = 'человек'
-  }
-  return `${people} ${word}`
 }
 
 export default function Hero() {
@@ -51,8 +30,6 @@ export default function Hero() {
   })
 
   const [datesOpen, setDatesOpen] = useState(false)
-  const [guestsOpen, setGuestsOpen] = useState(false)
-  const [people, setPeople] = useState(2)
   /** «Любой» или id типа из админки. */
   const [typeFilterId, setTypeFilterId] = useState<string>('any')
   const [accommodationTypes, setAccommodationTypes] = useState<AccommodationType[]>([])
@@ -78,7 +55,6 @@ export default function Hero() {
     const params = new URLSearchParams()
     if (dateRange?.from) params.set('checkIn', format(dateRange.from, 'yyyy-MM-dd'))
     if (dateRange?.to) params.set('checkOut', format(dateRange.to, 'yyyy-MM-dd'))
-    params.set('people', String(people))
     if (typeFilterId !== 'any') params.set('typeId', typeFilterId)
     navigate({
       pathname: '/booking',
@@ -171,83 +147,9 @@ export default function Hero() {
                   side="top"
                   align="start"
                   open={datesOpen}
-                  onOpenChange={(open) => {
-                    setDatesOpen(open)
-                    if (open) setGuestsOpen(false)
-                  }}
+                  onOpenChange={setDatesOpen}
                 />
               </div>
-
-              {/* Гости */}
-              <Popover
-                open={guestsOpen}
-                onOpenChange={(open) => {
-                  setGuestsOpen(open)
-                  if (open) setDatesOpen(false)
-                }}
-              >
-                <div className="flex items-center gap-3 lg:border-l border-gray-100 lg:pl-4 min-w-[160px]">
-                  <PopoverTrigger asChild>
-                    <button
-                      type="button"
-                      className="group flex w-full items-center gap-3 rounded-xl bg-transparent p-1.5 -m-1.5 text-left outline-none transition-all duration-200 hover:bg-white/15 hover:shadow-[0_4px_20px_rgba(0,0,0,0.25),inset_0_1px_0_rgba(255,255,255,0.4)] hover:scale-[1.02] active:scale-[0.98] focus-visible:ring-2 focus-visible:ring-brand cursor-pointer"
-                    >
-                      <Users className="w-6 h-6 text-brand shrink-0" />
-                      <div className="flex-1">
-                        <div className="text-sm text-white/90 font-semibold mb-0.5 drop-shadow-sm">Гости</div>
-                        <div className="text-lg font-extrabold text-white drop-shadow-md">
-                          {formatGuestsLabel(people)}
-                        </div>
-                      </div>
-                      <ChevronDown className="w-4 h-4 text-white/70 shrink-0" />
-                    </button>
-                  </PopoverTrigger>
-                </div>
-                <PopoverContent
-                  align="end"
-                  side="top"
-                  sideOffset={12}
-                  className="w-80 rounded-2xl border border-border/70 bg-white p-5 shadow-2xl shadow-black/15 ring-1 ring-black/5"
-                >
-                  <div className="text-sm font-semibold text-dark mb-4">Количество человек</div>
-                  <div className="space-y-5">
-                    <div className="flex items-center justify-between gap-3">
-                      <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-xl bg-brand/10 flex items-center justify-center">
-                          <Users className="w-5 h-5 text-brand" />
-                        </div>
-                        <div>
-                          <div className="text-sm font-medium text-dark">Гости</div>
-                          <div className="text-xs text-graytext">всего человек</div>
-                        </div>
-                      </div>
-                      <div className="flex items-center gap-3">
-                        <button
-                          type="button"
-                          className="w-8 h-8 rounded-full bg-brand/10 flex items-center justify-center text-brand hover:bg-brand hover:text-white transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
-                          disabled={people <= 1}
-                          onClick={() => setPeople((p) => Math.max(1, p - 1))}
-                          aria-label="Уменьшить число человек"
-                        >
-                          <Minus className="w-4 h-4" />
-                        </button>
-                        <span className="w-6 text-center text-sm font-semibold tabular-nums">
-                          {people}
-                        </span>
-                        <button
-                          type="button"
-                          className="w-8 h-8 rounded-full bg-brand/10 flex items-center justify-center text-brand hover:bg-brand hover:text-white transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
-                          disabled={people >= MAX_PEOPLE}
-                          onClick={() => setPeople((p) => Math.min(MAX_PEOPLE, p + 1))}
-                          aria-label="Увеличить число человек"
-                        >
-                          <Plus className="w-4 h-4" />
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                </PopoverContent>
-              </Popover>
 
               {/* Домик */}
               <div className="flex items-center gap-3 lg:border-l border-gray-100 lg:pl-4 min-w-[160px]">

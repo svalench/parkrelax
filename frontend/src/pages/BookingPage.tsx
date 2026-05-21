@@ -3,19 +3,11 @@ import { useLocation, useNavigate, useSearchParams } from 'react-router'
 import { format, addDays, startOfToday } from 'date-fns'
 import type { DateRange } from 'react-day-picker'
 import {
-  Users,
   BedDouble,
-  Minus,
-  Plus,
   X,
 } from 'lucide-react'
 import { DateRangePicker } from '@/components/DateRangePicker'
 import { Button } from '@/components/ui/button'
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from '@/components/ui/popover'
 import {
   Select,
   SelectContent,
@@ -76,19 +68,6 @@ interface Accommodation {
   isBookedForDates?: boolean
 }
 
-/** Склонение для строки гостей «N человек». */
-function formatGuestsLabel(people: number): string {
-  let word: string
-  if (people % 10 === 1 && people % 100 !== 11) {
-    word = 'человек'
-  } else if (people % 10 >= 2 && people % 10 <= 4 && (people % 100 < 10 || people % 100 >= 20)) {
-    word = 'человека'
-  } else {
-    word = 'человек'
-  }
-  return `${people} ${word}`
-}
-
 export default function BookingPage() {
   const bookingPublicEnabled = useBookingPublicEnabled()
   const location = useLocation()
@@ -130,8 +109,6 @@ export default function BookingPage() {
     const t = startOfToday()
     return { from: addDays(t, 1), to: addDays(t, 2) }
   })
-  const [people, setPeople] = useState<number>(Number(searchParams.get('people') || '2'))
-  const [guestsOpen, setGuestsOpen] = useState(false)
   const [page, setPage] = useState(Number(searchParams.get('page') || '1'))
   const [bookedDates, setBookedDates] = useState<Date[]>([])
 
@@ -198,7 +175,6 @@ export default function BookingPage() {
     if (resolvedTypeId && resolvedTypeId !== 'all') params.set('typeId', resolvedTypeId)
     params.set('checkIn', format(dateRange.from, 'yyyy-MM-dd'))
     params.set('checkOut', format(dateRange.to, 'yyyy-MM-dd'))
-    params.set('people', String(people))
 
     try {
       const res = await fetch(`${API_BASE}/accommodation/availability?${params.toString()}`)
@@ -210,7 +186,7 @@ export default function BookingPage() {
     } finally {
       setLoading(false)
     }
-  }, [resolvedTypeId, dateRange, page, people, typesReady, searchParams])
+  }, [resolvedTypeId, dateRange, page, typesReady, searchParams])
 
   useEffect(() => {
     loadData()
@@ -233,12 +209,12 @@ export default function BookingPage() {
         else params.delete('checkOut')
         if (page > 1) params.set('page', String(page))
         else params.delete('page')
-        params.set('people', String(people))
+        params.delete('people')
         return params
       },
       { replace: true },
     )
-  }, [typeId, dateRange, page, people, setSearchParams])
+  }, [typeId, dateRange, page, setSearchParams])
 
   const handlePageChange = (p: number) => {
     if (p < 1 || p > totalPages) return
@@ -274,7 +250,6 @@ export default function BookingPage() {
     setTypeId('all')
     const t = startOfToday()
     setDateRange({ from: addDays(t, 1), to: addDays(t, 2) })
-    setPeople(2)
     setPage(1)
   }
 
@@ -352,66 +327,6 @@ export default function BookingPage() {
               className="flex-[1_1_240px] min-w-[200px]"
             />
 
-            {/* Guests */}
-            <div className="flex-[1_1_200px] min-w-[200px]">
-              <label className="text-sm font-medium text-dark mb-1.5 block">Гости</label>
-              <Popover open={guestsOpen} onOpenChange={setGuestsOpen}>
-                <PopoverTrigger asChild>
-                  <button
-                    type="button"
-                    className="flex w-full items-center gap-3 rounded-xl border border-input bg-transparent px-3 py-2.5 text-left outline-none transition-all hover:bg-accent focus-visible:ring-2 focus-visible:ring-ring"
-                  >
-                    <Users className="w-5 h-5 text-brand shrink-0" />
-                    <div className="flex items-center gap-2 text-sm">
-                      <span className="font-medium">{formatGuestsLabel(people)}</span>
-                    </div>
-                  </button>
-                </PopoverTrigger>
-                <PopoverContent
-                  align="end"
-                  side="bottom"
-                  sideOffset={8}
-                  className="w-80 rounded-2xl border border-border/70 bg-white p-5 shadow-2xl"
-                >
-                  <div className="text-sm font-semibold text-dark mb-4">Количество человек</div>
-                  <div className="space-y-5">
-                    <div className="flex items-center justify-between gap-3">
-                      <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-xl bg-brand/10 flex items-center justify-center">
-                          <Users className="w-5 h-5 text-brand" />
-                        </div>
-                        <div>
-                          <div className="text-sm font-medium text-dark">Гости</div>
-                          <div className="text-xs text-graytext">всего человек</div>
-                        </div>
-                      </div>
-                      <div className="flex items-center gap-3">
-                        <button
-                          type="button"
-                          className="w-8 h-8 rounded-full bg-brand/10 flex items-center justify-center text-brand hover:bg-brand hover:text-white transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
-                          disabled={people <= 1}
-                          onClick={() => { setPeople((p) => Math.max(1, p - 1)); setPage(1) }}
-                          aria-label="Уменьшить число человек"
-                        >
-                          <Minus className="w-4 h-4" />
-                        </button>
-                        <span className="w-6 text-center text-sm font-semibold tabular-nums">{people}</span>
-                        <button
-                          type="button"
-                          className="w-8 h-8 rounded-full bg-brand/10 flex items-center justify-center text-brand hover:bg-brand hover:text-white transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
-                          disabled={people >= 30}
-                          onClick={() => { setPeople((p) => Math.min(30, p + 1)); setPage(1) }}
-                          aria-label="Увеличить число человек"
-                        >
-                          <Plus className="w-4 h-4" />
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                </PopoverContent>
-              </Popover>
-            </div>
-
             {/* Buttons */}
             <div className="flex items-center gap-3 shrink-0 self-start lg:self-auto">
               <Button
@@ -469,7 +384,6 @@ export default function BookingPage() {
                           params.set('accommodationId', String(obj.id))
                           if (dateRange?.from) params.set('checkIn', format(dateRange.from, 'yyyy-MM-dd'))
                           if (dateRange?.to) params.set('checkOut', format(dateRange.to, 'yyyy-MM-dd'))
-                          params.set('people', String(people))
                           window.location.href = `/booking/form?${params.toString()}`
                         }
                   }

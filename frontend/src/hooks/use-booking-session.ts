@@ -6,7 +6,6 @@ type BookingSessionParams = {
   accommodationId: number
   checkIn: string
   checkOut: string
-  people: number
 }
 
 type UseBookingSessionOptions = {
@@ -67,7 +66,6 @@ export function useBookingSession(
     params?.accommodationId,
     params?.checkIn,
     params?.checkOut,
-    params?.people,
     navigate,
   ])
 

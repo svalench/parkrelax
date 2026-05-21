@@ -5,8 +5,6 @@ import type { DateRange } from 'react-day-picker'
 import {
   Users,
   BedDouble,
-  Minus,
-  Plus,
   ArrowLeft,
   Loader2,
   Home,
@@ -17,11 +15,6 @@ import { DateRangePicker } from '@/components/DateRangePicker'
 import { Button } from '@/components/ui/button'
 import { useBookingPublicEnabled } from '@/contexts/SiteSettingsContext'
 import { AccommodationCard } from '@/components/AccommodationCard'
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from '@/components/ui/popover'
 
 const API_BASE = '/api'
 
@@ -58,19 +51,6 @@ interface Accommodation {
   isBookedForDates?: boolean
 }
 
-/** Склонение для строки гостей «N человек». */
-function formatGuestsLabel(people: number): string {
-  let word: string
-  if (people % 10 === 1 && people % 100 !== 11) {
-    word = 'человек'
-  } else if (people % 10 >= 2 && people % 10 <= 4 && (people % 100 < 10 || people % 100 >= 20)) {
-    word = 'человека'
-  } else {
-    word = 'человек'
-  }
-  return `${people} ${word}`
-}
-
 export default function AccommodationTypePage() {
   const bookingPublicEnabled = useBookingPublicEnabled()
   const { id } = useParams<{ id: string }>()
@@ -88,8 +68,6 @@ export default function AccommodationTypePage() {
     const t = startOfToday()
     return { from: addDays(t, 1), to: addDays(t, 2) }
   })
-  const [people, setPeople] = useState<number>(2)
-  const [guestsOpen, setGuestsOpen] = useState(false)
   const [bookedDates, setBookedDates] = useState<Date[]>([])
 
   // Load type info
@@ -127,7 +105,6 @@ export default function AccommodationTypePage() {
     params.set('typeId', String(typeId))
     params.set('checkIn', format(dateRange.from, 'yyyy-MM-dd'))
     params.set('checkOut', format(dateRange.to, 'yyyy-MM-dd'))
-    params.set('people', String(people))
 
     try {
       const res = await fetch(`${API_BASE}/accommodation/availability?${params.toString()}`)
@@ -138,7 +115,7 @@ export default function AccommodationTypePage() {
     } finally {
       setLoading(false)
     }
-  }, [typeId, dateRange, people])
+  }, [typeId, dateRange])
 
   useEffect(() => {
     if (type && !typeError) {
@@ -173,7 +150,6 @@ export default function AccommodationTypePage() {
   const handleResetFilters = () => {
     const t = startOfToday()
     setDateRange({ from: addDays(t, 1), to: addDays(t, 2) })
-    setPeople(2)
   }
 
   const nights = useMemo(() => {
@@ -262,66 +238,6 @@ export default function AccommodationTypePage() {
               className="flex-[1_1_240px] min-w-[200px]"
             />
 
-            {/* Guests */}
-            <div className="flex-[1_1_200px] min-w-[200px]">
-              <label className="text-sm font-medium text-dark mb-1.5 block">Гости</label>
-              <Popover open={guestsOpen} onOpenChange={setGuestsOpen}>
-                <PopoverTrigger asChild>
-                  <button
-                    type="button"
-                    className="flex w-full items-center gap-3 rounded-xl border border-input bg-transparent px-3 py-2.5 text-left outline-none transition-all hover:bg-accent focus-visible:ring-2 focus-visible:ring-ring"
-                  >
-                    <Users className="w-5 h-5 text-brand shrink-0" />
-                    <div className="flex items-center gap-2 text-sm">
-                      <span className="font-medium">{formatGuestsLabel(people)}</span>
-                    </div>
-                  </button>
-                </PopoverTrigger>
-                <PopoverContent
-                  align="end"
-                  side="bottom"
-                  sideOffset={8}
-                  className="w-80 rounded-2xl border border-border/70 bg-white p-5 shadow-2xl"
-                >
-                  <div className="text-sm font-semibold text-dark mb-4">Количество человек</div>
-                  <div className="space-y-5">
-                    <div className="flex items-center justify-between gap-3">
-                      <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-xl bg-brand/10 flex items-center justify-center">
-                          <Users className="w-5 h-5 text-brand" />
-                        </div>
-                        <div>
-                          <div className="text-sm font-medium text-dark">Гости</div>
-                          <div className="text-xs text-graytext">всего человек</div>
-                        </div>
-                      </div>
-                      <div className="flex items-center gap-3">
-                        <button
-                          type="button"
-                          className="w-8 h-8 rounded-full bg-brand/10 flex items-center justify-center text-brand hover:bg-brand hover:text-white transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
-                          disabled={people <= 1}
-                          onClick={() => setPeople((p) => Math.max(1, p - 1))}
-                          aria-label="Уменьшить число человек"
-                        >
-                          <Minus className="w-4 h-4" />
-                        </button>
-                        <span className="w-6 text-center text-sm font-semibold tabular-nums">{people}</span>
-                        <button
-                          type="button"
-                          className="w-8 h-8 rounded-full bg-brand/10 flex items-center justify-center text-brand hover:bg-brand hover:text-white transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
-                          disabled={people >= 30}
-                          onClick={() => setPeople((p) => Math.min(30, p + 1))}
-                          aria-label="Увеличить число человек"
-                        >
-                          <Plus className="w-4 h-4" />
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                </PopoverContent>
-              </Popover>
-            </div>
-
             {/* Buttons */}
             <div className="flex items-center gap-3 shrink-0 self-start lg:self-auto">
               <Button
@@ -359,7 +275,7 @@ export default function AccommodationTypePage() {
           <div className="text-center py-16 bg-white rounded-2xl border shadow-sm">
             <BedDouble className="w-12 h-12 text-gray-300 mx-auto mb-4" />
             <h3 className="text-xl font-semibold text-dark mb-2">Нет доступных вариантов</h3>
-            <p className="text-graytext">Попробуйте изменить даты или количество гостей</p>
+            <p className="text-graytext">Попробуйте изменить даты</p>
           </div>
         ) : (
           <>
@@ -382,7 +298,6 @@ export default function AccommodationTypePage() {
                           params.set('accommodationId', String(obj.id))
                           if (dateRange?.from) params.set('checkIn', format(dateRange.from, 'yyyy-MM-dd'))
                           if (dateRange?.to) params.set('checkOut', format(dateRange.to, 'yyyy-MM-dd'))
-                          params.set('people', String(people))
                           window.location.href = `/booking/form?${params.toString()}`
                         }
                   }

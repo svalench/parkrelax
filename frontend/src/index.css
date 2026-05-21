@@ -115,6 +115,19 @@
   overscroll-behavior-y: contain;
 }
 
+/* Скролл под фиксированной шапкой сайта (h-16 / md:h-20) */
+.banya-snap-root--below-nav {
+  height: calc(100dvh - 4rem);
+  margin-top: 4rem;
+}
+
+@media (min-width: 768px) {
+  .banya-snap-root--below-nav {
+    height: calc(100dvh - 5rem);
+    margin-top: 5rem;
+  }
+}
+
 .banya-snap-section {
   background-size: cover;
   background-position: center;

@@ -1,20 +1,57 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, type MouseEvent } from 'react'
 import { useLocation, useNavigate } from 'react-router'
 import { Menu, X, Phone, MapPin, Check, User } from 'lucide-react'
 import { useAuth } from '@/contexts/AuthContext'
 import { fetchContacts } from '@/lib/contacts'
 
-const navLinks = [
+type NavLink =
+  | { label: string; href: string; homeSection?: undefined }
+  | { label: string; href: string; homeSection: string }
+
+const navLinks: NavLink[] = [
   { label: 'Главная', href: '/' },
-  { label: 'О комплексе', href: '/#about' },
-  { label: 'Размещение', href: '/#accommodation' },
+  { label: 'О комплексе', href: '/#about', homeSection: 'about' },
+  { label: 'Размещение', href: '/#accommodation', homeSection: 'accommodation' },
   { label: 'Баня', href: '/banya' },
-  { label: 'Аренда', href: '/#area' },
-  { label: 'Прокат', href: '/#rental' },
+  { label: 'Аренда', href: '/#area', homeSection: 'area' },
+  { label: 'Прокат', href: '/#rental', homeSection: 'rental' },
   { label: 'Прайс', href: '/prices' },
-  { label: 'Галерея', href: '/#gallery' },
-  { label: 'Контакты', href: '/#contacts' },
+  { label: 'Галерея', href: '/#gallery', homeSection: 'gallery' },
+  { label: 'Контакты', href: '/#contacts', homeSection: 'contacts' },
 ]
+
+function NavItem({
+  link,
+  className,
+  onNavigate,
+}: {
+  link: NavLink
+  className: string
+  onNavigate?: () => void
+}) {
+  const navigate = useNavigate()
+  const { pathname } = useLocation()
+
+  const handleClick = (e: MouseEvent<HTMLAnchorElement>) => {
+    if (!link.homeSection) return
+    e.preventDefault()
+    onNavigate?.()
+    if (pathname !== '/') {
+      navigate({ pathname: '/', hash: `#${link.homeSection}` })
+      return
+    }
+    document.getElementById(link.homeSection)?.scrollIntoView({
+      behavior: 'smooth',
+      block: 'start',
+    })
+  }
+
+  return (
+    <a href={link.href} className={className} onClick={handleClick}>
+      {link.label}
+    </a>
+  )
+}
 
 export default function Navbar() {
   const [scrolled, setScrolled] = useState(false)
@@ -66,7 +103,7 @@ export default function Navbar() {
   }
 
   const headerBase =
-    'fixed top-0 left-0 right-0 z-50 transition-all duration-300'
+    'fixed top-0 left-0 right-0 z-[60] transition-all duration-300'
   const headerLooksSolid = scrolled || mobileOpen
   const headerHome = headerLooksSolid
     ? 'bg-white/95 backdrop-blur-md shadow-sm'
@@ -131,15 +168,13 @@ export default function Navbar() {
           {/* Desktop Nav */}
           <nav className="hidden lg:flex items-center justify-center gap-x-2 gap-y-1 whitespace-nowrap xl:gap-x-3 2xl:gap-x-4">
             {navLinks.map((link) => (
-              <a
+              <NavItem
                 key={link.label}
-                href={link.href}
+                link={link}
                 className={`text-xs font-medium transition-colors duration-200 xl:text-sm ${
                   isHome ? linkHome : linkSolid
                 }`}
-              >
-                {link.label}
-              </a>
+              />
             ))}
           </nav>
 
@@ -262,14 +297,12 @@ export default function Navbar() {
         <div className="fixed inset-0 z-40 bg-white pt-20 px-6 animate-in slide-in-from-right duration-300">
           <nav className="relative flex flex-col gap-4">
             {navLinks.map((link) => (
-              <a
+              <NavItem
                 key={link.label}
-                href={link.href}
+                link={link}
                 className="text-lg font-medium py-2 block text-dark"
-                onClick={() => setMobileOpen(false)}
-              >
-                {link.label}
-              </a>
+                onNavigate={() => setMobileOpen(false)}
+              />
             ))}
             {phones.length > 0 ? (
               <div className="flex flex-col gap-2 mt-4">

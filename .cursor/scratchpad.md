@@ -26,7 +26,11 @@ Favicon: растеризация `public/images/logo.svg` → `public/favicon.p
 
 Блок проката: CTA «Забронировать» → ссылка «Выбрать жильё» на `/booking` (`Rental.tsx`).
 
-Футер: якоря Инфо → плавный скролл к `#about` / `#contacts` / `#gallery` (с любой страницы через `navigate` + эффект в `Home`); Размещение → `/booking?cabin=…` (как в Hero). Попутно Hero: `formatGuestsLabel`, убран неиспользуемый `Baby`.
+Футер: якоря Инфо → плавный скролл к `#about` / `#contacts` / `#gallery` (с любой страницы через `navigate` + эффект в `Home`); Размещение → `/booking?cabin=…` (как в Hero).
+
+Фильтры бронирования: убран выбор количества гостей из Hero, BookingPage, AccommodationTypePage; `people` не уходит в API/URL; BookingFormPage без блока гостей; удалён `lib/guests.ts`.
+
+/banya: убран перекрывающий fixed header (блокировал Navbar); snap-scroll под шапкой; Navbar z-[60] + NavItem с navigate на якоря главной. DONE
 
 Favicon: вместо полного логотипа — отдельный читаемый василёк `public/favicon.svg`; PNG fallback `favicon.png` 32×32 и `apple-touch-icon.png` 180×180 пересобраны из той же композиции; `index.html` подключает SVG favicon первым.
 
