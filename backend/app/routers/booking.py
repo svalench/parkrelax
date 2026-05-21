@@ -17,6 +17,7 @@ from app.schemas import (
 )
 from app.email_service import generate_temp_password, send_email
 from app.user_password_service import hash_password
+from app.routers.site_settings import require_public_booking_enabled
 
 logger = logging.getLogger(__name__)
 
@@ -51,6 +52,7 @@ async def _check_accommodation_availability(
 
 @router.post("", response_model=BookingPublicResponse, status_code=status.HTTP_201_CREATED)
 async def create_booking(data: BookingCreate, db: AsyncSession = Depends(get_db)):
+    await require_public_booking_enabled(db)
     if data.endDate <= data.startDate:
         raise HTTPException(status_code=400, detail="endDate must be after startDate")
 

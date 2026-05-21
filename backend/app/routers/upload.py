@@ -12,7 +12,7 @@ ALLOWED_IMAGE_TYPES = {
     "image/png": ".png",
     "image/webp": ".webp",
 }
-UPLOAD_CATEGORIES = {"hero", "gallery", "accommodation", "accommodation-type", "rental"}
+UPLOAD_CATEGORIES = {"hero", "gallery", "accommodation", "accommodation-type", "rental", "banya"}
 
 
 def _get_public_root() -> Path:

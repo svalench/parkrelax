@@ -39,6 +39,7 @@ import {
   Bike,
   Mail,
   Pencil,
+  Flame,
 } from 'lucide-react'
 
 import { Button } from '@/components/ui/button'
@@ -82,7 +83,9 @@ import { Switch } from '@/components/ui/switch'
 import { Textarea } from '@/components/ui/textarea'
 import { toast } from 'sonner'
 import AccommodationManager from '@/components/AccommodationManager'
+import { BookingSettingsCard } from '@/components/BookingSettingsCard'
 import RentalManager from '@/components/RentalManager'
+import BanyaManager from '@/components/BanyaManager'
 import {
   BarChart,
   Bar,
@@ -332,6 +335,8 @@ export default function AdminDashboardPage() {
           </div>
         </div>
 
+        <BookingSettingsCard />
+
         <Tabs defaultValue="week" className="space-y-6">
           <TabsList className="bg-white border shadow-sm overflow-x-auto whitespace-nowrap w-full">
             <TabsTrigger value="month" className="gap-1.5">
@@ -366,6 +371,10 @@ export default function AdminDashboardPage() {
               <Bike className="w-4 h-4" />
               Аренда
             </TabsTrigger>
+            <TabsTrigger value="banya" className="gap-1.5">
+              <Flame className="w-4 h-4" />
+              Баня
+            </TabsTrigger>
             <TabsTrigger value="email" className="gap-1.5">
               <Mail className="w-4 h-4" />
               Почта
@@ -395,6 +404,9 @@ export default function AdminDashboardPage() {
           </TabsContent>
           <TabsContent value="rentals">
             <RentalManager />
+          </TabsContent>
+          <TabsContent value="banya">
+            <BanyaManager />
           </TabsContent>
           <TabsContent value="email">
             <EmailTab />

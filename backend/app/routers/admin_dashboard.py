@@ -1,3 +1,4 @@
+import json
 from datetime import date, datetime, timedelta
 from typing import Optional
 from pydantic import BaseModel
@@ -7,12 +8,32 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import joinedload, selectinload
 
 from app.dependencies import get_db, get_current_admin
-from app.models import Booking, Accommodation, AccommodationType, AccommodationImage, RentalItem, AdminEmail, User
+from app.models import (
+    Booking,
+    Accommodation,
+    AccommodationType,
+    AccommodationImage,
+    RentalItem,
+    AdminEmail,
+    User,
+    BanyaPageSettings,
+    BanyaSliderItem,
+    BanyaSection,
+)
 from app.schemas import (
     BookingCreate, BookingUpdate, BookingResponse,
     RentalItemCreate, RentalItemUpdate, RentalItemResponse,
     AdminEmailCreate, AdminEmailUpdate, AdminEmailResponse,
+    BanyaPageSettingsResponse,
+    BanyaPageSettingsUpdate,
+    BanyaSliderItemCreate,
+    BanyaSliderItemUpdate,
+    BanyaSliderItemResponse,
+    BanyaSectionCreate,
+    BanyaSectionUpdate,
+    BanyaSectionResponse,
 )
+from app.routers.banya import _section_to_response
 from app.routers.booking import _check_accommodation_availability
 from app.services.booking_availability import booking_occupies_dates_filter
 from app.user_password_service import hash_password
@@ -822,6 +843,168 @@ async def admin_delete_rental_item(
     if not item:
         raise HTTPException(status_code=404, detail="Не найдено")
     await db.delete(item)
+    await db.commit()
+    return None
+
+
+# ── Banya landing CRUD ─────────────────────────────────────────────
+
+async def _get_banya_settings(db: AsyncSession) -> BanyaPageSettings:
+    result = await db.execute(select(BanyaPageSettings).where(BanyaPageSettings.id == 1))
+    settings = result.scalar_one_or_none()
+    if settings is None:
+        settings = BanyaPageSettings(id=1)
+        db.add(settings)
+        await db.commit()
+        await db.refresh(settings)
+    return settings
+
+
+def _chips_to_db(chips: list[str] | None) -> str | None:
+    if not chips:
+        return None
+    return json.dumps(chips, ensure_ascii=False)
+
+
+@router.get("/banya/settings", response_model=BanyaPageSettingsResponse)
+async def admin_get_banya_settings(
+    db: AsyncSession = Depends(get_db),
+    _admin=Depends(get_current_admin),
+):
+    settings = await _get_banya_settings(db)
+    return settings
+
+
+@router.patch("/banya/settings", response_model=BanyaPageSettingsResponse)
+async def admin_update_banya_settings(
+    data: BanyaPageSettingsUpdate,
+    db: AsyncSession = Depends(get_db),
+    _admin=Depends(get_current_admin),
+):
+    settings = await _get_banya_settings(db)
+    for key, value in data.model_dump(exclude_unset=True).items():
+        setattr(settings, key, value)
+    await db.commit()
+    await db.refresh(settings)
+    return settings
+
+
+@router.get("/banya/slider", response_model=list[BanyaSliderItemResponse])
+async def admin_list_banya_slider(
+    db: AsyncSession = Depends(get_db),
+    _admin=Depends(get_current_admin),
+):
+    result = await db.execute(
+        select(BanyaSliderItem).order_by(asc(BanyaSliderItem.sortOrder))
+    )
+    return result.scalars().all()
+
+
+@router.post("/banya/slider", response_model=BanyaSliderItemResponse)
+async def admin_create_banya_slider(
+    data: BanyaSliderItemCreate,
+    db: AsyncSession = Depends(get_db),
+    _admin=Depends(get_current_admin),
+):
+    item = BanyaSliderItem(**data.model_dump())
+    db.add(item)
+    await db.commit()
+    await db.refresh(item)
+    return item
+
+
+@router.patch("/banya/slider/{item_id}", response_model=BanyaSliderItemResponse)
+async def admin_update_banya_slider(
+    item_id: int,
+    data: BanyaSliderItemUpdate,
+    db: AsyncSession = Depends(get_db),
+    _admin=Depends(get_current_admin),
+):
+    result = await db.execute(select(BanyaSliderItem).where(BanyaSliderItem.id == item_id))
+    item = result.scalar_one_or_none()
+    if not item:
+        raise HTTPException(status_code=404, detail="Слайд не найден")
+    for key, value in data.model_dump(exclude_unset=True).items():
+        setattr(item, key, value)
+    await db.commit()
+    await db.refresh(item)
+    return item
+
+
+@router.delete("/banya/slider/{item_id}", status_code=204)
+async def admin_delete_banya_slider(
+    item_id: int,
+    db: AsyncSession = Depends(get_db),
+    _admin=Depends(get_current_admin),
+):
+    result = await db.execute(select(BanyaSliderItem).where(BanyaSliderItem.id == item_id))
+    item = result.scalar_one_or_none()
+    if not item:
+        raise HTTPException(status_code=404, detail="Слайд не найден")
+    await db.delete(item)
+    await db.commit()
+    return None
+
+
+@router.get("/banya/sections", response_model=list[BanyaSectionResponse])
+async def admin_list_banya_sections(
+    db: AsyncSession = Depends(get_db),
+    _admin=Depends(get_current_admin),
+):
+    result = await db.execute(
+        select(BanyaSection).order_by(asc(BanyaSection.sortOrder))
+    )
+    sections = result.scalars().all()
+    return [_section_to_response(s) for s in sections]
+
+
+@router.post("/banya/sections", response_model=BanyaSectionResponse)
+async def admin_create_banya_section(
+    data: BanyaSectionCreate,
+    db: AsyncSession = Depends(get_db),
+    _admin=Depends(get_current_admin),
+):
+    payload = data.model_dump()
+    payload["chips"] = _chips_to_db(payload.pop("chips", None))
+    section = BanyaSection(**payload)
+    db.add(section)
+    await db.commit()
+    await db.refresh(section)
+    return _section_to_response(section)
+
+
+@router.patch("/banya/sections/{item_id}", response_model=BanyaSectionResponse)
+async def admin_update_banya_section(
+    item_id: int,
+    data: BanyaSectionUpdate,
+    db: AsyncSession = Depends(get_db),
+    _admin=Depends(get_current_admin),
+):
+    result = await db.execute(select(BanyaSection).where(BanyaSection.id == item_id))
+    section = result.scalar_one_or_none()
+    if not section:
+        raise HTTPException(status_code=404, detail="Секция не найдена")
+    for key, value in data.model_dump(exclude_unset=True).items():
+        if key == "chips":
+            setattr(section, key, _chips_to_db(value))
+        else:
+            setattr(section, key, value)
+    await db.commit()
+    await db.refresh(section)
+    return _section_to_response(section)
+
+
+@router.delete("/banya/sections/{item_id}", status_code=204)
+async def admin_delete_banya_section(
+    item_id: int,
+    db: AsyncSession = Depends(get_db),
+    _admin=Depends(get_current_admin),
+):
+    result = await db.execute(select(BanyaSection).where(BanyaSection.id == item_id))
+    section = result.scalar_one_or_none()
+    if not section:
+        raise HTTPException(status_code=404, detail="Секция не найдена")
+    await db.delete(section)
     await db.commit()
     return None
 

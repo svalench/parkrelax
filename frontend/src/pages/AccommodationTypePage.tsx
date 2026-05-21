@@ -15,7 +15,7 @@ import {
 
 import { DateRangePicker } from '@/components/DateRangePicker'
 import { Button } from '@/components/ui/button'
-import { BOOKING_PUBLIC_ENABLED } from '@/config/features'
+import { useBookingPublicEnabled } from '@/contexts/SiteSettingsContext'
 import { AccommodationCard } from '@/components/AccommodationCard'
 import {
   Popover,
@@ -72,6 +72,7 @@ function formatGuestsLabel(people: number): string {
 }
 
 export default function AccommodationTypePage() {
+  const bookingPublicEnabled = useBookingPublicEnabled()
   const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
   const typeId = Number(id)
@@ -371,7 +372,7 @@ export default function AccommodationTypePage() {
                   key={obj.id}
                   obj={obj}
                   showCalendar
-                  showStubButton={!BOOKING_PUBLIC_ENABLED}
+                  showStubButton={!bookingPublicEnabled}
                   isBooked={Boolean(obj.isBookedForDates)}
                   onBookClick={
                     obj.isBookedForDates

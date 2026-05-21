@@ -211,10 +211,55 @@ class AccommodationType(Base):
     priceUnit = Column(String(50), default="ночь", nullable=True)
     imageUrl = Column(Text, nullable=True)
     isActive = Column(Boolean, default=True, nullable=False)
+    # Показывать в блоке «Размещение» на главной и в селекторе Hero
+    showInListing = Column(Boolean, default=True, nullable=False)
     sortOrder = Column(Integer, default=0, nullable=False)
     createdAt = Column(DateTime, default=func.now(), nullable=True)
 
     accommodations = relationship("Accommodation", back_populates="type")
+
+
+class BanyaPageSettings(Base):
+    """Singleton: настройки лендинга /banya."""
+
+    __tablename__ = "banya_page_settings"
+
+    id = Column(Integer, primary_key=True, autoincrement=False, default=1)
+    pageTitle = Column(String(200), nullable=False, default="Терраса с баней")
+    pageSubtitle = Column(Text, nullable=True)
+    eyebrow = Column(String(100), nullable=True)
+    ctaLabel = Column(String(100), nullable=True, default="Связаться")
+    ctaHref = Column(String(500), nullable=True, default="/#contacts")
+    isActive = Column(Boolean, default=True, nullable=False)
+    updatedAt = Column(DateTime, default=func.now(), onupdate=func.now(), nullable=True)
+
+
+class BanyaSliderItem(Base):
+    __tablename__ = "banya_slider"
+
+    id = Column(Integer, primary_key=True, index=True)
+    title = Column(String(200), nullable=True)
+    imageUrl = Column(Text, nullable=True)
+    sortOrder = Column(Integer, default=0, nullable=False)
+    isActive = Column(Boolean, default=True, nullable=False)
+    createdAt = Column(DateTime, default=func.now(), nullable=True)
+
+
+class BanyaSection(Base):
+    """Полноэкранная scroll-snap секция лендинга бани."""
+
+    __tablename__ = "banya_sections"
+
+    id = Column(Integer, primary_key=True, index=True)
+    eyebrow = Column(String(100), nullable=True)
+    title = Column(String(200), nullable=False)
+    description = Column(Text, nullable=True)
+    imageUrl = Column(Text, nullable=True)
+    chips = Column(Text, nullable=True)  # JSON-массив строк
+    sortOrder = Column(Integer, default=0, nullable=False)
+    isActive = Column(Boolean, default=True, nullable=False)
+    createdAt = Column(DateTime, default=func.now(), nullable=True)
+    updatedAt = Column(DateTime, default=func.now(), onupdate=func.now(), nullable=True)
 
 
 class Admin(Base):
@@ -233,6 +278,8 @@ class SiteSettings(Base):
 
     id = Column(Integer, primary_key=True, autoincrement=False)
     heroBackgroundUrl = Column(Text, nullable=True)
+    # Публичное онлайн-бронирование размещений (управляется из админ-дашборда)
+    bookingPublicEnabled = Column(Boolean, default=False, nullable=False)
     updatedAt = Column(DateTime, default=func.now(), onupdate=func.now(), nullable=True)
 
 

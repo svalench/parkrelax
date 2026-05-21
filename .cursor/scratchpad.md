@@ -60,4 +60,6 @@ EmailTemplate edit 500: `previewUrl` — read-only property; в `EmailTemplateVi
 
 Alembic `ba2566789d10`: seed без `RETURNING`; идемпотентный upgrade (has_table + COUNT) для повторного прогона после частичного сбоя на MySQL.
 
+Лендинг бани: `/banya`, `banya_page_settings` / `banya_slider` / `banya_sections`, `showInListing` на типах размещения, админка вкладка «Баня», миграция `b2c3d4e5f6a7`. `npm run build` — ок.
+
 DONE

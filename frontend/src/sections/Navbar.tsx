@@ -8,6 +8,7 @@ const navLinks = [
   { label: 'Главная', href: '/' },
   { label: 'О комплексе', href: '/#about' },
   { label: 'Размещение', href: '/#accommodation' },
+  { label: 'Баня', href: '/banya' },
   { label: 'Аренда', href: '/#area' },
   { label: 'Прокат', href: '/#rental' },
   { label: 'Прайс', href: '/prices' },

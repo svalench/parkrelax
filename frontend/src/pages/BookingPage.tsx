@@ -33,6 +33,7 @@ import {
 } from '@/components/ui/pagination'
 
 import { AccommodationCard } from '@/components/AccommodationCard'
+import { useBookingPublicEnabled } from '@/contexts/SiteSettingsContext'
 
 const API_BASE = '/api'
 const cabinToTypeName: Record<string, string> = {
@@ -89,6 +90,7 @@ function formatGuestsLabel(people: number): string {
 }
 
 export default function BookingPage() {
+  const bookingPublicEnabled = useBookingPublicEnabled()
   const location = useLocation()
   const navigate = useNavigate()
   const [searchParams, setSearchParams] = useSearchParams()
@@ -457,6 +459,7 @@ export default function BookingPage() {
                   key={obj.id}
                   obj={obj}
                   showCalendar
+                  showStubButton={!bookingPublicEnabled}
                   isBooked={Boolean(obj.isBookedForDates)}
                   onBookClick={
                     obj.isBookedForDates

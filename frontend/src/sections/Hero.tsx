@@ -17,8 +17,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
-import { BookingStubButton } from '@/components/BookingStubButton'
-import { BOOKING_PUBLIC_ENABLED } from '@/config/features'
 
 const MAX_PEOPLE = 30
 
@@ -27,6 +25,7 @@ interface AccommodationType {
   id: number
   name: string
   isActive: boolean
+  showInListing?: boolean
   sortOrder: number
 }
 
@@ -63,7 +62,9 @@ export default function Hero() {
     fetch('/api/accommodation/types')
       .then((r) => r.json())
       .then((data: unknown) => {
-        const list = Array.isArray(data) ? (data as AccommodationType[]) : []
+        const list = Array.isArray(data)
+          ? (data as AccommodationType[]).filter((t) => t.showInListing !== false)
+          : []
         setAccommodationTypes(list)
         setTypeFilterId((prev) => {
           if (prev === 'any') return prev
@@ -269,17 +270,13 @@ export default function Hero() {
               </div>
 
               {/* Кнопка */}
-              {BOOKING_PUBLIC_ENABLED ? (
-                <button
-                  type="button"
-                  className="w-full lg:w-auto inline-flex items-center justify-center px-6 py-2.5 rounded-xl text-sm font-semibold text-white bg-[#2563EB] hover:bg-[#1D4ED8] transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] whitespace-nowrap"
-                  onClick={handleBook}
-                >
-                  Забронировать
-                </button>
-              ) : (
-                <BookingStubButton className="w-full lg:w-auto" />
-              )}
+              <button
+                type="button"
+                className="w-full lg:w-auto inline-flex items-center justify-center px-6 py-2.5 rounded-xl text-sm font-semibold text-white bg-[#2563EB] hover:bg-[#1D4ED8] transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] whitespace-nowrap"
+                onClick={handleBook}
+              >
+                Забронировать
+              </button>
             </div>
           </div>
         </div>

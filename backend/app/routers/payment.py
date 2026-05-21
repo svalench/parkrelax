@@ -13,6 +13,7 @@ from app.schemas import (
     PaymentConfirmResponse,
 )
 from app.email_service import send_email
+from app.routers.site_settings import require_public_booking_enabled
 
 router = APIRouter(prefix="/payment", tags=["payment"])
 
@@ -22,6 +23,7 @@ async def initiate_payment(
     data: PaymentInitiateRequest,
     db: AsyncSession = Depends(get_db),
 ):
+    await require_public_booking_enabled(db)
     result = await db.execute(
         select(Booking)
         .options(joinedload(Booking.accommodation), joinedload(Booking.user))
@@ -50,6 +52,7 @@ async def confirm_payment(
     data: PaymentConfirmRequest,
     db: AsyncSession = Depends(get_db),
 ):
+    await require_public_booking_enabled(db)
     result = await db.execute(
         select(Booking)
         .options(joinedload(Booking.accommodation), joinedload(Booking.user))

@@ -11,6 +11,7 @@ interface AccommodationType {
   priceUnit?: string
   imageUrl?: string
   isActive: boolean
+  showInListing?: boolean
   sortOrder: number
 }
 
@@ -25,7 +26,7 @@ export default function Accommodation() {
       .then((r) => r.json())
       .then((data: AccommodationType[]) => {
         if (Array.isArray(data)) {
-          setTypes(data)
+          setTypes(data.filter((t) => t.showInListing !== false))
         }
       })
       .catch(() => {

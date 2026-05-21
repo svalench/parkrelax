@@ -15,6 +15,7 @@ interface AccommodationType {
   id: number
   name: string
   isActive: boolean
+  showInListing?: boolean
   sortOrder: number
 }
 
@@ -87,7 +88,7 @@ export default function Footer() {
         if (Array.isArray(data)) {
           setRentalTypes(
             data
-              .filter((t) => t.isActive)
+              .filter((t) => t.isActive && t.showInListing !== false)
               .sort((a, b) => a.sortOrder - b.sortOrder)
           )
         }

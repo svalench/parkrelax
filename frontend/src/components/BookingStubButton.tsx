@@ -5,7 +5,7 @@ import {
   TooltipTrigger,
 } from '@/components/ui/tooltip'
 
-const STUB_HINT = 'Онлайн-бронирование скоро появится'
+const STUB_HINT = 'Бронирование по телефону — контакты в разделе «Контакты»'
 
 type BookingStubButtonProps = {
   className?: string
@@ -13,10 +13,10 @@ type BookingStubButtonProps = {
   size?: 'default' | 'compact'
 }
 
-/** Неактивная кнопка бронирования с подсказкой «скоро». */
+/** Неактивная кнопка онлайн-заказа — бронирование по телефону. */
 export function BookingStubButton({
   className,
-  label = 'Скоро появится',
+  label = 'Бронирование по телефону',
   size = 'default',
 }: BookingStubButtonProps) {
   const sizeClass =

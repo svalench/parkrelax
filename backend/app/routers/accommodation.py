@@ -27,12 +27,15 @@ router = APIRouter(prefix="/accommodation", tags=["accommodation"])
 
 
 @router.get("/types", response_model=list[AccommodationTypeResponse])
-async def list_types(db: AsyncSession = Depends(get_db)):
-    result = await db.execute(
-        select(AccommodationType)
-        .where(AccommodationType.isActive == True)
-        .order_by(asc(AccommodationType.sortOrder))
-    )
+async def list_types(
+    include_all: bool = Query(False, alias="includeAll"),
+    db: AsyncSession = Depends(get_db),
+):
+    stmt = select(AccommodationType).where(AccommodationType.isActive == True)
+    if not include_all:
+        stmt = stmt.where(AccommodationType.showInListing == True)
+    stmt = stmt.order_by(asc(AccommodationType.sortOrder))
+    result = await db.execute(stmt)
     return result.scalars().all()
 
 

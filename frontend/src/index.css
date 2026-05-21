@@ -106,6 +106,21 @@
   }
 }
 
+/* ─── Banya landing scroll-snap ─── */
+.banya-snap-root {
+  height: 100svh;
+  overflow-y: auto;
+  scroll-snap-type: y mandatory;
+  scroll-behavior: smooth;
+  overscroll-behavior-y: contain;
+}
+
+.banya-snap-section {
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
 /* ─── Rental Curtain Carousel ─── */
 .rental-stage {
   display: flex;

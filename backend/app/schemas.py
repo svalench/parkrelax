@@ -407,6 +407,7 @@ class AccommodationTypeBase(BaseModel):
     priceUnit: Optional[str] = "ночь"
     imageUrl: Optional[str] = None
     isActive: bool = True
+    showInListing: bool = True
     sortOrder: int = 0
 
 
@@ -422,6 +423,7 @@ class AccommodationTypeUpdate(BaseModel):
     priceUnit: Optional[str] = None
     imageUrl: Optional[str] = None
     isActive: Optional[bool] = None
+    showInListing: Optional[bool] = None
     sortOrder: Optional[int] = None
 
 
@@ -464,10 +466,15 @@ class AdminLogin(BaseModel):
 
 class SiteSettingsBase(BaseModel):
     heroBackgroundUrl: Optional[str] = None
+    bookingPublicEnabled: bool = False
 
 
 class SiteSettingsUpdate(BaseModel):
     heroBackgroundUrl: Optional[str] = None
+
+
+class SiteSettingsBookingUpdate(BaseModel):
+    bookingPublicEnabled: bool
 
 
 class SiteSettingsResponse(SiteSettingsBase):
@@ -737,3 +744,90 @@ class AmenityItemResponse(AmenityItemBase):
     id: int | None = None
     createdAt: datetime | None = None
     updatedAt: datetime | None = None
+
+
+# ── Banya landing ──────────────────────────────────────────────────
+
+class BanyaPageSettingsBase(BaseModel):
+    pageTitle: str
+    pageSubtitle: Optional[str] = None
+    eyebrow: Optional[str] = None
+    ctaLabel: Optional[str] = None
+    ctaHref: Optional[str] = None
+    isActive: bool = True
+
+
+class BanyaPageSettingsUpdate(BaseModel):
+    pageTitle: Optional[str] = None
+    pageSubtitle: Optional[str] = None
+    eyebrow: Optional[str] = None
+    ctaLabel: Optional[str] = None
+    ctaHref: Optional[str] = None
+    isActive: Optional[bool] = None
+
+
+class BanyaPageSettingsResponse(BanyaPageSettingsBase):
+    model_config = ConfigDict(from_attributes=True)
+    id: int = 1
+    updatedAt: datetime | None = None
+
+
+class BanyaSliderItemBase(BaseModel):
+    title: Optional[str] = None
+    imageUrl: Optional[str] = None
+    isActive: bool = True
+    sortOrder: int = 0
+
+
+class BanyaSliderItemCreate(BanyaSliderItemBase):
+    pass
+
+
+class BanyaSliderItemUpdate(BaseModel):
+    title: Optional[str] = None
+    imageUrl: Optional[str] = None
+    isActive: Optional[bool] = None
+    sortOrder: Optional[int] = None
+
+
+class BanyaSliderItemResponse(BanyaSliderItemBase):
+    model_config = ConfigDict(from_attributes=True)
+    id: int | None = None
+    createdAt: datetime | None = None
+
+
+class BanyaSectionBase(BaseModel):
+    eyebrow: Optional[str] = None
+    title: str
+    description: Optional[str] = None
+    imageUrl: Optional[str] = None
+    chips: Optional[list[str]] = None
+    isActive: bool = True
+    sortOrder: int = 0
+
+
+class BanyaSectionCreate(BanyaSectionBase):
+    pass
+
+
+class BanyaSectionUpdate(BaseModel):
+    eyebrow: Optional[str] = None
+    title: Optional[str] = None
+    description: Optional[str] = None
+    imageUrl: Optional[str] = None
+    chips: Optional[list[str]] = None
+    isActive: Optional[bool] = None
+    sortOrder: Optional[int] = None
+
+
+class BanyaSectionResponse(BanyaSectionBase):
+    model_config = ConfigDict(from_attributes=True)
+    id: int | None = None
+    createdAt: datetime | None = None
+    updatedAt: datetime | None = None
+
+
+class BanyaPagePublicResponse(BaseModel):
+    settings: BanyaPageSettingsResponse
+    slider: list[BanyaSliderItemResponse]
+    sections: list[BanyaSectionResponse]
