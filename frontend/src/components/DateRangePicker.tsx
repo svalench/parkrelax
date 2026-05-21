@@ -1,5 +1,5 @@
-import { useEffect, useState } from 'react'
-import { addDays, startOfToday } from 'date-fns'
+import { useState } from 'react'
+import { startOfMonth, startOfToday } from 'date-fns'
 import { ru } from 'date-fns/locale'
 import type { DateRange, Matcher, OnSelectHandler } from 'react-day-picker'
 import { Calendar as CalendarIcon } from 'lucide-react'
@@ -45,16 +45,6 @@ export function DateRangePicker({
   const [openInternal, setOpenInternal] = useState(false)
   const open = openControlled ?? openInternal
   const setOpen = onOpenChangeControlled ?? setOpenInternal
-
-  // Второй месяц только на широком десктопе — иначе попап слишком широкий
-  const [calendarMonths, setCalendarMonths] = useState(1)
-  useEffect(() => {
-    const mq = window.matchMedia('(min-width: 1280px)')
-    const sync = () => setCalendarMonths(mq.matches ? 2 : 1)
-    sync()
-    mq.addEventListener('change', sync)
-    return () => mq.removeEventListener('change', sync)
-  }, [])
 
   const { hoverModifiers, onDayMouseEnter, onDayMouseLeave } = useDateRangeHover(value)
 
@@ -125,20 +115,18 @@ export function DateRangePicker({
           collisionPadding={12}
           className={cn(
             'w-max overflow-hidden rounded-xl border border-border/70 bg-popover p-0 shadow-lg ring-1 ring-black/5',
-            calendarMonths === 1
-              ? 'max-w-[min(calc(100vw-1.5rem),16.5rem)]'
-              : 'max-w-[min(calc(100vw-1.5rem),33rem)]',
+            'max-w-[min(calc(100vw-1.5rem),33rem)]',
           )}
         >
           <Calendar
             mode="range"
             locale={ru}
             showOutsideDays={false}
-            numberOfMonths={calendarMonths}
+            numberOfMonths={2}
             selected={value}
             onSelect={handleRangeSelect}
             disabled={disabled ?? { before: startOfToday() }}
-            defaultMonth={value?.from ?? addDays(startOfToday(), 1)}
+            defaultMonth={value?.from ?? startOfMonth(startOfToday())}
             modifiers={hoverModifiers}
             onDayMouseEnter={onDayMouseEnter}
             onDayMouseLeave={onDayMouseLeave}

@@ -66,4 +66,8 @@ Alembic `ba2566789d10`: seed без `RETURNING`; идемпотентный upgr
 
 Лендинг бани: `/banya`, `banya_page_settings` / `banya_slider` / `banya_sections`, `showInListing` на типах размещения, админка вкладка «Баня», миграция `b2c3d4e5f6a7`. `npm run build` — ок.
 
+Календарь бронирования (`DateRangePicker`): всегда `numberOfMonths={2}` — текущий и следующий месяц; `defaultMonth` с начала текущего месяца. `npm run build` — ок.
+
+Карта маршрутов: убран leaflet-routing-machine (demo OSRM); прямой запрос к OSRM API, по умолчанию `routing.openstreetmap.de/routed-car`, свой сервер — `?osrm=https://host`.
+
 DONE
