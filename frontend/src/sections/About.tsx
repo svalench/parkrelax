@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { Link } from 'react-router'
 import {
   MapPin,
   TreePine,
@@ -127,7 +128,7 @@ export default function About() {
             <div>
               <span className="section-label mb-3 block">О комплексе</span>
               <h2 className="text-3xl md:text-4xl font-bold text-dark mb-4">
-                База отдыха в сердце
+                Комплекс отдыха в сердце
                 <br />
                 белорусского Полесья
               </h2>
@@ -135,7 +136,17 @@ export default function About() {
                 Комплекс отдыха <strong className="text-dark font-semibold">Парк Relax</strong> — уникальный туристический объект в деревне Кончицы, Пинский район. Расположен на берегу живописного озера среди соснового бора с белым песчаным пляжем. Здесь можно снять коттедж или домик у озера, отдохнуть от городской суеты и насладиться чистым воздухом настоящего Полесья.
               </p>
               <p className="text-graytext leading-relaxed mb-6">
-                Для размещения гостей предусмотрены уютный коттедж, апартаменты и летние домики с продуманным оснащением. На территории работает SPA-комплекс с террасой, баней и подогреваемым мини-бассейном. Комплекс вмещает до 150 человек — отличный выбор для семейного отдыха, выездных корпоративов и праздников.
+                Комплекс вмещает до 150 человек — отличный выбор для семейного отдыха, выездных корпоративов и праздников. Для размещения гостей предусмотрены уютный коттедж, апартаменты и летние домики с продуманным оснащением.
+              </p>
+              <p  className="text-graytext leading-relaxed mb-6">
+                На территории работает{' '}
+                <Link
+                  to="/banya"
+                  className="text-brand font-semibold underline underline-offset-2 hover:text-brand-hover transition-colors"
+                >
+                  SPA-комплекс с террасой
+                </Link>
+                , баней и подогреваемым мини-бассейном.
               </p>
 
               {/* Info chips */}
@@ -211,7 +222,7 @@ export default function About() {
                     >
                       <img
                         src={img}
-                        alt={`Фото базы отдыха ${i + 1}`}
+                        alt={`Фото комплекса отдыха ${i + 1}`}
                         className="w-full h-full object-cover rounded-2xl"
                         draggable={false}
                         loading="lazy"
@@ -228,7 +239,7 @@ export default function About() {
 
           <div className="mb-16 rounded-2xl overflow-hidden shadow-xl border border-black/5 h-[380px] md:h-[460px] min-h-[320px]">
             <iframe
-              title="Маршруты к базе отдыха Park Relax: Брест, Минск, Гомель"
+              title="Маршруты к комплексу отдыха Park Relax: Брест, Минск, Гомель"
               src="/park-relax-map-light.html?embed=1"
               className="w-full h-full border-0 block"
               loading="lazy"

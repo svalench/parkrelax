@@ -94,7 +94,7 @@ def upgrade() -> None:
                 'label': 'УДОБСТВА',
                 'title': 'Всё для комфортного отдыха: инфраструктура Комплекса отдыха Парк Relax',
                 'description': (
-                    'На территории базы отдыха в Пинском районе есть всё необходимое: '
+                    'На территории комплекса отдыха в Пинском районе есть всё необходимое: '
                     'от <strong class="text-dark font-medium">бани на дровах</strong> и '
                     '<strong class="text-dark font-medium">бассейна на улице</strong> до '
                     '<strong class="text-dark font-medium">проката лодок</strong>, '

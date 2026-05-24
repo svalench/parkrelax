@@ -80,7 +80,7 @@ export default function Hero() {
       {/* Логотип в правом верхнем углу — на небе */}
       <div className="hidden lg:block absolute top-16 right-6 xl:right-12 z-10 pointer-events-none">
         <img
-          src="/images/logo.svg"
+          src="/images/logo_cater.svg"
           alt="Комплекс отдыха Парк Relax"
           className="w-[260px] xl:w-[340px] h-auto object-contain animate-sun-glow opacity-90"
         />
@@ -100,7 +100,7 @@ export default function Hero() {
                     className="absolute right-2 top-1/2 h-16 w-[48%] -translate-y-1/2 rounded-full bg-white/22 blur-2xl"
                   />
                   <img
-                    src="/images/logo.svg"
+                    src="/images/logo_cater.svg"
                     alt="Комплекс отдыха Парк Relax — лучший комплекс отдыха и размещения на природе"
                     className="relative w-full max-w-[min(100%,420px)] h-auto object-contain drop-shadow-[0_2px_10px_rgba(0,0,0,0.45)] mx-auto md:mx-0"
                   />
@@ -133,13 +133,13 @@ export default function Hero() {
       {/* Панель бронирования */}
       <div className="relative z-20 w-full pb-4 md:pb-6">
         <div className="container-main">
-          <h3 className="text-3xl md:text-4xl font-bold text-white mb-3 md:mb-4 drop-shadow-lg">
+          <h3 className="text-2xl sm:text-3xl md:text-4xl font-bold text-white mb-2 md:mb-4 drop-shadow-lg">
             Бронирование размещения
           </h3>
-          <div className="bg-white/[0.08] backdrop-blur-xl rounded-2xl border border-white/20 shadow-2xl p-3 md:p-4 animate-in fade-in slide-in-from-bottom-4 duration-700">
-            <div className="flex flex-col lg:flex-row items-stretch lg:items-center gap-3">
+          <div className="bg-white/[0.08] backdrop-blur-xl rounded-2xl border border-white/20 shadow-2xl p-2.5 md:p-4 animate-in fade-in slide-in-from-bottom-4 duration-700">
+            <div className="flex flex-col lg:flex-row items-stretch lg:items-center gap-2 lg:gap-3">
               {/* Даты — один триггер и общая логика выбора диапазона */}
-              <div className="flex-[1_1_200px] min-w-0 lg:border-r lg:border-white/15 lg:pr-3">
+              <div className="shrink-0 min-w-0 lg:flex-[1_1_200px] lg:border-r lg:border-white/15 lg:pr-3">
                 <DateRangePicker
                   variant="hero"
                   value={dateRange}
@@ -152,7 +152,7 @@ export default function Hero() {
               </div>
 
               {/* Домик */}
-              <div className="flex items-center gap-3 lg:border-l border-gray-100 lg:pl-4 min-w-[160px]">
+              <div className="flex items-start lg:items-center gap-3 lg:border-l border-gray-100 lg:pl-4 min-w-[160px]">
                 <div className="flex w-full flex-col">
                   <label className="text-sm text-white/90 font-semibold mb-0.5 drop-shadow-sm">Домик</label>
                   <Select value={typeFilterId} onValueChange={setTypeFilterId}>

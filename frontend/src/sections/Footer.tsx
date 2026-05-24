@@ -59,9 +59,11 @@ const staticColumns: { title: string; links: FooterLinkItem[] }[] = [
   {
     title: 'Инфо',
     links: [
-      { label: 'О базе отдыха', sectionId: 'about' },
+      { label: 'О комплексе отдыха', sectionId: 'about' },
+      { label: 'Аренда', sectionId: 'area' },
       { label: 'Контакты', sectionId: 'contacts' },
       { label: 'Галерея', sectionId: 'gallery' },
+      { label: 'Прайс', to: '/prices' },
     ],
   },
   {

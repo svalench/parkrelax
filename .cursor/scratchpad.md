@@ -70,4 +70,8 @@ Alembic `ba2566789d10`: seed без `RETURNING`; идемпотентный upgr
 
 Карта маршрутов: убран leaflet-routing-machine (demo OSRM); прямой запрос к OSRM API, по умолчанию `routing.openstreetmap.de/routed-car`, свой сервер — `?osrm=https://host`.
 
+Ребрендинг: «База отдыха» → «Комплекс отдыха» в `About.tsx`, `Footer.tsx`, карте маршрутов, `exmpls/resort-curtains.html`, seed amenities; `npm run build` — ок.
+
+Hero booking (mobile): убран `flex-grow` у колонки дат (`lg:flex-[1_1_200px]` + `shrink-0`); уплотнены padding/gap/h3; `DateRangePicker` hero — метка «Даты» и значения в одну строку. `npm run build` — ок.
+
 DONE

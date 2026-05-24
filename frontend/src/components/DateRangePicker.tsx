@@ -72,8 +72,8 @@ export function DateRangePicker({
         )}
       >
         <CalendarIcon className="w-5 h-5 text-brand shrink-0" />
-        <div className="flex min-w-0 flex-1 flex-col gap-0.5 sm:flex-row sm:items-baseline sm:gap-2">
-          <span className="text-[11px] font-semibold uppercase tracking-wide text-white/75 sm:hidden">
+        <div className="flex min-w-0 flex-1 flex-row items-baseline gap-2">
+          <span className="text-[11px] font-semibold uppercase tracking-wide text-white/75 shrink-0">
             Даты
           </span>
           <div className="flex min-w-0 items-center gap-1.5 text-sm font-semibold text-white tabular-nums">

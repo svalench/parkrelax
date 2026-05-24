@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect, useCallback, useMemo } from 'react'
 import { Link } from 'react-router'
-import { X, Clock, Users, ArrowRight } from 'lucide-react'
+import { X, Clock, Users } from 'lucide-react'
 import { sanitizeRichHtml } from '../lib/safeHtml'
 
 interface RentalItem {
@@ -187,14 +187,6 @@ export default function Rental() {
                   onClick={(e) => e.stopPropagation()}
                 >
                   Узнать цену
-                </Link>
-                <Link
-                  to="/booking"
-                  className="rental-panel-cta"
-                  onClick={(e) => e.stopPropagation()}
-                >
-                  Выбрать жильё
-                  <ArrowRight className="w-4 h-4" />
                 </Link>
               </div>
             </div>
