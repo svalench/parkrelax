@@ -74,4 +74,6 @@ Alembic `ba2566789d10`: seed без `RETURNING`; идемпотентный upgr
 
 Hero booking (mobile): убран `flex-grow` у колонки дат (`lg:flex-[1_1_200px]` + `shrink-0`); уплотнены padding/gap/h3; `DateRangePicker` hero — метка «Даты» и значения в одну строку. `npm run build` — ок.
 
+Пагинация размещений: `/accommodation/availability` возвращает `{ items, total, page, pageSize, totalPages }`; `BookingPage` берёт `totalPages` с API; `AccommodationTypePage` — `pageSize=100`, `data.items`. `npm run build` — ок.
+
 DONE

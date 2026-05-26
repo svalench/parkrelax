@@ -51,6 +51,14 @@ interface Accommodation {
   isBookedForDates?: boolean
 }
 
+interface PaginatedAccommodationResponse {
+  items: Accommodation[]
+  total: number
+  page: number
+  pageSize: number
+  totalPages: number
+}
+
 export default function AccommodationTypePage() {
   const bookingPublicEnabled = useBookingPublicEnabled()
   const { id } = useParams<{ id: string }>()
@@ -103,13 +111,15 @@ export default function AccommodationTypePage() {
 
     const params = new URLSearchParams()
     params.set('typeId', String(typeId))
+    params.set('page', '1')
+    params.set('pageSize', '100')
     params.set('checkIn', format(dateRange.from, 'yyyy-MM-dd'))
     params.set('checkOut', format(dateRange.to, 'yyyy-MM-dd'))
 
     try {
       const res = await fetch(`${API_BASE}/accommodation/availability?${params.toString()}`)
-      const data: Accommodation[] = await res.json()
-      setObjects(data)
+      const data: PaginatedAccommodationResponse = await res.json()
+      setObjects(data.items)
     } catch {
       setObjects([])
     } finally {

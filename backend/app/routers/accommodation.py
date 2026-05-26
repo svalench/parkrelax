@@ -12,6 +12,7 @@ from app.models import Accommodation, AccommodationType, Booking, AccommodationI
 from app.schemas import (
     AccommodationResponse,
     AccommodationAvailabilityResponse,
+    PaginatedAccommodationAvailabilityResponse,
     AccommodationBookingCheckResponse,
     AccommodationCreate,
     AccommodationUpdate,
@@ -76,7 +77,7 @@ async def list_objects(
     return result.unique().scalars().all()
 
 
-@router.get("/availability", response_model=list[AccommodationAvailabilityResponse])
+@router.get("/availability", response_model=PaginatedAccommodationAvailabilityResponse)
 async def check_availability(
     type_id: Optional[int] = Query(None, alias="typeId"),
     check_in: Optional[date] = Query(None, alias="checkIn"),
@@ -129,13 +130,21 @@ async def check_availability(
     result = await db.execute(stmt)
     items = result.unique().scalars().all()
 
-    return [
+    availability_items = [
         AccommodationAvailabilityResponse(
             **AccommodationResponse.model_validate(item).model_dump(),
             isBookedForDates=item.id in booked_ids,
         )
         for item in items
     ]
+    total_pages = (total + page_size - 1) // page_size if total > 0 else 0
+    return PaginatedAccommodationAvailabilityResponse(
+        items=availability_items,
+        total=total,
+        page=page,
+        pageSize=page_size,
+        totalPages=total_pages,
+    )
 
 
 @router.get("/booked-dates")

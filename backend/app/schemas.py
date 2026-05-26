@@ -277,6 +277,16 @@ class AccommodationAvailabilityResponse(AccommodationResponse):
     isBookedForDates: bool = False
 
 
+class PaginatedAccommodationAvailabilityResponse(BaseModel):
+    """Список размещений с метаданными пагинации."""
+
+    items: list[AccommodationAvailabilityResponse]
+    total: int
+    page: int
+    pageSize: int
+    totalPages: int
+
+
 class AccommodationBookingCheckResponse(BaseModel):
     """Проверка перед оформлением: свободно ли размещение на даты."""
 
