@@ -39,12 +39,12 @@ const categories = [
   {
     icon: Flame,
     title: 'Терасса с баней',
-    desc: 'Баня на дровах с терассой и бассейном на свежем воздухе',
+    desc: 'Терраса с баней на дровах и бассейном на свежем воздухе',
   },
   {
     icon: TreePine,
     title: 'Природа и рекреация',
-    desc: 'SPA-комплекс с баней и подогреваемым бассейном, сосновый лес, озеро и чистейший воздух Полесья',
+    desc: 'Терраса с баней и подогреваемый бассейн, сосновый лес, озеро и чистейший воздух Полесья',
   },
   {
     icon: PartyPopper,
@@ -130,7 +130,7 @@ export default function About() {
               <h2 className="text-3xl md:text-4xl font-bold text-dark mb-4">
                 Комплекс отдыха в сердце
                 <br />
-                белорусского Полесья
+                Беларускага Палесся*
               </h2>
               <p className="text-graytext leading-relaxed mb-4">
                 Комплекс отдыха <strong className="text-dark font-semibold">Парк Relax</strong> — уникальный туристический объект в деревне Кончицы, Пинский район. Расположен на берегу живописного озера среди соснового бора с белым песчаным пляжем. Здесь можно снять коттедж или домик у озера, отдохнуть от городской суеты и насладиться чистым воздухом настоящего Полесья.
@@ -138,15 +138,15 @@ export default function About() {
               <p className="text-graytext leading-relaxed mb-6">
                 Комплекс вмещает до 150 человек — отличный выбор для семейного отдыха, выездных корпоративов и праздников. Для размещения гостей предусмотрены уютный коттедж, апартаменты и летние домики с продуманным оснащением.
               </p>
-              <p  className="text-graytext leading-relaxed mb-6">
+              <p className="text-graytext leading-relaxed mb-6">
                 На территории работает{' '}
                 <Link
                   to="/banya"
                   className="text-brand font-semibold underline underline-offset-2 hover:text-brand-hover transition-colors"
                 >
-                  SPA-комплекс с террасой
+                  Терраса с баней и подогреваемым мини-бассейном
                 </Link>
-                , баней и подогреваемым мини-бассейном.
+                {' '}
               </p>
 
               {/* Info chips */}
@@ -177,13 +177,24 @@ export default function About() {
                 <div className="space-y-2 text-sm text-graytext leading-relaxed">
                   <p>
                     <span className="inline-block w-1.5 h-1.5 rounded-full bg-brand mr-2 align-middle" />
-                    <strong className="text-dark">Из Минска</strong> — через исторический центр Пинска, столицы Белорусского Полесья.
+                    <strong className="text-dark">Из Минска</strong> — через исторический центр Пинска, столицы Беларускага Палесся*.
                   </p>
                   <p>
                     <span className="inline-block w-1.5 h-1.5 rounded-full bg-brand mr-2 align-middle" />
                     <strong className="text-dark">Из Бреста</strong> — по живописной дороге с переправой через реку Пина на пароме.
                   </p>
                 </div>
+                <p className="mt-4">
+                  <Link
+                    to="/banya"
+                    className="text-brand font-semibold text-sm hover:text-brand-hover transition-colors"
+                  >
+                    Подробнее о террасе с баней →
+                  </Link>
+                </p>
+                <p className="mt-3 text-xs text-graytext italic">
+                  * — Полесский диалект беларуского языка
+                </p>
               </div>
             </div>
 
@@ -281,7 +292,10 @@ export default function About() {
               Почему именно <span className="text-brand">Полесье</span>?
             </h2>
             <p className="text-white/70 leading-relaxed">
-              Пинщина — жемчужина белорусского Полесья. Именно здесь природа создала идеальные условия для восстановления сил и перезагрузки. Сочетание климата, ландшафта и уникальной экосистемы делает этот край по-настоящему целебным.
+              Пинщина — жемчужина Беларускага Палесся*. Именно здесь природа создала идеальные условия для восстановления сил и перезагрузки. Сочетание климата, ландшафта и уникальной экосистемы делает этот край по-настоящему целебным.
+            </p>
+            <p className="mt-3 text-xs text-white/50 italic">
+              * — Полесский диалект беларуского языка
             </p>
           </div>
 

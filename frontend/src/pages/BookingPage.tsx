@@ -25,6 +25,7 @@ import {
 } from '@/components/ui/pagination'
 
 import { AccommodationCard } from '@/components/AccommodationCard'
+import type { AccommodationFeature } from '@/components/AccommodationFeatureTags'
 import { useBookingPublicEnabled } from '@/contexts/SiteSettingsContext'
 
 const API_BASE = '/api'
@@ -65,6 +66,7 @@ interface Accommodation {
   sortOrder: number
   type?: AccommodationType
   images?: AccommodationImage[]
+  features?: AccommodationFeature[]
   isBookedForDates?: boolean
 }
 

@@ -87,7 +87,7 @@ export default function BanyaPage() {
   const pageTitle = settings?.pageTitle ?? 'Терраса с баней'
   const pageSubtitle =
     settings?.pageSubtitle ??
-    'Большая терраса с русской баней на дровах, уютной беседкой и мини-бассейном на свежем воздухе.'
+    'Большая терраса с баней на дровах, уютной беседкой и мини-бассейном на свежем воздухе.'
 
   return (
     <div className="min-h-screen bg-dark text-white">

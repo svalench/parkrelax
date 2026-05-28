@@ -48,6 +48,7 @@ def _booking_load_options():
     return (
         selectinload(Booking.accommodation).joinedload(Accommodation.type),
         selectinload(Booking.accommodation).selectinload(Accommodation.images),
+        selectinload(Booking.accommodation).selectinload(Accommodation.features),
     )
 
 
@@ -480,7 +481,12 @@ async def admin_create_booking(
             raise HTTPException(status_code=404, detail="Accommodation not found or inactive")
 
         available = await _check_accommodation_availability(
-            db, data.accommodationId, data.startDate, data.endDate
+            db,
+            data.accommodationId,
+            data.startDate,
+            data.endDate,
+            adults=data.adults or 1,
+            children=data.children or 0,
         )
         if not available:
             raise HTTPException(status_code=409, detail="Данный дом занят на выбранный период")
@@ -630,7 +636,13 @@ async def admin_update_booking(
     if "accommodationId" in update_data or "startDate" in update_data or "endDate" in update_data:
         if new_acc:
             available = await _check_accommodation_availability(
-                db, new_acc, new_start, new_end, exclude_booking_id=booking_id
+                db,
+                new_acc,
+                new_start,
+                new_end,
+                adults=update_data.get("adults", booking.adults) or 1,
+                children=update_data.get("children", booking.children) or 0,
+                exclude_booking_id=booking_id,
             )
             if not available:
                 raise HTTPException(status_code=409, detail="Данный дом занят на выбранный период")
@@ -639,7 +651,13 @@ async def admin_update_booking(
     if "status" in update_data and new_status.strip().lower() not in ("cancelled", "canceled"):
         if new_acc:
             available = await _check_accommodation_availability(
-                db, new_acc, new_start, new_end, exclude_booking_id=booking_id
+                db,
+                new_acc,
+                new_start,
+                new_end,
+                adults=update_data.get("adults", booking.adults) or 1,
+                children=update_data.get("children", booking.children) or 0,
+                exclude_booking_id=booking_id,
             )
             if not available:
                 raise HTTPException(status_code=409, detail="Данный дом занят на выбранный период")

@@ -134,6 +134,12 @@ class Accommodation(Base):
         cascade="all, delete-orphan",
         order_by="AccommodationImage.sortOrder",
     )
+    features = relationship(
+        "AccommodationFeature",
+        back_populates="accommodation",
+        cascade="all, delete-orphan",
+        order_by="AccommodationFeature.sortOrder",
+    )
 
     @property
     def galleryManager(self) -> str:
@@ -153,6 +159,63 @@ class AccommodationImage(Base):
     sortOrder = Column(Integer, default=0, nullable=False)
 
     accommodation = relationship("Accommodation", back_populates="images")
+
+
+class AccommodationFeature(Base):
+    """Значок с описанием для карточки размещения (иконка Lucide + текст)."""
+    __tablename__ = "accommodation_features"
+
+    id = Column(Integer, primary_key=True, index=True)
+    accommodationId = Column(
+        Integer, ForeignKey("accommodations.id", ondelete="CASCADE"), nullable=False
+    )
+    iconName = Column(String(100), nullable=False, default="")
+    label = Column(String(200), nullable=False, default="")
+    sortOrder = Column(Integer, default=0, nullable=False)
+    isActive = Column(Boolean, default=True, nullable=False)
+    createdAt = Column(DateTime, default=func.now(), nullable=True)
+    updatedAt = Column(DateTime, default=func.now(), onupdate=func.now(), nullable=True)
+
+    accommodation = relationship("Accommodation", back_populates="features")
+
+
+class AccommodationFeaturePreset(Base):
+    """Шаблон набора особенностей для массового применения к размещениям."""
+    __tablename__ = "accommodation_feature_presets"
+
+    id = Column(Integer, primary_key=True, index=True)
+    name = Column(String(200), nullable=False)
+    description = Column(Text, nullable=True)
+    isActive = Column(Boolean, default=True, nullable=False)
+    createdAt = Column(DateTime, default=func.now(), nullable=True)
+    updatedAt = Column(DateTime, default=func.now(), onupdate=func.now(), nullable=True)
+
+    items = relationship(
+        "AccommodationFeaturePresetItem",
+        back_populates="preset",
+        cascade="all, delete-orphan",
+        order_by="AccommodationFeaturePresetItem.sortOrder",
+    )
+
+
+class AccommodationFeaturePresetItem(Base):
+    """Пункт шаблона особенностей (иконка + описание)."""
+    __tablename__ = "accommodation_feature_preset_items"
+
+    id = Column(Integer, primary_key=True, index=True)
+    presetId = Column(
+        Integer,
+        ForeignKey("accommodation_feature_presets.id", ondelete="CASCADE"),
+        nullable=False,
+    )
+    iconName = Column(String(100), nullable=False, default="")
+    label = Column(String(200), nullable=False, default="")
+    sortOrder = Column(Integer, default=0, nullable=False)
+    isActive = Column(Boolean, default=True, nullable=False)
+    createdAt = Column(DateTime, default=func.now(), nullable=True)
+    updatedAt = Column(DateTime, default=func.now(), onupdate=func.now(), nullable=True)
+
+    preset = relationship("AccommodationFeaturePreset", back_populates="items")
 
 
 class Booking(Base):
@@ -209,6 +272,9 @@ class AccommodationType(Base):
     capacity = Column(Integer, nullable=False)
     pricePerNight = Column(Integer, nullable=False)
     priceUnit = Column(String(50), default="ночь", nullable=True)
+    # per_night — цена за объект; per_person — цена за гостя (кемпинг)
+    pricingModel = Column(String(20), default="per_night", nullable=False)
+    childPricePerNight = Column(Integer, nullable=True)
     imageUrl = Column(Text, nullable=True)
     isActive = Column(Boolean, default=True, nullable=False)
     # Показывать в блоке «Размещение» на главной и в селекторе Hero

@@ -77,55 +77,30 @@ export default function Hero() {
         <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-black/40 to-transparent" />
       </div>
 
-      {/* Логотип в правом верхнем углу — на небе */}
-      <div className="hidden lg:block absolute top-16 right-6 xl:right-12 z-10 pointer-events-none">
+      {/* Логотип слева на тёмном фоне — на десктопе крупнее, заполняет левую зону градиента */}
+      <div className="absolute top-20 left-4 sm:left-6 md:top-24 lg:top-24 lg:left-8 xl:left-10 z-10 pointer-events-none w-[min(68vw,354px)] sm:w-[min(65vw,415px)] md:w-[min(41vw,366px)] lg:w-[min(26vw,519px)] xl:w-[min(27vw,612px)] 2xl:w-[min(28vw,680px)]">
         <img
           src="/images/logo_cater.svg"
-          alt="Комплекс отдыха Парк Relax"
-          className="w-[260px] xl:w-[340px] h-auto object-contain animate-sun-glow opacity-90"
+          alt="Парк Relax"
+          className="w-full h-auto object-contain animate-sun-glow opacity-90 drop-shadow-[0_2px_10px_rgba(0,0,0,0.45)]"
         />
+        <p className="mt-2 text-sm sm:text-base text-white/90 font-medium leading-snug drop-shadow-md">
+          все для отдыха на природе
+        </p>
       </div>
 
       {/* Основной контент */}
-      <div className="relative z-10 flex-1 flex items-center pt-20 md:pt-24">
+      <div className="relative z-10 flex-1 flex items-center pt-40 sm:pt-48 md:pt-40 lg:pt-[min(30vh,16rem)] xl:pt-[min(31vh,18rem)]">
         <div className="container-main w-full">
           <div className="flex flex-col lg:flex-row items-center justify-between gap-10 lg:gap-16">
-            {/* Текст слева */}
             <div className="max-w-2xl w-full">
-              {/* До md: логотип вместо многострочного заголовка; с планшета/десктопа — прежний h1 */}
-              <h1 className="mb-6 text-white">
-                <span className="relative block md:hidden mb-4 px-2 py-1">
-                  <span
-                    aria-hidden="true"
-                    className="absolute right-2 top-1/2 h-16 w-[48%] -translate-y-1/2 rounded-full bg-white/22 blur-2xl"
-                  />
-                  <img
-                    src="/images/logo_cater.svg"
-                    alt="Комплекс отдыха Парк Relax — лучший комплекс отдыха и размещения на природе"
-                    className="relative w-full max-w-[min(100%,420px)] h-auto object-contain drop-shadow-[0_2px_10px_rgba(0,0,0,0.45)] mx-auto md:mx-0"
-                  />
-                </span>
-                <span className="hidden md:block text-4xl md:text-5xl lg:text-[56px] font-bold leading-[1.15]">
-                  Комплекс отдыха
-                  <br />
-                  Парк Relax — все
-                  <br />
-                  для отдыха на природе
-                  <br />
-
-                </span>
-              </h1>
-              <p className="md:hidden text-xl sm:text-2xl font-extrabold text-white leading-snug sm:leading-tight mb-4 max-w-[min(100%,28rem)] mx-auto md:mx-0 drop-shadow-[0_2px_10px_rgba(0,0,0,0.9)] text-center sm:text-left tracking-tight">
-                Отдохните от городской суеты — наслаждайтесь природой в Комплексе отдыха Парк Relax!
+              <p className="text-base md:text-lg text-white/90 leading-relaxed mb-3 max-w-[520px] mx-auto md:mx-0 text-center sm:text-left">
+                Чистый лесной воздух, мягкий белоснежный песок и живописная природа — идеальные условия для незабываемого отдыха на берегу лесного озера.
               </p>
-              <p className="hidden md:block text-base md:text-lg text-white/90 leading-relaxed mb-3 max-w-[520px] mx-auto md:mx-0 text-center sm:text-left">
-                Чистый воздух, мягкий белоснежный песок и живописная природа — идеальные условия для незабываемого отдыха у воды вместе с семьёй и друзьями.
-              </p>
-              <p className="hidden md:block text-base md:text-lg text-white/90 leading-relaxed max-w-[520px]">
-                Отдохните от городской суеты — наслаждайтесь природой в Комплексе отдыха Парк Relax!
+              <p className="text-base md:text-lg text-white/90 leading-relaxed max-w-[520px] mx-auto md:mx-0 text-center sm:text-left">
+                Отдохните и насладитесь уникальной природой в Комплексе отдыха Парк Relax!
               </p>
             </div>
-
           </div>
         </div>
       </div>
@@ -138,7 +113,6 @@ export default function Hero() {
           </h3>
           <div className="bg-white/[0.08] backdrop-blur-xl rounded-2xl border border-white/20 shadow-2xl p-2.5 md:p-4 animate-in fade-in slide-in-from-bottom-4 duration-700">
             <div className="flex flex-col lg:flex-row items-stretch lg:items-center gap-2 lg:gap-3">
-              {/* Даты — один триггер и общая логика выбора диапазона */}
               <div className="shrink-0 min-w-0 lg:flex-[1_1_200px] lg:border-r lg:border-white/15 lg:pr-3">
                 <DateRangePicker
                   variant="hero"
@@ -151,7 +125,6 @@ export default function Hero() {
                 />
               </div>
 
-              {/* Домик */}
               <div className="flex items-start lg:items-center gap-3 lg:border-l border-gray-100 lg:pl-4 min-w-[160px]">
                 <div className="flex w-full flex-col">
                   <label className="text-sm text-white/90 font-semibold mb-0.5 drop-shadow-sm">Домик</label>
@@ -171,7 +144,6 @@ export default function Hero() {
                 </div>
               </div>
 
-              {/* Кнопка */}
               <button
                 type="button"
                 className="w-full lg:w-auto inline-flex items-center justify-center px-6 py-2.5 rounded-xl text-sm font-semibold text-white bg-[#2563EB] hover:bg-[#1D4ED8] transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] whitespace-nowrap"

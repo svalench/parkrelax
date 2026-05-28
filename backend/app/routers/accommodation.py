@@ -26,6 +26,12 @@ from app.services.booking_availability import (
 
 router = APIRouter(prefix="/accommodation", tags=["accommodation"])
 
+_ACCOMMODATION_LOAD_OPTIONS = (
+    joinedload(Accommodation.type),
+    selectinload(Accommodation.images),
+    selectinload(Accommodation.features),
+)
+
 
 @router.get("/types", response_model=list[AccommodationTypeResponse])
 async def list_types(
@@ -59,7 +65,7 @@ async def list_objects(
     people: Optional[int] = Query(None, ge=1, alias="people"),
     db: AsyncSession = Depends(get_db),
 ):
-    stmt = select(Accommodation).options(joinedload(Accommodation.type), selectinload(Accommodation.images))
+    stmt = select(Accommodation).options(*_ACCOMMODATION_LOAD_OPTIONS)
     if active_only:
         stmt = stmt.where(Accommodation.isActive == True)
     if type_id:
@@ -91,7 +97,7 @@ async def check_availability(
 ):
     stmt = (
         select(Accommodation)
-        .options(joinedload(Accommodation.type), selectinload(Accommodation.images))
+        .options(*_ACCOMMODATION_LOAD_OPTIONS)
         .join(AccommodationType)
         .where(Accommodation.isActive == True)
     )
@@ -184,6 +190,8 @@ async def check_object_availability_for_booking(
     check_in: date = Query(..., alias="checkIn"),
     check_out: date = Query(..., alias="checkOut"),
     people: Optional[int] = Query(None, ge=1),
+    adults: Optional[int] = Query(None, ge=1),
+    children: Optional[int] = Query(None, ge=0),
     db: AsyncSession = Depends(get_db),
 ):
     """Проверка перед формой бронирования (в т.ч. после обновления страницы)."""
@@ -192,7 +200,7 @@ async def check_object_availability_for_booking(
 
     result = await db.execute(
         select(Accommodation)
-        .options(joinedload(Accommodation.type), selectinload(Accommodation.images))
+        .options(*_ACCOMMODATION_LOAD_OPTIONS)
         .join(AccommodationType)
         .where(Accommodation.id == object_id, Accommodation.isActive == True)
     )
@@ -200,12 +208,31 @@ async def check_object_availability_for_booking(
     if not item:
         return AccommodationBookingCheckResponse(available=False, accommodation=None)
 
-    if people is not None and people > 0:
-        effective_capacity = item.capacity if item.capacity > 0 else (item.type.capacity if item.type else 0)
-        if effective_capacity < people:
-            return AccommodationBookingCheckResponse(available=False, accommodation=None)
+    booking_adults = adults if adults is not None else (people if people is not None else 1)
+    booking_children = children or 0
+    total_guests = booking_adults + booking_children
 
-    dates_free = await is_accommodation_available(db, object_id, check_in, check_out)
+    if people is not None and people > 0 and adults is None and children is None:
+        booking_adults = people
+        booking_children = 0
+        total_guests = people
+
+    from app.services.booking_availability import is_per_person_type
+
+    if not is_per_person_type(item.type):
+        if total_guests > 0:
+            effective_capacity = item.capacity if item.capacity > 0 else (item.type.capacity if item.type else 0)
+            if effective_capacity < total_guests:
+                return AccommodationBookingCheckResponse(available=False, accommodation=None)
+
+    dates_free = await is_accommodation_available(
+        db,
+        object_id,
+        check_in,
+        check_out,
+        adults=booking_adults,
+        children=booking_children,
+    )
     acc_response = AccommodationAvailabilityResponse(
         **AccommodationResponse.model_validate(item).model_dump(),
         isBookedForDates=not dates_free,

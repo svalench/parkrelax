@@ -54,6 +54,7 @@ async def get_my_bookings(
             .options(
                 selectinload(Booking.accommodation).joinedload(Accommodation.type),
                 selectinload(Booking.accommodation).selectinload(Accommodation.images),
+                selectinload(Booking.accommodation).selectinload(Accommodation.features),
             )
             .where(or_(*filters))
             .order_by(desc(Booking.createdAt))

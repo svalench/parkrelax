@@ -4,13 +4,16 @@ from pathlib import Path
 
 from fastapi import Request
 from PIL import Image as PILImage
+from sqlalchemy import select, asc
+from sqlalchemy.orm import joinedload
 from starlette.datastructures import UploadFile
-from starlette.responses import Response
+from starlette.responses import RedirectResponse, Response
+from starlette.templating import Jinja2Templates
 from starlette_admin.auth import AuthProvider
 from starlette_admin.contrib.sqla import Admin, ModelView
 from starlette_admin.views import CustomView, DropDown
 from starlette_admin.exceptions import LoginFailed, ActionFailed
-from starlette_admin.actions import row_action
+from starlette_admin.actions import link_row_action, row_action
 from dataclasses import dataclass
 from starlette_admin.fields import (
     IntegerField,
@@ -63,6 +66,9 @@ from app.models import (
     EmailLog,
     PriceListData,
     AccommodationImage,
+    AccommodationFeature,
+    AccommodationFeaturePreset,
+    AccommodationFeaturePresetItem,
     AmenitySection,
     AmenityQuickTag,
     AmenityCategory,
@@ -71,6 +77,7 @@ from app.models import (
 
 from app.html_sanitize import sanitize_rich_html
 from app.user_password_service import reset_user_password_and_email
+from app.services.accommodation_features import apply_feature_preset_to_accommodations
 
 
 def _apply_sanitized_rich_text(obj: object, *attr_names: str) -> None:
@@ -472,6 +479,8 @@ class AccommodationTypeAdminView(ModelView):
         IntegerField("capacity", label="Вместимость"),
         IntegerField("pricePerNight", label="Цена за ночь"),
         StringField("priceUnit", label="Единица цены (например: ночь, сутки, час)"),
+        StringField("pricingModel", label="Модель цены (per_night / per_person)"),
+        IntegerField("childPricePerNight", label="Цена за ребёнка (per_person)"),
         CustomImageField("imageUrl", label="Изображение"),
         BooleanField("isActive", label="Активно"),
         IntegerField("sortOrder", label="Порядок сортировки"),
@@ -834,6 +843,8 @@ LUCIDE_ICON_LIST = [
     "Navigation", "TreePine", "Mountain", "Tent", "Binoculars", "Watch",
     "AlarmClock", "Timer", "Hourglass", "Wallet", "CreditCard", "Receipt",
     "Ticket", "Plane", "Train", "Bus", "Anchor", "Sailboat", "Anchor",
+    "Toilet", "ShowerHead", "Bath", "Building", "Building2", "Layers",
+    "House", "Sofa", "Trees",
 ]
 
 
@@ -882,6 +893,201 @@ class AmenityQuickTagView(ModelView):
         DateTimeField("createdAt", label="Создано", read_only=True),
         DateTimeField("updatedAt", label="Обновлено", read_only=True),
     ]
+
+
+class AccommodationFeatureView(ModelView):
+    fields = [
+        IntegerField("id", read_only=True),
+        HasOne("accommodation", identity="accommodations", label="Размещение"),
+        LucideIconField("iconName", label="Иконка"),
+        StringField("label", label="Описание"),
+        IntegerField("sortOrder", label="Порядок сортировки"),
+        BooleanField("isActive", label="Активно"),
+        DateTimeField("createdAt", label="Создано", read_only=True),
+        DateTimeField("updatedAt", label="Обновлено", read_only=True),
+    ]
+
+
+class AccommodationFeaturePresetView(ModelView):
+    fields = [
+        IntegerField("id", read_only=True),
+        StringField("name", label="Название шаблона"),
+        TextAreaField("description", label="Описание"),
+        BooleanField("isActive", label="Активно"),
+        DateTimeField("createdAt", label="Создано", read_only=True),
+        DateTimeField("updatedAt", label="Обновлено", read_only=True),
+    ]
+
+    @link_row_action(
+        name="apply_preset",
+        text="Применить к размещениям",
+        icon_class="fa fa-clone",
+    )
+    def apply_preset_row_action(self, request: Request, pk: object) -> str:
+        root = request.scope.get("root_path", "/admin")
+        return f"{root}/apply-accommodation-features?preset_id={pk}"
+
+
+class AccommodationFeaturePresetItemView(ModelView):
+    fields = [
+        IntegerField("id", read_only=True),
+        HasOne("preset", identity="accommodation-feature-presets", label="Шаблон"),
+        LucideIconField("iconName", label="Иконка"),
+        StringField("label", label="Описание"),
+        IntegerField("sortOrder", label="Порядок сортировки"),
+        BooleanField("isActive", label="Активно"),
+        DateTimeField("createdAt", label="Создано", read_only=True),
+        DateTimeField("updatedAt", label="Обновлено", read_only=True),
+    ]
+
+
+class ApplyAccommodationFeaturesView(CustomView):
+    """Массовое применение шаблона особенностей к нескольким размещениям."""
+
+    def __init__(self) -> None:
+        super().__init__(
+            label="Применить особенности",
+            icon="fa fa-clone",
+            path="/apply-accommodation-features",
+            template_path="apply_accommodation_features.html",
+            methods=["GET", "POST"],
+            add_to_menu=True,
+        )
+
+    async def _load_context(
+        self,
+        *,
+        selected_preset_id: int | None = None,
+        selected_accommodation_ids: set[int] | None = None,
+        replace_existing: bool = True,
+    ) -> dict:
+        selected_accommodation_ids = selected_accommodation_ids or set()
+        async with AsyncSessionLocal() as db:
+            presets_result = await db.execute(
+                select(AccommodationFeaturePreset)
+                .where(AccommodationFeaturePreset.isActive == True)
+                .order_by(asc(AccommodationFeaturePreset.name))
+            )
+            presets = list(presets_result.scalars().all())
+
+            preset_items: list[AccommodationFeaturePresetItem] = []
+            if selected_preset_id:
+                items_result = await db.execute(
+                    select(AccommodationFeaturePresetItem)
+                    .where(
+                        AccommodationFeaturePresetItem.presetId == selected_preset_id,
+                        AccommodationFeaturePresetItem.isActive == True,
+                    )
+                    .order_by(asc(AccommodationFeaturePresetItem.sortOrder))
+                )
+                preset_items = list(items_result.scalars().all())
+
+            acc_result = await db.execute(
+                select(Accommodation)
+                .options(joinedload(Accommodation.type))
+                .where(Accommodation.isActive == True)
+                .order_by(asc(Accommodation.sortOrder))
+            )
+            accommodations = list(acc_result.unique().scalars().all())
+
+        groups_map: dict[str, list] = {}
+        for acc in accommodations:
+            type_name = acc.type.name if acc.type else "Без типа"
+            groups_map.setdefault(type_name, []).append(acc)
+        accommodation_groups = [
+            {"type_name": name, "accommodations": items}
+            for name, items in sorted(groups_map.items(), key=lambda x: x[0])
+        ]
+
+        return {
+            "presets": presets,
+            "preset_items": preset_items,
+            "accommodation_groups": accommodation_groups,
+            "selected_preset_id": selected_preset_id,
+            "selected_accommodation_ids": selected_accommodation_ids,
+            "replace_existing": replace_existing,
+        }
+
+    async def render(self, request: Request, templates: Jinja2Templates) -> Response:
+        if request.method == "POST":
+            form = await request.form()
+            preset_raw = form.get("preset_id")
+            replace_existing = form.get("replace_existing") == "1"
+            accommodation_ids: list[int] = []
+            for raw_id in form.getlist("accommodation_ids"):
+                try:
+                    accommodation_ids.append(int(raw_id))
+                except (TypeError, ValueError):
+                    continue
+
+            try:
+                preset_id = int(preset_raw) if preset_raw else 0
+            except (TypeError, ValueError):
+                preset_id = 0
+
+            if not preset_id or not accommodation_ids:
+                context = await self._load_context(
+                    selected_preset_id=preset_id or None,
+                    selected_accommodation_ids=set(accommodation_ids),
+                    replace_existing=replace_existing,
+                )
+                context["error"] = "Выберите шаблон и хотя бы одно размещение."
+                return templates.TemplateResponse(
+                    request,
+                    name=self.template_path,
+                    context=context,
+                )
+
+            try:
+                async with AsyncSessionLocal() as db:
+                    acc_count, feature_count = await apply_feature_preset_to_accommodations(
+                        db,
+                        preset_id,
+                        accommodation_ids,
+                        replace_existing=replace_existing,
+                    )
+            except ValueError as exc:
+                context = await self._load_context(
+                    selected_preset_id=preset_id,
+                    selected_accommodation_ids=set(accommodation_ids),
+                    replace_existing=replace_existing,
+                )
+                context["error"] = str(exc)
+                return templates.TemplateResponse(
+                    request,
+                    name=self.template_path,
+                    context=context,
+                )
+
+            return RedirectResponse(
+                url=(
+                    f"{request.scope['root_path']}{self.path}"
+                    f"?ok=1&acc={acc_count}&feat={feature_count}"
+                ),
+                status_code=303,
+            )
+
+        selected_preset_id: int | None = None
+        preset_q = request.query_params.get("preset_id")
+        if preset_q:
+            try:
+                selected_preset_id = int(preset_q)
+            except (TypeError, ValueError):
+                selected_preset_id = None
+
+        context = await self._load_context(selected_preset_id=selected_preset_id)
+        if request.query_params.get("ok") == "1":
+            acc_count = request.query_params.get("acc", "?")
+            feat_count = request.query_params.get("feat", "?")
+            context["message"] = (
+                f"Готово: обновлено размещений — {acc_count}, "
+                f"добавлено записей особенностей — {feat_count}."
+            )
+        return templates.TemplateResponse(
+            request,
+            name=self.template_path,
+            context=context,
+        )
 
 
 class AmenityCategoryView(ModelView):
@@ -942,6 +1148,31 @@ admin.add_view(
 )
 admin.add_view(AccommodationView(Accommodation, icon="fa fa-home", label="Размещения", identity="accommodations"))
 admin.add_view(AccommodationImageView(AccommodationImage, icon="fa fa-images", label="Галерея апартаментов", identity="accommodation-images"))
+admin.add_view(
+    AccommodationFeatureView(
+        AccommodationFeature,
+        icon="fa fa-tags",
+        label="Особенности размещения",
+        identity="accommodation-features",
+    )
+)
+admin.add_view(
+    AccommodationFeaturePresetView(
+        AccommodationFeaturePreset,
+        icon="fa fa-layer-group",
+        label="Шаблоны особенностей",
+        identity="accommodation-feature-presets",
+    )
+)
+admin.add_view(
+    AccommodationFeaturePresetItemView(
+        AccommodationFeaturePresetItem,
+        icon="fa fa-list",
+        label="Пункты шаблона",
+        identity="accommodation-feature-preset-items",
+    )
+)
+admin.add_view(ApplyAccommodationFeaturesView())
 admin.add_view(RentalItemView(RentalItem, icon="fa fa-bicycle", label="Аренда и услуги", identity="rental-items"))
 admin.add_view(AreaItemAdminView(AreaItem, icon="fa fa-map-marker-alt", label="Зоны отдыха (аренда)", identity="area-items"))
 admin.add_view(

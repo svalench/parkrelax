@@ -1,0 +1,118 @@
+{% extends "layout.html" %}
+
+{% block header %}
+<div class="row align-items-center">
+    <div class="col">
+        <h2 class="page-title">Применить особенности к размещениям</h2>
+        <p class="text-muted mb-0">Выберите шаблон и отметьте размещения — особенности скопируются на все выбранные карточки.</p>
+    </div>
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="col-12 col-lg-10">
+    {% if message %}
+    <div class="alert alert-success">{{ message }}</div>
+    {% endif %}
+    {% if error %}
+    <div class="alert alert-danger">{{ error }}</div>
+    {% endif %}
+
+    <form method="post" class="card">
+        <div class="card-body">
+            <div class="mb-4">
+                <label class="form-label required" for="preset_id">Шаблон особенностей</label>
+                <select class="form-select" id="preset_id" name="preset_id" required>
+                    <option value="">— выберите шаблон —</option>
+                    {% for preset in presets %}
+                    <option value="{{ preset.id }}" {% if selected_preset_id == preset.id %}selected{% endif %}>
+                        {{ preset.name }}
+                    </option>
+                    {% endfor %}
+                </select>
+                {% if preset_items %}
+                <div class="mt-2 small text-muted">
+                    В шаблоне:
+                    {% for item in preset_items %}
+                    <span class="badge bg-secondary-lt me-1">{{ item.iconName }}: {{ item.label }}</span>
+                    {% endfor %}
+                </div>
+                {% endif %}
+            </div>
+
+            <div class="mb-3">
+                <div class="form-check">
+                    <input
+                        class="form-check-input"
+                        type="checkbox"
+                        id="replace_existing"
+                        name="replace_existing"
+                        value="1"
+                        {% if replace_existing %}checked{% endif %}
+                    />
+                    <label class="form-check-label" for="replace_existing">
+                        Заменить существующие особенности у выбранных размещений
+                    </label>
+                </div>
+                <small class="form-hint">Если снять галочку — новые пункты добавятся к уже существующим.</small>
+            </div>
+
+            <div class="mb-3 d-flex gap-2 flex-wrap align-items-center">
+                <label class="form-label mb-0">Размещения</label>
+                <button type="button" class="btn btn-sm btn-outline-secondary" id="select-all-acc">Выбрать все</button>
+                <button type="button" class="btn btn-sm btn-outline-secondary" id="select-none-acc">Снять все</button>
+            </div>
+
+            {% for group in accommodation_groups %}
+            <div class="mb-3">
+                <div class="fw-semibold text-muted small mb-2">{{ group.type_name }}</div>
+                <div class="row g-2">
+                    {% for acc in group.accommodations %}
+                    <div class="col-md-6 col-lg-4">
+                        <label class="form-check border rounded px-3 py-2 w-100 mb-0">
+                            <input
+                                class="form-check-input acc-checkbox"
+                                type="checkbox"
+                                name="accommodation_ids"
+                                value="{{ acc.id }}"
+                                {% if acc.id in selected_accommodation_ids %}checked{% endif %}
+                            />
+                            <span class="form-check-label">{{ acc.name }}</span>
+                        </label>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endfor %}
+
+            {% if not accommodation_groups %}
+            <p class="text-muted">Нет активных размещений.</p>
+            {% endif %}
+        </div>
+        <div class="card-footer">
+            <button type="submit" class="btn btn-primary" {% if not presets %}disabled{% endif %}>
+                Применить к выбранным
+            </button>
+            <a href="/admin/accommodation-feature-presets/list" class="btn btn-link">Управление шаблонами</a>
+        </div>
+    </form>
+</div>
+
+<script>
+(function () {
+    const all = document.getElementById('select-all-acc');
+    const none = document.getElementById('select-none-acc');
+    const boxes = document.querySelectorAll('.acc-checkbox');
+    if (all) {
+        all.addEventListener('click', function () {
+            boxes.forEach(function (b) { b.checked = true; });
+        });
+    }
+    if (none) {
+        none.addEventListener('click', function () {
+            boxes.forEach(function (b) { b.checked = false; });
+        });
+    }
+})();
+</script>
+{% endblock %}

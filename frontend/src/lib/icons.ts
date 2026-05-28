@@ -19,6 +19,14 @@ import {
   Tv,
   PawPrint,
   Droplets,
+  Toilet,
+  ShowerHead,
+  Bath,
+  Building,
+  Building2,
+  Layers,
+  Sofa,
+  Trees,
 } from 'lucide-react'
 
 const iconMap: Record<string, LucideIcon> = {
@@ -41,6 +49,14 @@ const iconMap: Record<string, LucideIcon> = {
   Tv,
   PawPrint,
   Droplets,
+  Toilet,
+  ShowerHead,
+  Bath,
+  Building,
+  Building2,
+  Layers,
+  Sofa,
+  Trees,
 }
 
 export function getLucideIcon(name: string): LucideIcon | undefined {

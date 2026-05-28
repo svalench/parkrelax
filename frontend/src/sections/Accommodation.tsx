@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router'
-import { plainTextFromHtml } from '../lib/safeHtml'
 
 interface AccommodationType {
   id: number
@@ -82,25 +81,13 @@ export default function Accommodation() {
                     height="704"
                   />
                 </div>
-                <div className="p-5">
-                  <h3 className="text-lg font-bold text-dark mb-1">
+                <div className="p-5 flex items-center justify-between">
+                  <h3 className="text-lg font-bold text-dark">
                     {type.name}
                   </h3>
-                  <p className="text-sm text-graytext mb-3">
-                    {plainTextFromHtml(type.description) ||
-                      `До ${type.capacity} человек`}
-                  </p>
-                  <div className="flex items-center justify-between">
-                    <span className="text-brand font-bold">
-                      {type.pricePerNight.toLocaleString('ru-RU')} Br{' '}
-                      <span className="text-sm text-graytext font-normal">
-                        / {type.priceUnit || 'ночь'}
-                      </span>
-                    </span>
-                    <span className="text-sm text-brand font-medium group-hover:underline">
-                      Смотреть →
-                    </span>
-                  </div>
+                  <span className="text-sm text-brand font-medium group-hover:underline shrink-0 ml-3">
+                    Смотреть →
+                  </span>
                 </div>
               </div>
             ))}

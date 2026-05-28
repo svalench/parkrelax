@@ -3,11 +3,9 @@ import { useParams, useNavigate } from 'react-router'
 import { format, addDays, startOfToday, differenceInDays } from 'date-fns'
 import type { DateRange } from 'react-day-picker'
 import {
-  Users,
   BedDouble,
   ArrowLeft,
   Loader2,
-  Home,
   X,
 } from 'lucide-react'
 
@@ -15,6 +13,7 @@ import { DateRangePicker } from '@/components/DateRangePicker'
 import { Button } from '@/components/ui/button'
 import { useBookingPublicEnabled } from '@/contexts/SiteSettingsContext'
 import { AccommodationCard } from '@/components/AccommodationCard'
+import type { AccommodationFeature } from '@/components/AccommodationFeatureTags'
 
 const API_BASE = '/api'
 
@@ -48,6 +47,7 @@ interface Accommodation {
   sortOrder: number
   type?: AccommodationType
   images?: AccommodationImage[]
+  features?: AccommodationFeature[]
   isBookedForDates?: boolean
 }
 
@@ -205,25 +205,9 @@ export default function AccommodationTypePage() {
             <ArrowLeft className="w-4 h-4" />
             Назад
           </button>
-          <h1 className="text-3xl md:text-5xl font-bold text-white mb-4">
+          <h1 className="text-3xl md:text-5xl font-bold text-white">
             {type.name}
           </h1>
-          {type.description && (
-            <div
-              className="text-white/90 text-base md:text-lg max-w-2xl leading-relaxed"
-              dangerouslySetInnerHTML={{ __html: type.description }}
-            />
-          )}
-          <div className="flex items-center gap-4 mt-4 text-white/80 text-sm">
-            <span className="flex items-center gap-1.5">
-              <Users className="w-4 h-4" />
-              До {type.capacity} чел.
-            </span>
-            <span className="flex items-center gap-1.5">
-              <Home className="w-4 h-4" />
-              {type.pricePerNight.toLocaleString('ru-RU')} Br/{type.priceUnit || 'ночь'}
-            </span>
-          </div>
         </div>
       </section>
 

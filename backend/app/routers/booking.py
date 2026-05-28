@@ -29,6 +29,9 @@ async def _check_accommodation_availability(
     accommodation_id: int,
     start_date,
     end_date,
+    *,
+    adults: int = 1,
+    children: int = 0,
     exclude_booking_id: int | None = None,
 ) -> bool:
     from app.services.booking_availability import is_accommodation_available
@@ -38,6 +41,8 @@ async def _check_accommodation_availability(
         accommodation_id,
         start_date,
         end_date,
+        adults=adults,
+        children=children,
         exclude_booking_id=exclude_booking_id,
     )
     if not available:
@@ -59,16 +64,30 @@ async def create_booking(data: BookingCreate, db: AsyncSession = Depends(get_db)
     if data.accommodationId:
         # Verify accommodation exists and is active
         acc_result = await db.execute(
-            select(Accommodation).where(Accommodation.id == data.accommodationId, Accommodation.isActive == True)
+            select(Accommodation)
+            .options(joinedload(Accommodation.type))
+            .where(Accommodation.id == data.accommodationId, Accommodation.isActive == True)
         )
-        accommodation = acc_result.scalar_one_or_none()
+        accommodation = acc_result.unique().scalar_one_or_none()
         if not accommodation:
             raise HTTPException(status_code=404, detail="Accommodation not found or inactive")
 
         available = await _check_accommodation_availability(
-            db, data.accommodationId, data.startDate, data.endDate
+            db,
+            data.accommodationId,
+            data.startDate,
+            data.endDate,
+            adults=data.adults or 1,
+            children=data.children or 0,
         )
         if not available:
+            from app.services.booking_availability import is_per_person_type
+
+            if accommodation.type and is_per_person_type(accommodation.type):
+                raise HTTPException(
+                    status_code=409,
+                    detail="На выбранные даты достигнут лимит гостей кемпинга",
+                )
             raise HTTPException(status_code=409, detail="Данный дом занят на выбранный период")
 
     booking = Booking(**data.model_dump())
@@ -116,8 +135,19 @@ async def create_booking(data: BookingCreate, db: AsyncSession = Depends(get_db)
     await db.refresh(booking)
 
     # ── Send emails ──────────────────────────────────────────────────
+    from app.services.booking_availability import calculate_booking_total
+
     nights = max(1, (data.endDate - data.startDate).days) if accommodation else 0
-    total_price = nights * (accommodation.pricePerNight or 0) if accommodation else 0
+    total_price = (
+        calculate_booking_total(
+            accommodation,
+            adults=data.adults or 1,
+            children=data.children or 0,
+            nights=nights,
+        )
+        if accommodation
+        else 0
+    )
     admin_url = "https://parkrelax.by/admin"
 
     # 1. Admin notification
@@ -168,6 +198,7 @@ async def create_booking(data: BookingCreate, db: AsyncSession = Depends(get_db)
         .options(
             selectinload(Booking.accommodation).joinedload(Accommodation.type),
             selectinload(Booking.accommodation).selectinload(Accommodation.images),
+            selectinload(Booking.accommodation).selectinload(Accommodation.features),
         )
         .where(Booking.id == booking.id)
     )
@@ -189,6 +220,7 @@ async def list_bookings(
         .options(
             selectinload(Booking.accommodation).joinedload(Accommodation.type),
             selectinload(Booking.accommodation).selectinload(Accommodation.images),
+            selectinload(Booking.accommodation).selectinload(Accommodation.features),
         )
         .order_by(desc(Booking.createdAt))
     )
@@ -219,6 +251,7 @@ async def my_bookings(
         .options(
             selectinload(Booking.accommodation).joinedload(Accommodation.type),
             selectinload(Booking.accommodation).selectinload(Accommodation.images),
+            selectinload(Booking.accommodation).selectinload(Accommodation.features),
         )
         .where(or_(*filters))
         .order_by(desc(Booking.createdAt))

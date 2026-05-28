@@ -15,14 +15,25 @@ import {
 import { Loader2, Calendar, Users, ArrowLeft, Home, Phone, Mail, User, CheckCircle, Clock } from 'lucide-react'
 import { useBookingSession } from '@/hooks/use-booking-session'
 import { useAuth } from '@/contexts/AuthContext'
+import { AccommodationFeatureTags, type AccommodationFeature } from '@/components/AccommodationFeatureTags'
 
 const API_BASE = '/api'
+
+interface AccommodationTypeInfo {
+  name: string
+  capacity: number
+  pricePerNight: number
+  priceUnit?: string
+  pricingModel?: string
+  childPricePerNight?: number | null
+}
 
 interface Accommodation {
   id: number
   name: string
   imageUrl?: string
-  type?: { name: string; capacity: number; pricePerNight: number }
+  type?: AccommodationTypeInfo
+  features?: AccommodationFeature[]
   isBookedForDates?: boolean
 }
 
@@ -47,6 +58,8 @@ export default function BookingFormPage() {
   const [phone, setPhone] = useState('')
   const [email, setEmail] = useState('')
   const [privacyConsent, setPrivacyConsent] = useState(false)
+  const [adults, setAdults] = useState(1)
+  const [children, setChildren] = useState(0)
 
   useEffect(() => {
     if (!user) return
@@ -96,6 +109,8 @@ export default function BookingFormPage() {
     const params = new URLSearchParams()
     params.set('checkIn', checkIn)
     params.set('checkOut', checkOut)
+    params.set('adults', String(adults))
+    params.set('children', String(children))
 
     fetch(`${API_BASE}/accommodation/objects/${accommodationId}/availability-check?${params.toString()}`)
       .then(async (r) => {
@@ -129,10 +144,19 @@ export default function BookingFormPage() {
     return () => {
       cancelled = true
     }
-  }, [accommodationId, checkIn, checkOut, bookingListUrl, navigate])
+  }, [accommodationId, checkIn, checkOut, adults, children, bookingListUrl, navigate])
 
+  const isPerPerson = accommodation?.type?.pricingModel === 'per_person'
   const nights = checkIn && checkOut ? Math.max(1, differenceInDays(new Date(checkOut), new Date(checkIn))) : 0
-  const totalPrice = accommodation?.type?.pricePerNight ? nights * accommodation.type.pricePerNight : 0
+  const totalPrice = useMemo(() => {
+    if (!accommodation?.type?.pricePerNight || nights <= 0) return 0
+    if (isPerPerson) {
+      const adultPrice = accommodation.type.pricePerNight
+      const childPrice = accommodation.type.childPricePerNight ?? adultPrice
+      return nights * (adults * adultPrice + children * childPrice)
+    }
+    return nights * accommodation.type.pricePerNight
+  }, [accommodation, adults, children, isPerPerson, nights])
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
@@ -157,8 +181,8 @@ export default function BookingFormPage() {
           customerEmail: email,
           startDate: checkIn,
           endDate: checkOut,
-          adults: 1,
-          children: 0,
+          adults,
+          children,
           accommodationId,
         }),
       })
@@ -249,8 +273,19 @@ export default function BookingFormPage() {
                 <p className="text-sm text-graytext">{accommodation.type?.name}</p>
                 <div className="flex items-center gap-3 text-sm text-graytext mt-1">
                   <span className="flex items-center gap-1"><Calendar className="w-3.5 h-3.5" />{nights} ночей</span>
-                  <span className="flex items-center gap-1"><Users className="w-3.5 h-3.5" />до {accommodation.type?.capacity} чел.</span>
+                  {isPerPerson ? (
+                    <span className="flex items-center gap-1">
+                      <Users className="w-3.5 h-3.5" />
+                      до {accommodation.type?.capacity} чел/сутки
+                    </span>
+                  ) : (
+                    <span className="flex items-center gap-1">
+                      <Users className="w-3.5 h-3.5" />
+                      до {accommodation.type?.capacity} чел.
+                    </span>
+                  )}
                 </div>
+                <AccommodationFeatureTags features={accommodation.features} className="mt-2 mb-0" />
               </div>
             </div>
           )}
@@ -271,6 +306,37 @@ export default function BookingFormPage() {
               </span>
             </div>
           </div>
+
+          {isPerPerson && (
+            <div className="grid grid-cols-2 gap-4 mb-6">
+              <div>
+                <Label htmlFor="adults" className="text-sm font-medium text-dark">Взрослые</Label>
+                <Input
+                  id="adults"
+                  type="number"
+                  min={1}
+                  max={50}
+                  required
+                  value={adults}
+                  onChange={(e) => setAdults(Math.max(1, Number(e.target.value) || 1))}
+                  className="mt-1.5"
+                />
+              </div>
+              <div>
+                <Label htmlFor="children" className="text-sm font-medium text-dark">Дети (3–12 лет)</Label>
+                <Input
+                  id="children"
+                  type="number"
+                  min={0}
+                  max={50}
+                  required
+                  value={children}
+                  onChange={(e) => setChildren(Math.max(0, Number(e.target.value) || 0))}
+                  className="mt-1.5"
+                />
+              </div>
+            </div>
+          )}
 
           {totalPrice > 0 && (
             <div className="mb-6 text-right">
@@ -417,9 +483,19 @@ export default function BookingFormPage() {
             </div>
 
             <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-xl">
+              <Users className="w-5 h-5 text-brand shrink-0" />
+              <div>
+                <p className="text-sm text-graytext">Гости</p>
+                <p className="font-semibold text-dark">
+                  {isPerPerson ? `${adults} взр., ${children} дет.` : `${adults + children} чел.`}
+                </p>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-xl">
               <User className="w-5 h-5 text-brand shrink-0" />
               <div>
-                <p className="text-sm text-graytext">Гость</p>
+                <p className="text-sm text-graytext">Контакт</p>
                 <p className="font-semibold text-dark">{name || '—'}</p>
               </div>
             </div>

@@ -16,7 +16,7 @@ interface AccommodationType {
 const FALLBACK_IMAGE = '/assets/asset_7.webp'
 
 const FALLBACK_DESCRIPTION =
-  'Большая терраса с русской баней на дровах, уютной беседкой и мини-бассейном на свежем воздухе. Идеальное место для вечеринок, семейного отдыха и корпоративов у озера.'
+  'Большая терраса с баней на дровах, уютной беседкой и мини-бассейном на свежем воздухе. Идеальное место для вечеринок, семейного отдыха и корпоративов у озера.'
 
 function pickBanyaType(types: AccommodationType[]): AccommodationType | undefined {
   const active = types.filter((t) => t.isActive)
@@ -61,13 +61,13 @@ export default function BanyaPromo() {
   }, [])
 
   const bgImage = banyaType?.imageUrl || FALLBACK_IMAGE
-  const displayName = banyaType?.name ?? 'Баня с беседкой'
+  const displayName = banyaType?.name ?? 'Терасса с баней'
   const description =
     plainTextFromHtml(banyaType?.description) || FALLBACK_DESCRIPTION
   const capacity = banyaType?.capacity ?? 10
 
   const chips = [
-    { icon: Flame, text: 'Русская баня на дровах' },
+    { icon: Flame, text: 'Терраса с баней на дровах' },
     { icon: Users, text: `До ${capacity} гостей` },
     { icon: Waves, text: 'Беседка и мини-бассейн' },
   ]
@@ -111,7 +111,7 @@ export default function BanyaPromo() {
               renderPromoTitle(displayName)
             ) : (
               <>
-                Баня с <span className="text-brand">беседкой</span>
+                Терраса с <span className="text-brand">баней</span>
               </>
             )}
           </h2>

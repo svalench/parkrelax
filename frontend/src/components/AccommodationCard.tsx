@@ -3,6 +3,7 @@ import { AccommodationImageSlider } from './AccommodationImageSlider'
 import { AccommodationAvailabilityCalendar } from './AccommodationAvailabilityCalendar'
 import { BookingStubButton } from './BookingStubButton'
 import { plainTextFromHtml } from '@/lib/safeHtml'
+import { AccommodationFeatureTags, type AccommodationFeature } from './AccommodationFeatureTags'
 
 interface AccommodationType {
   id: number
@@ -11,6 +12,8 @@ interface AccommodationType {
   capacity: number
   pricePerNight: number
   priceUnit?: string
+  pricingModel?: string
+  childPricePerNight?: number | null
   imageUrl?: string
   isActive: boolean
   sortOrder: number
@@ -34,6 +37,7 @@ interface Accommodation {
   sortOrder: number
   type?: AccommodationType
   images?: AccommodationImage[]
+  features?: AccommodationFeature[]
 }
 
 interface AccommodationCardProps {
@@ -43,6 +47,19 @@ interface AccommodationCardProps {
   /** Занято на выбранные даты — без кнопки бронирования */
   isBooked?: boolean
   onBookClick?: () => void
+}
+
+function formatPriceLabel(obj: Accommodation): string | null {
+  const type = obj.type
+  const adultPrice = obj.pricePerNight || type?.pricePerNight
+  if (!adultPrice) return null
+
+  if (type?.pricingModel === 'per_person') {
+    const childPrice = type.childPricePerNight ?? adultPrice
+    return `от ${adultPrice.toLocaleString('ru-RU')} руб/чел/сутки (дети 3–12 — ${childPrice.toLocaleString('ru-RU')} руб)`
+  }
+
+  return `${adultPrice.toLocaleString('ru-RU')} Br/${type?.priceUnit || 'ночь'}`
 }
 
 export function AccommodationCard({
@@ -59,6 +76,9 @@ export function AccommodationCard({
       .filter((url) => url !== cover)
     return [cover, ...gallery]
   })()
+
+  const priceLabel = formatPriceLabel(obj)
+  const isPerPerson = obj.type?.pricingModel === 'per_person'
 
   return (
     <div
@@ -78,18 +98,23 @@ export function AccommodationCard({
             {plainTextFromHtml(obj.description)}
           </p>
         )}
+        <AccommodationFeatureTags features={obj.features} />
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-4 text-sm text-graytext">
-            {(obj.capacity || obj.type?.capacity) && (
+            {!isPerPerson && (obj.capacity || obj.type?.capacity) ? (
               <span className="flex items-center gap-1">
                 <Users className="w-4 h-4" />
                 До {obj.capacity || obj.type?.capacity} чел.
               </span>
-            )}
-            {(obj.pricePerNight || obj.type?.pricePerNight) && (
-              <span className="font-medium text-dark">
-                {(obj.pricePerNight || obj.type?.pricePerNight || 0).toLocaleString('ru-RU')} Br/{obj.type?.priceUnit || 'ночь'}
+            ) : null}
+            {isPerPerson && obj.type?.capacity ? (
+              <span className="flex items-center gap-1">
+                <Users className="w-4 h-4" />
+                до {obj.type.capacity} чел/сутки
               </span>
+            ) : null}
+            {priceLabel && (
+              <span className="font-medium text-dark">{priceLabel}</span>
             )}
           </div>
           <div className="flex items-center gap-3">

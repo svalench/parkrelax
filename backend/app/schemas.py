@@ -1,6 +1,6 @@
 from datetime import datetime, date
 from typing import Optional
-from pydantic import BaseModel, ConfigDict, field_validator
+from pydantic import BaseModel, ConfigDict, field_validator, model_validator
 
 
 # ── Users ──────────────────────────────────────────────────────────
@@ -263,12 +263,30 @@ class AccommodationImageResponse(BaseModel):
     sortOrder: int = 0
 
 
+class AccommodationFeatureResponse(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+    id: int | None = None
+    iconName: str = ""
+    label: str = ""
+    sortOrder: int = 0
+    isActive: bool = True
+
+
 class AccommodationResponse(AccommodationBase):
     model_config = ConfigDict(from_attributes=True)
     id: int | None = None
     createdAt: datetime | None = None
     type: Optional["AccommodationTypeResponse"] = None
     images: list[AccommodationImageResponse] = []
+    features: list[AccommodationFeatureResponse] = []
+
+    @model_validator(mode="after")
+    def only_active_features(self) -> "AccommodationResponse":
+        self.features = sorted(
+            [f for f in self.features if f.isActive],
+            key=lambda f: f.sortOrder,
+        )
+        return self
 
 
 class AccommodationAvailabilityResponse(AccommodationResponse):
@@ -415,6 +433,8 @@ class AccommodationTypeBase(BaseModel):
     capacity: int
     pricePerNight: int
     priceUnit: Optional[str] = "ночь"
+    pricingModel: Optional[str] = "per_night"
+    childPricePerNight: Optional[int] = None
     imageUrl: Optional[str] = None
     isActive: bool = True
     showInListing: bool = True
@@ -431,6 +451,8 @@ class AccommodationTypeUpdate(BaseModel):
     capacity: Optional[int] = None
     pricePerNight: Optional[int] = None
     priceUnit: Optional[str] = None
+    pricingModel: Optional[str] = None
+    childPricePerNight: Optional[int] = None
     imageUrl: Optional[str] = None
     isActive: Optional[bool] = None
     showInListing: Optional[bool] = None

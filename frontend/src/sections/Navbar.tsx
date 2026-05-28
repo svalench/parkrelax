@@ -12,7 +12,7 @@ const navLinks: NavLink[] = [
   { label: 'Главная', href: '/' },
   { label: 'О комплексе', href: '/#about', homeSection: 'about' },
   { label: 'Размещение', href: '/#accommodation', homeSection: 'accommodation' },
-  { label: 'Баня', href: '/banya' },
+  { label: 'Терасса с баней', href: '/banya' },
   { label: 'Аренда', href: '/#area', homeSection: 'area' },
   { label: 'Прокат', href: '/#rental', homeSection: 'rental' },
   { label: 'Прайс', href: '/prices' },
