@@ -23,14 +23,27 @@ CAMPING_DESCRIPTION = (
 )
 
 
+def _accommodation_type_columns() -> set[str]:
+    bind = op.get_bind()
+    inspector = sa.inspect(bind)
+    return {c['name'] for c in inspector.get_columns('accommodationTypes')}
+
+
 def upgrade() -> None:
-    with op.batch_alter_table('accommodationTypes', schema=None) as batch_op:
-        batch_op.add_column(
-            sa.Column('pricingModel', sa.String(length=20), nullable=False, server_default='per_night'),
-        )
-        batch_op.add_column(
-            sa.Column('childPricePerNight', sa.Integer(), nullable=True),
-        )
+    # Колонки могли остаться после прерванного прогона (MySQL non-transactional DDL)
+    existing = _accommodation_type_columns()
+    need_pricing = 'pricingModel' not in existing
+    need_child = 'childPricePerNight' not in existing
+    if need_pricing or need_child:
+        with op.batch_alter_table('accommodationTypes', schema=None) as batch_op:
+            if need_pricing:
+                batch_op.add_column(
+                    sa.Column('pricingModel', sa.String(length=20), nullable=False, server_default='per_night'),
+                )
+            if need_child:
+                batch_op.add_column(
+                    sa.Column('childPricePerNight', sa.Integer(), nullable=True),
+                )
 
     # Убираем «с камином» из описания коттеджа
     op.execute(
@@ -110,6 +123,12 @@ def downgrade() -> None:
         WHERE name = 'Коттедж'
         """
     )
-    with op.batch_alter_table('accommodationTypes', schema=None) as batch_op:
-        batch_op.drop_column('childPricePerNight')
-        batch_op.drop_column('pricingModel')
+    existing = _accommodation_type_columns()
+    drop_child = 'childPricePerNight' in existing
+    drop_pricing = 'pricingModel' in existing
+    if drop_child or drop_pricing:
+        with op.batch_alter_table('accommodationTypes', schema=None) as batch_op:
+            if drop_child:
+                batch_op.drop_column('childPricePerNight')
+            if drop_pricing:
+                batch_op.drop_column('pricingModel')
