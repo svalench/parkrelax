@@ -22,114 +22,94 @@ CAMPING_DESCRIPTION = (
     'Максимум 50 человек (взрослые+дети) в сутки.</p>'
 )
 
-COTTEDJ_DESCRIPTION = (
-    'Просторный двухэтажный коттедж с террасой и панорамными окнами. '
-    'Идеально для большой компании или семейного праздника.'
-)
-
 
 def upgrade() -> None:
-    op.add_column(
-        'accommodationTypes',
-        sa.Column('pricingModel', sa.String(length=20), nullable=False, server_default='per_night'),
-    )
-    op.add_column(
-        'accommodationTypes',
-        sa.Column('childPricePerNight', sa.Integer(), nullable=True),
-    )
+    with op.batch_alter_table('accommodationTypes', schema=None) as batch_op:
+        batch_op.add_column(
+            sa.Column('pricingModel', sa.String(length=20), nullable=False, server_default='per_night'),
+        )
+        batch_op.add_column(
+            sa.Column('childPricePerNight', sa.Integer(), nullable=True),
+        )
 
     # Убираем «с камином» из описания коттеджа
     op.execute(
-        sa.text(
-            """
-            UPDATE "accommodationTypes"
-            SET description = REPLACE(description, 'с камином, ', '')
-            WHERE name = 'Коттедж'
-            """
-        )
+        """
+        UPDATE accommodationTypes
+        SET description = REPLACE(description, 'с камином, ', '')
+        WHERE name = 'Коттедж'
+        """
     )
     op.execute(
-        sa.text(
-            """
-            UPDATE accommodations
-            SET description = REPLACE(description, 'с камином, ', '')
-            WHERE name ILIKE '%коттедж%' AND description IS NOT NULL
-            """
+        """
+        UPDATE accommodations
+        SET description = REPLACE(description, 'с камином, ', '')
+        WHERE LOWER(name) LIKE '%коттедж%' AND description IS NOT NULL
+        """
+    )
+
+    camping_desc = CAMPING_DESCRIPTION.replace("'", "''")
+    op.execute(
+        f"""
+        REPLACE INTO accommodationTypes (
+            id, name, description, capacity, pricePerNight, priceUnit,
+            pricingModel, childPricePerNight, imageUrl, isActive,
+            showInListing, sortOrder
         )
+        VALUES (
+            5,
+            'Кемпинг',
+            '{camping_desc}',
+            50,
+            25,
+            'чел/сутки',
+            'per_person',
+            15,
+            '/assets/asset_3.webp',
+            1,
+            1,
+            4
+        )
+        """
     )
 
-    conn = op.get_bind()
-    conn.execute(
-        sa.text(
-            """
-            INSERT INTO "accommodationTypes" (
-                id, name, description, capacity, "pricePerNight", "priceUnit",
-                "pricingModel", "childPricePerNight", "imageUrl", "isActive",
-                "showInListing", "sortOrder"
-            )
-            VALUES (
-                5,
-                'Кемпинг',
-                :description,
-                50,
-                25,
-                'чел/сутки',
-                'per_person',
-                15,
-                '/assets/asset_3.webp',
-                true,
-                true,
-                4
-            )
-            ON CONFLICT (id) DO NOTHING
-            """
-        ),
-        {'description': CAMPING_DESCRIPTION},
-    )
-
-    conn.execute(
-        sa.text(
-            """
-            INSERT INTO accommodations (
-                name, description, "typeId", "imageUrl", capacity,
-                "pricePerNight", "isActive", "showOnMain", "sortOrder"
-            )
-            SELECT
-                'Кемпинг',
-                :description,
-                5,
-                '/assets/asset_3.webp',
-                50,
-                25,
-                true,
-                false,
-                0
-            WHERE NOT EXISTS (
-                SELECT 1 FROM accommodations WHERE "typeId" = 5
-            )
-            """
-        ),
-        {'description': CAMPING_DESCRIPTION},
+    op.execute(
+        f"""
+        INSERT INTO accommodations (
+            name, description, typeId, imageUrl, capacity,
+            pricePerNight, isActive, showOnMain, sortOrder
+        )
+        SELECT
+            'Кемпинг',
+            '{camping_desc}',
+            5,
+            '/assets/asset_3.webp',
+            50,
+            25,
+            1,
+            0,
+            0
+        WHERE NOT EXISTS (
+            SELECT 1 FROM accommodations WHERE typeId = 5
+        )
+        """
     )
 
 
 def downgrade() -> None:
-    op.execute(sa.text('DELETE FROM accommodations WHERE "typeId" = 5'))
-    op.execute(sa.text('DELETE FROM "accommodationTypes" WHERE id = 5'))
+    op.execute('DELETE FROM accommodations WHERE typeId = 5')
+    op.execute('DELETE FROM accommodationTypes WHERE id = 5')
+    cottage_desc = (
+        'Просторный двухэтажный коттедж с камином, террасой и панорамными окнами. '
+        'Идеально для большой компании или семейного праздника.'
+    ).replace("'", "''")
     op.execute(
-        sa.text(
-            """
-            UPDATE "accommodationTypes"
-            SET description = :description
-            WHERE name = 'Коттедж'
-            """
-        ),
-        {
-            'description': (
-                'Просторный двухэтажный коттедж с камином, террасой и панорамными окнами. '
-                'Идеально для большой компании или семейного праздника.'
-            ),
-        },
+        f"""
+        UPDATE accommodationTypes
+        SET description = '{cottage_desc}'
+        WHERE name = 'Коттедж'
+        """
     )
-    op.drop_column('accommodationTypes', 'childPricePerNight')
-    op.drop_column('accommodationTypes', 'pricingModel')
+    with op.batch_alter_table('accommodationTypes', schema=None) as batch_op:
+        batch_op.drop_column('childPricePerNight')
+        batch_op.drop_column('pricingModel')
