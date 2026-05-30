@@ -83,6 +83,7 @@ import { Switch } from '@/components/ui/switch'
 import { Textarea } from '@/components/ui/textarea'
 import { toast } from 'sonner'
 import AccommodationManager from '@/components/AccommodationManager'
+import AccommodationTypeManager from '@/components/AccommodationTypeManager'
 import { BookingSettingsCard } from '@/components/BookingSettingsCard'
 import RentalManager from '@/components/RentalManager'
 import BanyaManager from '@/components/BanyaManager'
@@ -361,7 +362,11 @@ export default function AdminDashboardPage() {
             </TabsTrigger>
             <TabsTrigger value="accommodations" className="gap-1.5">
               <Images className="w-4 h-4" />
-              Размещения
+              Галерея
+            </TabsTrigger>
+            <TabsTrigger value="accommodation-types" className="gap-1.5">
+              <BedDouble className="w-4 h-4" />
+              Типы
             </TabsTrigger>
             <TabsTrigger value="reviews" className="gap-1.5">
               <Star className="w-4 h-4" />
@@ -398,6 +403,9 @@ export default function AdminDashboardPage() {
           </TabsContent>
           <TabsContent value="accommodations">
             <AccommodationManager />
+          </TabsContent>
+          <TabsContent value="accommodation-types">
+            <AccommodationTypeManager />
           </TabsContent>
           <TabsContent value="reviews">
             <ReviewsTab />

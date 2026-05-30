@@ -155,13 +155,21 @@ class SecurityHeadersMiddleware(BaseHTTPMiddleware):
 
         # Content Security Policy (restrictive default; adjust as needed)
         frame_ancestors = "'self'" if allow_frame else "'none'"
+        script_src = (
+            "'self' 'unsafe-inline' https://cdnjs.cloudflare.com https://cdn.jsdelivr.net"
+        )
+        style_src = (
+            "'self' 'unsafe-inline' https://fonts.googleapis.com "
+            "https://cdnjs.cloudflare.com https://cdn.jsdelivr.net"
+        )
+        connect_src = "'self' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com"
         csp = (
             "default-src 'self'; "
-            "script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; "
-            "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com; "
-            "font-src 'self' https://fonts.gstatic.com; "
+            f"script-src {script_src}; "
+            f"style-src {style_src}; "
+            "font-src 'self' https://fonts.gstatic.com data:; "
             "img-src 'self' data: blob: https:; "
-            "connect-src 'self'; "
+            f"connect-src {connect_src}; "
             "frame-src 'self' https:; "
             f"frame-ancestors {frame_ancestors}; "
             "base-uri 'self'; "

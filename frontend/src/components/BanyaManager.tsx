@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from 'react'
 import { toast } from 'sonner'
 import { Flame, Loader2, Plus, Pencil, Trash2, Upload } from 'lucide-react'
+import { plainTextFromHtml } from '@/lib/safeHtml'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
@@ -483,6 +484,7 @@ export default function BanyaManager() {
                   <TableRow>
                     <TableHead>Фото</TableHead>
                     <TableHead>Заголовок</TableHead>
+                    <TableHead className="max-w-xs">Описание</TableHead>
                     <TableHead>Метка</TableHead>
                     <TableHead>Порядок</TableHead>
                     <TableHead />
@@ -503,6 +505,9 @@ export default function BanyaManager() {
                         )}
                       </TableCell>
                       <TableCell className="font-medium">{item.title}</TableCell>
+                      <TableCell className="max-w-xs text-sm text-muted-foreground truncate">
+                        {item.description ? plainTextFromHtml(item.description) : '—'}
+                      </TableCell>
                       <TableCell>{item.eyebrow || '—'}</TableCell>
                       <TableCell>{item.sortOrder}</TableCell>
                       <TableCell className="text-right space-x-1">

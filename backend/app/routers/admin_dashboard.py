@@ -22,6 +22,7 @@ from app.models import (
 )
 from app.schemas import (
     BookingCreate, BookingUpdate, BookingResponse,
+    AccommodationTypeCreate, AccommodationTypeUpdate, AccommodationTypeResponse,
     RentalItemCreate, RentalItemUpdate, RentalItemResponse,
     AdminEmailCreate, AdminEmailUpdate, AdminEmailResponse,
     BanyaPageSettingsResponse,
@@ -39,6 +40,7 @@ from app.services.booking_availability import booking_occupies_dates_filter
 from app.user_password_service import hash_password
 from app.admin import _convert_to_webp, _delete_image_file
 from app.email_service import send_email, get_active_smtp_settings, generate_temp_password
+from app.html_sanitize import sanitize_rich_html
 
 router = APIRouter(prefix="/admin/dashboard", tags=["admin-dashboard"])
 
@@ -804,6 +806,73 @@ async def admin_reorder_accommodation_images(
             image.sortOrder = item.sortOrder
     await db.commit()
     return {"ok": True}
+
+
+def _sanitize_type_payload(data: dict) -> dict:
+    """Санитизация HTML-описания типа размещения."""
+    if "description" in data and data["description"] is not None:
+        data["description"] = sanitize_rich_html(data["description"])
+    return data
+
+
+# ── Accommodation Types CRUD ───────────────────────────────────────
+
+@router.get("/accommodationTypes", response_model=list[AccommodationTypeResponse])
+async def admin_list_accommodation_types(
+    db: AsyncSession = Depends(get_db),
+    _admin=Depends(get_current_admin),
+):
+    result = await db.execute(
+        select(AccommodationType).order_by(asc(AccommodationType.sortOrder))
+    )
+    return result.scalars().all()
+
+
+@router.post("/accommodationTypes", response_model=AccommodationTypeResponse)
+async def admin_create_accommodation_type(
+    data: AccommodationTypeCreate,
+    db: AsyncSession = Depends(get_db),
+    _admin=Depends(get_current_admin),
+):
+    payload = _sanitize_type_payload(data.model_dump())
+    item = AccommodationType(**payload)
+    db.add(item)
+    await db.commit()
+    await db.refresh(item)
+    return item
+
+
+@router.patch("/accommodationTypes/{type_id}", response_model=AccommodationTypeResponse)
+async def admin_update_accommodation_type(
+    type_id: int,
+    data: AccommodationTypeUpdate,
+    db: AsyncSession = Depends(get_db),
+    _admin=Depends(get_current_admin),
+):
+    result = await db.execute(select(AccommodationType).where(AccommodationType.id == type_id))
+    item = result.scalar_one_or_none()
+    if not item:
+        raise HTTPException(status_code=404, detail="Не найдено")
+    updates = _sanitize_type_payload(data.model_dump(exclude_unset=True))
+    for key, value in updates.items():
+        setattr(item, key, value)
+    await db.commit()
+    await db.refresh(item)
+    return item
+
+
+@router.delete("/accommodationTypes/{type_id}", status_code=204)
+async def admin_delete_accommodation_type(
+    type_id: int,
+    db: AsyncSession = Depends(get_db),
+    _admin=Depends(get_current_admin),
+):
+    result = await db.execute(select(AccommodationType).where(AccommodationType.id == type_id))
+    item = result.scalar_one_or_none()
+    if not item:
+        raise HTTPException(status_code=404, detail="Не найдено")
+    await db.delete(item)
+    await db.commit()
 
 
 # ── Rental Items CRUD ──────────────────────────────────────────────

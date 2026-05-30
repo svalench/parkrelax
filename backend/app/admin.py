@@ -88,10 +88,12 @@ def _apply_sanitized_rich_text(obj: object, *attr_names: str) -> None:
             setattr(obj, key, sanitize_rich_html(val))
 
 
-# TinyMCE: русский UI (версия langs совпадает с TinyMCEEditorField.version_tinymce по умолчанию)
+# TinyMCE: self-hosted с CDN — нужен license_key gpl, иначе редактор пустой
 RICHTEXT_TINYMCE_EXTRA = {
+    "license_key": "gpl",
+    "promotion": False,
     "language": "ru",
-    "language_url": "https://cdn.jsdelivr.net/npm/tinymce@6.4/langs/ru.js",
+    "language_url": "https://cdn.jsdelivr.net/npm/tinymce-i18n@24.12.9/langs6/ru.js",
 }
 
 
@@ -483,6 +485,7 @@ class AccommodationTypeAdminView(ModelView):
         IntegerField("childPricePerNight", label="Цена за ребёнка (per_person)"),
         CustomImageField("imageUrl", label="Изображение"),
         BooleanField("isActive", label="Активно"),
+        BooleanField("showInListing", label="Показывать в каталоге"),
         IntegerField("sortOrder", label="Порядок сортировки"),
         DateTimeField("createdAt", label="Создано", read_only=True),
     ]

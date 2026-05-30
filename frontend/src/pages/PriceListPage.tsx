@@ -1,13 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Link, useLocation } from 'react-router'
 import { ArrowLeft, Download, FileSpreadsheet } from 'lucide-react'
-
-function slugify(str: string) {
-  return str
-    .toLowerCase()
-    .replace(/\s+/g, '-')
-    .replace(/[^а-яa-z0-9-]/g, '')
-}
+import { slugify } from '@/lib/slugify'
 
 interface PriceItem {
   category: string
@@ -123,7 +117,7 @@ export default function PriceListPage() {
                 <section
                   key={category}
                   id={slugify(category)}
-                  className="bg-white rounded-2xl border border-border/40 shadow-sm overflow-hidden"
+                  className="bg-white rounded-2xl border border-border/40 shadow-sm overflow-hidden scroll-mt-28"
                 >
                   {/* Category header */}
                   <div className="px-6 py-4 bg-brand/5 border-b border-border/40">
@@ -148,7 +142,8 @@ export default function PriceListPage() {
                           {rows.map((item, idx) => (
                             <tr
                               key={idx}
-                              className="border-b border-border/20 last:border-b-0 hover:bg-gray-50/50 transition-colors"
+                              id={slugify(item.name)}
+                              className="border-b border-border/20 last:border-b-0 hover:bg-gray-50/50 transition-colors scroll-mt-24"
                             >
                               <td className="px-6 py-3 text-dark">{item.name}</td>
                               <td className="px-6 py-3 text-right font-semibold text-brand whitespace-nowrap">

@@ -46,6 +46,14 @@ _ALLOWED_ATTRIBUTES = {
 _ALLOWED_URL_SCHEMES = frozenset({"http", "https", "mailto"})
 
 
+def plain_text_from_html(html: str | None) -> str:
+    """Текст без HTML для превью в админке."""
+    if not html:
+        return ""
+    cleaned = nh3.clean(html, tags=set())
+    return " ".join(cleaned.split())
+
+
 def sanitize_rich_html(html: str | None) -> str | None:
     """Удаляет небезопасную разметку; возвращает None если на входе None."""
     if html is None:

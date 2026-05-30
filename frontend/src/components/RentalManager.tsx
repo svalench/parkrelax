@@ -26,13 +26,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
-import {
-  Loader2,
-  Plus,
-  Pencil,
-  Trash2,
-  Bike,
-} from 'lucide-react'
+import { Loader2, Plus, Pencil, Trash2, Bike } from 'lucide-react'
+import { plainTextFromHtml } from '@/lib/safeHtml'
 
 const API_BASE = '/api/admin/dashboard/rentalItems'
 
@@ -208,6 +203,7 @@ export default function RentalManager() {
               <TableRow>
                 <TableHead className="w-12">ID</TableHead>
                 <TableHead>Название</TableHead>
+                <TableHead className="max-w-xs">Описание</TableHead>
                 <TableHead>Бейдж</TableHead>
                 <TableHead>Длительность</TableHead>
                 <TableHead>Вместимость</TableHead>
@@ -234,6 +230,9 @@ export default function RentalManager() {
                         <div className="text-xs text-graytext">{item.info}</div>
                       </div>
                     </div>
+                  </TableCell>
+                  <TableCell className="max-w-xs text-sm text-muted-foreground truncate">
+                    {item.description ? plainTextFromHtml(item.description) : '—'}
                   </TableCell>
                   <TableCell>
                     {item.badge && (
@@ -267,7 +266,7 @@ export default function RentalManager() {
               ))}
               {items.length === 0 && (
                 <TableRow>
-                  <TableCell colSpan={8} className="text-center text-muted-foreground py-8">
+                  <TableCell colSpan={9} className="text-center text-muted-foreground py-8">
                     Нет элементов
                   </TableCell>
                 </TableRow>
