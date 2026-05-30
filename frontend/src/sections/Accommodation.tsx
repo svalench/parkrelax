@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router'
+import { plainTextFromHtml } from '../lib/safeHtml'
 
 interface AccommodationType {
   id: number
@@ -81,13 +82,20 @@ export default function Accommodation() {
                     height="704"
                   />
                 </div>
-                <div className="p-5 flex items-center justify-between">
-                  <h3 className="text-lg font-bold text-dark">
-                    {type.name}
-                  </h3>
-                  <span className="text-sm text-brand font-medium group-hover:underline shrink-0 ml-3">
-                    Смотреть →
-                  </span>
+                <div className="p-5">
+                  <div className="flex items-start justify-between gap-3 mb-2">
+                    <h3 className="text-lg font-bold text-dark">
+                      {type.name}
+                    </h3>
+                    <span className="text-sm text-brand font-medium group-hover:underline shrink-0">
+                      Смотреть →
+                    </span>
+                  </div>
+                  {type.description && (
+                    <p className="text-sm text-graytext line-clamp-3">
+                      {plainTextFromHtml(type.description)}
+                    </p>
+                  )}
                 </div>
               </div>
             ))}

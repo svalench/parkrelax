@@ -14,6 +14,7 @@ import { Button } from '@/components/ui/button'
 import { useBookingPublicEnabled } from '@/contexts/SiteSettingsContext'
 import { AccommodationCard } from '@/components/AccommodationCard'
 import type { AccommodationFeature } from '@/components/AccommodationFeatureTags'
+import { sanitizeRichHtml } from '@/lib/safeHtml'
 
 const API_BASE = '/api'
 
@@ -205,9 +206,15 @@ export default function AccommodationTypePage() {
             <ArrowLeft className="w-4 h-4" />
             Назад
           </button>
-          <h1 className="text-3xl md:text-5xl font-bold text-white">
+          <h1 className="text-3xl md:text-5xl font-bold text-white mb-4">
             {type.name}
           </h1>
+          {type.description && (
+            <div
+              className="text-white/90 text-base md:text-lg max-w-2xl leading-relaxed"
+              dangerouslySetInnerHTML={{ __html: sanitizeRichHtml(type.description) }}
+            />
+          )}
         </div>
       </section>
 
