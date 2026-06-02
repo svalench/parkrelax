@@ -902,6 +902,12 @@ class AccommodationFeatureView(ModelView):
     fields = [
         IntegerField("id", read_only=True),
         HasOne("accommodation", identity="accommodations", label="Размещение"),
+        HasOne(
+            "preset",
+            identity="accommodation-feature-presets",
+            label="Шаблон",
+            required=False,
+        ),
         LucideIconField("iconName", label="Иконка", required=True),
         StringField("label", label="Описание", required=True),
         IntegerField("sortOrder", label="Порядок сортировки"),

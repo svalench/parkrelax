@@ -67,7 +67,8 @@ async def apply_feature_preset_to_accommodations(
     if replace_existing:
         await db.execute(
             delete(AccommodationFeature).where(
-                AccommodationFeature.accommodationId.in_(valid_ids)
+                AccommodationFeature.accommodationId.in_(valid_ids),
+                AccommodationFeature.presetId == preset_id,
             )
         )
 
@@ -81,6 +82,7 @@ async def apply_feature_preset_to_accommodations(
                     label=item.label,
                     sortOrder=item.sortOrder,
                     isActive=True,
+                    presetId=preset_id,
                 )
             )
             created += 1

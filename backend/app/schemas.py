@@ -270,6 +270,7 @@ class AccommodationFeatureResponse(BaseModel):
     label: str = ""
     sortOrder: int = 0
     isActive: bool = True
+    presetId: int | None = None
 
 
 class AccommodationResponse(AccommodationBase):

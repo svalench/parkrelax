@@ -1,11 +1,9 @@
 # Progress
 
-## Особенности на карточках
+## Изолированная замена по шаблону
 
-- `frontend/src/lib/icons.ts` — динамический lookup всех иконок lucide-react + PascalCase
-- `AccommodationFeatureTags.tsx` — fallback Tag, скрытие пустых label, title на чипе
-- `accommodation_features.py` — валидация непустых iconName/label перед apply
-- `admin.py` — required для iconName и label в особенностях и пунктах шаблона
-- `npm run build` — ok
+- `presetId` в `accommodation_features` (миграция f7a8b9c0d1e2, batch_alter для SQLite)
+- apply: delete только `presetId == текущий шаблон`, insert с `presetId`
+- админка: HasOne preset, обновлены тексты apply-формы
 
 DONE

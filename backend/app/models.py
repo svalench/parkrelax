@@ -173,10 +173,16 @@ class AccommodationFeature(Base):
     label = Column(String(200), nullable=False, default="")
     sortOrder = Column(Integer, default=0, nullable=False)
     isActive = Column(Boolean, default=True, nullable=False)
+    presetId = Column(
+        Integer,
+        ForeignKey("accommodation_feature_presets.id", ondelete="SET NULL"),
+        nullable=True,
+    )
     createdAt = Column(DateTime, default=func.now(), nullable=True)
     updatedAt = Column(DateTime, default=func.now(), onupdate=func.now(), nullable=True)
 
     accommodation = relationship("Accommodation", back_populates="features")
+    preset = relationship("AccommodationFeaturePreset", back_populates="appliedFeatures")
 
 
 class AccommodationFeaturePreset(Base):
@@ -195,6 +201,10 @@ class AccommodationFeaturePreset(Base):
         back_populates="preset",
         cascade="all, delete-orphan",
         order_by="AccommodationFeaturePresetItem.sortOrder",
+    )
+    appliedFeatures = relationship(
+        "AccommodationFeature",
+        back_populates="preset",
     )
 
 
