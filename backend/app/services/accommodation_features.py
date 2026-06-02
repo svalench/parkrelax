@@ -46,6 +46,17 @@ async def apply_feature_preset_to_accommodations(
     if not preset_items:
         raise ValueError("В шаблоне нет активных особенностей")
 
+    incomplete = [
+        item
+        for item in preset_items
+        if not item.iconName.strip() or not item.label.strip()
+    ]
+    if incomplete:
+        raise ValueError(
+            "В шаблоне есть активные пункты без иконки или описания. "
+            "Заполните иконку и описание в разделе «Пункты шаблона»."
+        )
+
     acc_result = await db.execute(
         select(Accommodation.id).where(Accommodation.id.in_(accommodation_ids))
     )
