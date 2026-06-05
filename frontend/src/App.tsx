@@ -3,6 +3,7 @@ import { Routes, Route, useLocation } from 'react-router'
 import Navbar from './sections/Navbar'
 import Home from './pages/Home'
 import CookieBanner from './components/CookieBanner'
+import SeoKeywords from './components/SeoKeywords'
 import { Loader2 } from 'lucide-react'
 import { useBookingPublicEnabled } from './contexts/SiteSettingsContext'
 
@@ -34,6 +35,7 @@ function AppContent() {
 
   return (
     <>
+      <SeoKeywords />
       {!hideNavbar && <Navbar />}
       <Suspense fallback={<PageLoader />}>
         <Routes>

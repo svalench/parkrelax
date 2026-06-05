@@ -995,7 +995,7 @@ class ApplyAccommodationFeaturesView(CustomView):
                 select(Accommodation)
                 .options(joinedload(Accommodation.type))
                 .where(Accommodation.isActive == True)
-                .order_by(asc(Accommodation.sortOrder))
+                .order_by(asc(Accommodation.name))
             )
             accommodations = list(acc_result.unique().scalars().all())
 

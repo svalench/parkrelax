@@ -1,9 +1,9 @@
 # Progress
 
-## Изолированная замена по шаблону
+## Сортировка размещений по имени
 
-- `presetId` в `accommodation_features` (миграция f7a8b9c0d1e2, batch_alter для SQLite)
-- apply: delete только `presetId == текущий шаблон`, insert с `presetId`
-- админка: HasOne preset, обновлены тексты apply-формы
+- `backend/app/routers/accommodation.py` — `/objects`, `/availability`: `order_by(name)`
+- `backend/app/routers/admin_dashboard.py` — week/month dashboard, admin list
+- `backend/app/admin.py` — группы в apply features
 
 DONE
