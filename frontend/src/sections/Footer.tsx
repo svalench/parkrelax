@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react'
 import type { ReactNode } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router'
-import { fetchContacts } from '@/lib/contacts'
 
 type FooterHashLink = { label: string; sectionId: string }
 type FooterRouteLink = { label: string; to: string }
@@ -79,8 +78,6 @@ const staticColumns: { title: string; links: FooterLinkItem[] }[] = [
 
 export default function Footer() {
   const [rentalTypes, setRentalTypes] = useState<AccommodationType[]>([])
-  const [phones, setPhones] = useState<string[]>([])
-  const [emails, setEmails] = useState<string[]>([])
 
   useEffect(() => {
     fetch('/api/accommodation/types')
@@ -95,15 +92,6 @@ export default function Footer() {
         }
       })
       .catch(() => setRentalTypes([]))
-
-    fetchContacts()
-      .then((data) => {
-        setPhones(data.phones.map((p) => p.number))
-        setEmails(data.emails.map((e) => e.email))
-      })
-      .catch(() => {
-        // keep defaults
-      })
   }, [])
 
   return (
@@ -181,14 +169,16 @@ export default function Footer() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-xs text-white/50 leading-relaxed">
             {/* Левая колонка */}
             <div className="space-y-1">
-              <p className="text-white/80 font-semibold text-sm mb-2">ООО «ПриватСтандарт»</p>
+              <p className="text-white/80 font-semibold text-sm mb-2">
+                Общество с ограниченной ответственностью «ПриватСтандарт»
+              </p>
               <p>
-                <span className="text-white/70">Юр. адрес:</span>{' '}
-                220038, г. Минск, пр-д Бетонный, д. 17, каб. 11
+                <span className="text-white/70">Юридический адрес:</span>{' '}
+                220036, г. Минск, проезд Бетонный, д. 17, каб. 11
               </p>
               <p>
                 <span className="text-white/70">Почтовый адрес:</span>{' '}
-                220012, г. Минск, пер. Калининградский, д. 18Б, ком. 105
+                220030, г. Минск, ул.Октябрьская, д. 19Б, каб. 101
               </p>
             </div>
 
@@ -208,27 +198,21 @@ export default function Footer() {
               </p>
               <p>
                 <span className="text-white/70">Телефон:</span>{' '}
-                {phones.length > 0 ? (
-                  phones.map((p) => (
-                    <a key={p} href={`tel:${p.replace(/\s/g, '').replace(/[()-]/g, '')}`} className="text-white/70 hover:text-white transition-colors mr-2">
-                      {p}
-                    </a>
-                  ))
-                ) : (
-                  <span className="text-white/80 font-medium">+375 (29) 500-50-29</span>
-                )}
+                <a
+                  href="tel:+375173901950"
+                  className="text-white/80 font-medium hover:text-white transition-colors"
+                >
+                  +375 (17) 390-19-50
+                </a>
               </p>
               <p>
-                <span className="text-white/70">Email:</span>{' '}
-                {emails.length > 0 ? (
-                  emails.map((e) => (
-                    <a key={e} href={`mailto:${e}`} className="text-white/70 hover:text-white transition-colors mr-2">
-                      {e}
-                    </a>
-                  ))
-                ) : (
-                  <span className="text-white/80 font-medium">email@parkrelax.by</span>
-                )}
+                <span className="text-white/70">E-mail:</span>{' '}
+                <a
+                  href="mailto:office@parkrelax.by"
+                  className="text-white/80 font-medium hover:text-white transition-colors"
+                >
+                  office@parkrelax.by
+                </a>
               </p>
             </div>
           </div>

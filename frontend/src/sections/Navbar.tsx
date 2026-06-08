@@ -57,7 +57,7 @@ export default function Navbar() {
   const [scrolled, setScrolled] = useState(false)
   const [mobileOpen, setMobileOpen] = useState(false)
   const [copied, setCopied] = useState(false)
-  const [headerPhone, setHeaderPhone] = useState<string>('+375 (29) 500-50-29')
+  const [headerPhone, setHeaderPhone] = useState<string>('+375 (17) 390-19-50')
   const [phones, setPhones] = useState<string[]>([])
   const location = useLocation()
   const navigate = useNavigate()
