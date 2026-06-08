@@ -68,6 +68,8 @@ const staticColumns: { title: string; links: FooterLinkItem[] }[] = [
   {
     title: 'Юридическая информация',
     links: [
+      { label: 'Политика конфиденциальности', to: '/legal/privacy-policy' },
+      { label: 'Условия использования файлов cookies', to: '/legal/cookie-policy' },
       { label: 'Публичный договор', to: '/legal/public-offer' },
       { label: 'Правила проживания', to: '/legal/accommodation-rules' },
       { label: 'Правила пребывания', to: '/legal/stay-rules' },
