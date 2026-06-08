@@ -85,7 +85,7 @@ async def week_dashboard(
         select(Accommodation)
         .options(joinedload(Accommodation.type))
         .where(Accommodation.isActive == True)
-        .order_by(Accommodation.sortOrder)
+        .order_by(Accommodation.name)
     )
     accommodations = acc_result.unique().scalars().all()
 
@@ -181,7 +181,7 @@ async def month_dashboard(
         select(Accommodation)
         .options(joinedload(Accommodation.type))
         .where(Accommodation.isActive == True)
-        .order_by(Accommodation.sortOrder)
+        .order_by(Accommodation.name)
     )
     accommodations = acc_result.unique().scalars().all()
 
@@ -708,7 +708,7 @@ async def admin_list_accommodations(
     result = await db.execute(
         select(Accommodation)
         .options(joinedload(Accommodation.type))
-        .order_by(asc(Accommodation.sortOrder))
+        .order_by(asc(Accommodation.name))
     )
     return result.unique().scalars().all()
 

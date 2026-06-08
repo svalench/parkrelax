@@ -902,8 +902,14 @@ class AccommodationFeatureView(ModelView):
     fields = [
         IntegerField("id", read_only=True),
         HasOne("accommodation", identity="accommodations", label="Размещение"),
-        LucideIconField("iconName", label="Иконка"),
-        StringField("label", label="Описание"),
+        HasOne(
+            "preset",
+            identity="accommodation-feature-presets",
+            label="Шаблон",
+            required=False,
+        ),
+        LucideIconField("iconName", label="Иконка", required=True),
+        StringField("label", label="Описание", required=True),
         IntegerField("sortOrder", label="Порядок сортировки"),
         BooleanField("isActive", label="Активно"),
         DateTimeField("createdAt", label="Создано", read_only=True),
@@ -935,8 +941,8 @@ class AccommodationFeaturePresetItemView(ModelView):
     fields = [
         IntegerField("id", read_only=True),
         HasOne("preset", identity="accommodation-feature-presets", label="Шаблон"),
-        LucideIconField("iconName", label="Иконка"),
-        StringField("label", label="Описание"),
+        LucideIconField("iconName", label="Иконка", required=True),
+        StringField("label", label="Описание", required=True),
         IntegerField("sortOrder", label="Порядок сортировки"),
         BooleanField("isActive", label="Активно"),
         DateTimeField("createdAt", label="Создано", read_only=True),
@@ -989,7 +995,7 @@ class ApplyAccommodationFeaturesView(CustomView):
                 select(Accommodation)
                 .options(joinedload(Accommodation.type))
                 .where(Accommodation.isActive == True)
-                .order_by(asc(Accommodation.sortOrder))
+                .order_by(asc(Accommodation.name))
             )
             accommodations = list(acc_result.unique().scalars().all())
 

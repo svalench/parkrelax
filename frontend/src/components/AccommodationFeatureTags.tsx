@@ -1,3 +1,4 @@
+import { Tag } from 'lucide-react'
 import { getLucideIcon } from '@/lib/icons'
 
 export interface AccommodationFeature {
@@ -14,20 +15,23 @@ interface AccommodationFeatureTagsProps {
 }
 
 export function AccommodationFeatureTags({ features, className = '' }: AccommodationFeatureTagsProps) {
-  if (!features?.length) return null
+  const visibleFeatures = features?.filter((f) => f.label?.trim()) ?? []
+  if (!visibleFeatures.length) return null
 
   return (
     <div className={`flex flex-wrap gap-2 mb-3 ${className}`.trim()}>
-      {features.map((feature) => {
-        const Icon = getLucideIcon(feature.iconName)
-        const key = feature.id ?? `${feature.iconName}-${feature.label}`
+      {visibleFeatures.map((feature) => {
+        const Icon = getLucideIcon(feature.iconName) ?? Tag
+        const label = feature.label.trim()
+        const key = feature.id ?? `${feature.iconName}-${label}`
         return (
           <span
             key={key}
+            title={label}
             className="inline-flex items-center gap-1.5 bg-lightgray border border-border/60 text-dark text-xs font-medium px-3 py-1.5 rounded-full"
           >
-            {Icon && <Icon className="w-3.5 h-3.5 text-brand shrink-0" />}
-            {feature.label}
+            <Icon className="w-3.5 h-3.5 text-brand shrink-0" />
+            {label}
           </span>
         )
       })}

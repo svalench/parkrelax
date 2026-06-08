@@ -78,7 +78,7 @@ async def list_objects(
             else_=AccommodationType.capacity,
         )
         stmt = stmt.join(AccommodationType).where(effective_capacity >= people)
-    stmt = stmt.order_by(asc(Accommodation.sortOrder))
+    stmt = stmt.order_by(asc(Accommodation.name))
     result = await db.execute(stmt)
     return result.unique().scalars().all()
 
@@ -122,10 +122,10 @@ async def check_availability(
     if booked_ids:
         stmt = stmt.order_by(
             case((Accommodation.id.in_(booked_ids), 1), else_=0),
-            asc(Accommodation.sortOrder),
+            asc(Accommodation.name),
         )
     else:
-        stmt = stmt.order_by(asc(Accommodation.sortOrder))
+        stmt = stmt.order_by(asc(Accommodation.name))
 
     # Pagination
     count_stmt = select(func.count()).select_from(stmt.subquery())
