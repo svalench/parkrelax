@@ -201,10 +201,10 @@ export default function Footer() {
               <p>
                 <span className="text-white/70">Телефон:</span>{' '}
                 <a
-                  href="tel:+375173901950"
-                  className="text-white/80 font-medium hover:text-white transition-colors"
+                    href="tel:+375295005029"
+                    className="text-white/80 font-medium hover:text-white transition-colors"
                 >
-                  +375 (17) 390-19-50
+                  +375 (29) 500-50-29
                 </a>
               </p>
               <p>
