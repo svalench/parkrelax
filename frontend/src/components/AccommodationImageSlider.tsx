@@ -1,10 +1,6 @@
 import { useEffect, useState } from 'react'
+import { createPortal } from 'react-dom'
 import { X, ChevronLeft, ChevronRight } from 'lucide-react'
-import {
-  Dialog,
-  DialogContent,
-  DialogTitle,
-} from '@/components/ui/dialog'
 
 interface AccommodationImageSliderProps {
   images: string[]
@@ -31,9 +27,11 @@ export function AccommodationImageSlider({
   }
 
   useEffect(() => {
-    if (!lightboxOpen || !hasMultiple) return
+    if (!lightboxOpen) return
 
     const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setLightboxOpen(false)
+      if (!hasMultiple) return
       if (e.key === 'ArrowLeft') {
         setCurrent((c) => (c === 0 ? images.length - 1 : c - 1))
       }
@@ -41,8 +39,13 @@ export function AccommodationImageSlider({
         setCurrent((c) => (c === images.length - 1 ? 0 : c + 1))
       }
     }
+
+    document.body.style.overflow = 'hidden'
     window.addEventListener('keydown', onKeyDown)
-    return () => window.removeEventListener('keydown', onKeyDown)
+    return () => {
+      document.body.style.overflow = ''
+      window.removeEventListener('keydown', onKeyDown)
+    }
   }, [lightboxOpen, hasMultiple, images.length])
 
   return (
@@ -112,58 +115,58 @@ export function AccommodationImageSlider({
         )}
       </div>
 
-      {/* Lightbox */}
-      <Dialog open={lightboxOpen} onOpenChange={setLightboxOpen}>
-        <DialogContent
-          showCloseButton={false}
-          className="fixed inset-0 z-50 flex h-[100dvh] w-screen max-w-none translate-x-0 translate-y-0 gap-0 rounded-none border-0 bg-black/95 p-0 shadow-none sm:max-w-none"
-        >
-          <DialogTitle className="sr-only">
-            {alt} — фото {current + 1}
-          </DialogTitle>
-
-          <button
-            type="button"
-            onClick={() => setLightboxOpen(false)}
-            className="absolute top-4 right-4 z-10 flex h-11 w-11 items-center justify-center rounded-full bg-white/30 text-white hover:bg-white/50 transition-colors"
-            aria-label="Закрыть"
+      {/* Lightbox — portal поверх навбара (z-60) */}
+      {lightboxOpen &&
+        createPortal(
+          <div
+            className="fixed inset-0 z-[70] flex flex-col bg-black/95"
+            role="dialog"
+            aria-modal="true"
+            aria-label={`Просмотр фото: ${alt}`}
           >
-            <X className="w-6 h-6" />
-          </button>
+            <button
+              type="button"
+              onClick={() => setLightboxOpen(false)}
+              className="absolute top-5 right-5 z-20 flex h-12 w-12 items-center justify-center rounded-full bg-white text-gray-900 shadow-lg hover:bg-gray-100 transition-colors"
+              aria-label="Закрыть"
+            >
+              <X className="w-6 h-6" strokeWidth={2.5} />
+            </button>
 
-          <div className="flex flex-1 items-center justify-center min-h-0 w-full px-14 py-16">
-            <img
-              src={images[current]}
-              alt={`${alt} — фото ${current + 1}`}
-              className="max-h-full max-w-full object-contain"
-            />
-          </div>
+            <div className="flex flex-1 items-center justify-center min-h-0 w-full px-16 py-20">
+              <img
+                src={images[current]}
+                alt={`${alt} — фото ${current + 1}`}
+                className="max-h-full max-w-full object-contain"
+              />
+            </div>
 
-          {hasMultiple && (
-            <>
-              <button
-                type="button"
-                onClick={prev}
-                className="absolute left-4 top-1/2 -translate-y-1/2 z-10 flex h-11 w-11 items-center justify-center rounded-full bg-white/30 text-white hover:bg-white/50 transition-colors"
-                aria-label="Предыдущее фото"
-              >
-                <ChevronLeft className="w-6 h-6" />
-              </button>
-              <button
-                type="button"
-                onClick={next}
-                className="absolute right-4 top-1/2 -translate-y-1/2 z-10 flex h-11 w-11 items-center justify-center rounded-full bg-white/30 text-white hover:bg-white/50 transition-colors"
-                aria-label="Следующее фото"
-              >
-                <ChevronRight className="w-6 h-6" />
-              </button>
-              <div className="absolute bottom-6 left-1/2 -translate-x-1/2 z-10 rounded-full bg-black/50 px-4 py-1.5 text-sm font-medium text-white">
-                {current + 1} / {images.length}
-              </div>
-            </>
-          )}
-        </DialogContent>
-      </Dialog>
+            {hasMultiple && (
+              <>
+                <button
+                  type="button"
+                  onClick={prev}
+                  className="absolute left-5 top-1/2 -translate-y-1/2 z-20 flex h-12 w-12 items-center justify-center rounded-full bg-white/90 text-gray-900 shadow-lg hover:bg-white transition-colors"
+                  aria-label="Предыдущее фото"
+                >
+                  <ChevronLeft className="w-6 h-6" />
+                </button>
+                <button
+                  type="button"
+                  onClick={next}
+                  className="absolute right-5 top-1/2 -translate-y-1/2 z-20 flex h-12 w-12 items-center justify-center rounded-full bg-white/90 text-gray-900 shadow-lg hover:bg-white transition-colors"
+                  aria-label="Следующее фото"
+                >
+                  <ChevronRight className="w-6 h-6" />
+                </button>
+                <div className="absolute bottom-8 left-1/2 -translate-x-1/2 z-20 rounded-full bg-black/60 px-4 py-1.5 text-sm font-medium text-white">
+                  {current + 1} / {images.length}
+                </div>
+              </>
+            )}
+          </div>,
+          document.body,
+        )}
     </>
   )
 }
