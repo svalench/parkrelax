@@ -9,6 +9,6 @@
 
 ## Fullscreen photo lightbox
 
-- Обновлён `AccommodationImageSlider.tsx`: DialogContent на весь экран, `showCloseButton={false}`
+- Переписан lightbox в `AccommodationImageSlider.tsx`: fixed fullscreen, крестик, стрелки, клавиатура
 
 DONE
