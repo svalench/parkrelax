@@ -7,4 +7,8 @@
 - Обновлён футер: 4 новые ссылки вместо старых legal-страниц
 - Скрипт генерации: `backend/scripts/generate_legal_pages_migration.py`
 
+## Fullscreen photo lightbox
+
+- Обновлён `AccommodationImageSlider.tsx`: DialogContent на весь экран, `showCloseButton={false}`
+
 DONE

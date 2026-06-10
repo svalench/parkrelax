@@ -95,12 +95,15 @@ export function AccommodationImageSlider({
 
       {/* Lightbox */}
       <Dialog open={lightboxOpen} onOpenChange={setLightboxOpen}>
-        <DialogContent className="max-w-[95vw] w-auto max-h-[95vh] p-0 bg-black/95 border-none shadow-2xl overflow-hidden">
-          <div className="relative flex items-center justify-center min-h-[60vh] max-h-[90vh]">
+        <DialogContent
+          showCloseButton={false}
+          className="fixed inset-0 top-0 left-0 w-screen h-screen max-w-none sm:max-w-none translate-x-0 translate-y-0 p-0 bg-black/95 border-none shadow-none rounded-none overflow-hidden"
+        >
+          <div className="relative flex items-center justify-center w-full h-full">
             <img
               src={images[current]}
               alt={`${alt} — фото ${current + 1}`}
-              className="max-w-full max-h-[85vh] object-contain"
+              className="max-w-full max-h-full object-contain"
             />
 
             {/* Close */}
