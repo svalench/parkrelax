@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { X, ChevronLeft, ChevronRight } from 'lucide-react'
 import {
   Dialog,
+  DialogClose,
   DialogContent,
 } from '@/components/ui/dialog'
 
@@ -97,41 +98,39 @@ export function AccommodationImageSlider({
       <Dialog open={lightboxOpen} onOpenChange={setLightboxOpen}>
         <DialogContent
           showCloseButton={false}
-          className="fixed inset-0 top-0 left-0 w-screen h-screen max-w-none sm:max-w-none translate-x-0 translate-y-0 p-0 bg-black/95 border-none shadow-none rounded-none overflow-hidden"
+          className="fixed inset-0 top-0 left-0 w-screen h-screen max-w-none sm:max-w-none translate-x-0 translate-y-0 p-0 bg-black/95 border-none shadow-none rounded-none overflow-hidden relative"
         >
-          <div className="relative flex items-center justify-center w-full h-full">
+          <DialogClose
+            className="absolute top-4 right-4 z-[60] flex h-11 w-11 items-center justify-center rounded-full bg-white/25 text-white hover:bg-white/40 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-white/50"
+            aria-label="Закрыть"
+          >
+            <X className="w-6 h-6" />
+          </DialogClose>
+
+          <div className="relative flex items-center justify-center w-full h-full pointer-events-none">
             <img
               src={images[current]}
               alt={`${alt} — фото ${current + 1}`}
               className="max-w-full max-h-full object-contain"
             />
 
-            {/* Close */}
-            <button
-              onClick={() => setLightboxOpen(false)}
-              className="absolute top-3 right-3 z-50 w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 text-white flex items-center justify-center transition-colors"
-              aria-label="Закрыть"
-            >
-              <X className="w-5 h-5" />
-            </button>
-
             {hasMultiple && (
               <>
                 <button
                   onClick={prev}
-                  className="absolute left-3 top-1/2 -translate-y-1/2 z-50 w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 text-white flex items-center justify-center transition-colors"
+                  className="pointer-events-auto absolute left-3 top-1/2 -translate-y-1/2 z-50 w-10 h-10 rounded-full bg-white/25 hover:bg-white/40 text-white flex items-center justify-center transition-colors"
                   aria-label="Предыдущее фото"
                 >
                   <ChevronLeft className="w-5 h-5" />
                 </button>
                 <button
                   onClick={next}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 z-50 w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 text-white flex items-center justify-center transition-colors"
+                  className="pointer-events-auto absolute right-3 top-1/2 -translate-y-1/2 z-50 w-10 h-10 rounded-full bg-white/25 hover:bg-white/40 text-white flex items-center justify-center transition-colors"
                   aria-label="Следующее фото"
                 >
                   <ChevronRight className="w-5 h-5" />
                 </button>
-                <div className="absolute bottom-3 left-1/2 -translate-x-1/2 z-50 text-white/80 text-sm font-medium bg-black/40 px-3 py-1 rounded-full">
+                <div className="pointer-events-none absolute bottom-3 left-1/2 -translate-x-1/2 z-50 text-white/80 text-sm font-medium bg-black/40 px-3 py-1 rounded-full">
                   {current + 1} / {images.length}
                 </div>
               </>
