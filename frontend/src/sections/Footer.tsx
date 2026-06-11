@@ -165,7 +165,7 @@ export default function Footer() {
                 Минским городским исполнительным комитетом, 18.04.2017
               </p>
               <p>
-                <span className="text-white/70">Торговый объект:</span>{' '}
+                <span className="text-white/70">Объект:</span>{' '}
                 Комплекс отдыха «Парк Relax», Пинский район, д. Кончицы
               </p>
               <p>
