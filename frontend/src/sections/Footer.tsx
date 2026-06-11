@@ -70,7 +70,6 @@ const staticColumns: { title: string; links: FooterLinkItem[] }[] = [
     title: 'Юридическая информация',
     links: [
       { label: 'Оплата и возврат', to: '/legal/payment-info' },
-      { label: 'Правила возврата средств', to: '/legal/refund-policy' },
       { label: 'Политика конфиденциальности', to: '/legal/privacy-policy' },
       { label: 'Условия использования файлов cookies', to: '/legal/cookie-policy' },
       { label: 'Публичный договор', to: '/legal/public-offer' },
