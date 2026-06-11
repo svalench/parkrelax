@@ -378,6 +378,26 @@ export default function BookingFormPage() {
                 >
                   Политикой конфиденциальности
                 </a>
+                , принимаю условия{' '}
+                <a
+                  href="/legal/public-offer"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-brand hover:underline font-medium"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  Публичного договора
+                </a>
+                {' '}и{' '}
+                <a
+                  href="/legal/refund-policy"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-brand hover:underline font-medium"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  Правил возврата средств
+                </a>
               </label>
             </div>
 

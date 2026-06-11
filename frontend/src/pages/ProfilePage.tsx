@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router'
 import { useAuth } from '@/contexts/AuthContext'
 import { Button } from '@/components/ui/button'
-import { Loader2, Calendar, Home, Users, LogOut, Mail, User, Shield, Cookie, FileText, CreditCard } from 'lucide-react'
+import { Loader2, Calendar, Home, Users, LogOut, Mail, User, Shield, Cookie, FileText, CreditCard, XCircle } from 'lucide-react'
 import { format, differenceInDays } from 'date-fns'
 import { Link } from 'react-router'
 import { revokeCookieConsent } from '@/components/CookieBanner'
@@ -54,6 +54,42 @@ export default function ProfilePage() {
   const [bookings, setBookings] = useState<BookingItem[]>([])
   const [loading, setLoading] = useState(true)
   const [loadError, setLoadError] = useState('')
+  const [cancellingId, setCancellingId] = useState<number | null>(null)
+
+  async function fetchCsrfToken(): Promise<string | null> {
+    try {
+      const res = await fetch(`${API_BASE}/csrf-token`, { credentials: 'include' })
+      if (!res.ok) return null
+      const data = await res.json()
+      return data.csrfToken || null
+    } catch {
+      return null
+    }
+  }
+
+  const handleCancelBooking = async (bookingId: number) => {
+    if (!window.confirm('Отменить бронирование? Условия возврата предоплаты — в Правилах возврата средств.')) {
+      return
+    }
+    setCancellingId(bookingId)
+    try {
+      const csrf = await fetchCsrfToken()
+      const res = await fetch(`${API_BASE}/profile/bookings/${bookingId}/cancel`, {
+        method: 'POST',
+        headers: { 'X-CSRF-Token': csrf || '' },
+        credentials: 'include',
+      })
+      const data = await res.json()
+      if (!res.ok) {
+        throw new Error(typeof data.detail === 'string' ? data.detail : 'Не удалось отменить бронирование')
+      }
+      setBookings((prev) => prev.map((b) => (b.id === bookingId ? { ...b, status: 'cancelled' } : b)))
+    } catch (err) {
+      alert(err instanceof Error ? err.message : 'Ошибка отмены')
+    } finally {
+      setCancellingId(null)
+    }
+  }
 
   useEffect(() => {
     if (authLoading) return
@@ -208,14 +244,39 @@ export default function ProfilePage() {
                     {total > 0 && (
                       <p className="mt-3 text-brand font-bold">{total.toLocaleString('ru-RU')} Br</p>
                     )}
-                    {b.status === 'pending' && (
-                      <Button
-                        onClick={() => navigate(`/payment?bookingId=${b.id}`)}
-                        className="mt-4 rounded-xl bg-brand hover:bg-brand-hover text-white"
-                      >
-                        <CreditCard className="w-4 h-4 mr-2" />
-                        Оплатить
-                      </Button>
+                    <div className="mt-4 flex flex-wrap gap-2">
+                      {b.status === 'pending' && (
+                        <Button
+                          onClick={() => navigate(`/payment?bookingId=${b.id}`)}
+                          className="rounded-xl bg-brand hover:bg-brand-hover text-white"
+                        >
+                          <CreditCard className="w-4 h-4 mr-2" />
+                          Оплатить
+                        </Button>
+                      )}
+                      {['pending_confirmation', 'pending', 'paid', 'confirmed'].includes(b.status) && (
+                        <Button
+                          variant="outline"
+                          onClick={() => handleCancelBooking(b.id)}
+                          disabled={cancellingId === b.id}
+                          className="rounded-xl text-red-600 border-red-200 hover:bg-red-50"
+                        >
+                          {cancellingId === b.id ? (
+                            <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                          ) : (
+                            <XCircle className="w-4 h-4 mr-2" />
+                          )}
+                          Отменить
+                        </Button>
+                      )}
+                    </div>
+                    {['pending_confirmation', 'pending', 'paid', 'confirmed'].includes(b.status) && (
+                      <p className="mt-2 text-xs text-graytext">
+                        Условия возврата —{' '}
+                        <Link to="/legal/refund-policy" className="text-brand hover:underline">
+                          Правила возврата средств
+                        </Link>
+                      </p>
                     )}
                   </div>
                 </div>

@@ -645,18 +645,24 @@ class PaymentInitiateRequest(BaseModel):
 
 class PaymentInitiateResponse(BaseModel):
     bookingId: int
-    clientSecret: str
     amount: int
     currency: str = "BYN"
+    paymentMode: str = "mock"
+    clientSecret: str | None = None
+    redirectUrl: str | None = None
+    paymentToken: str | None = None
 
 
 class PaymentConfirmRequest(BaseModel):
     bookingId: int
-    clientSecret: str
+    clientSecret: str | None = None
+    paymentToken: str | None = None
 
     @field_validator("clientSecret")
     @classmethod
-    def validate_client_secret(cls, v: str) -> str:
+    def validate_client_secret(cls, v: str | None) -> str | None:
+        if v is None:
+            return v
         import re
         if not re.fullmatch(r"secret_\d+_[A-Za-z0-9_-]+", v):
             raise ValueError("Invalid client secret format")

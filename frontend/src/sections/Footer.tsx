@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import type { ReactNode } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router'
+import PaymentLogos from '@/components/PaymentLogos'
 
 type FooterHashLink = { label: string; sectionId: string }
 type FooterRouteLink = { label: string; to: string }
@@ -68,6 +69,8 @@ const staticColumns: { title: string; links: FooterLinkItem[] }[] = [
   {
     title: 'Юридическая информация',
     links: [
+      { label: 'Оплата и возврат', to: '/legal/payment-info' },
+      { label: 'Правила возврата средств', to: '/legal/refund-policy' },
       { label: 'Политика конфиденциальности', to: '/legal/privacy-policy' },
       { label: 'Условия использования файлов cookies', to: '/legal/cookie-policy' },
       { label: 'Публичный договор', to: '/legal/public-offer' },
@@ -140,31 +143,7 @@ export default function Footer() {
           </div>
         </div>
 
-        {/* Способы оплаты — порядок знаков как в руководстве БАПБ (п. 1); ассеты из Wikimedia Commons */}
-        <div className="flex flex-wrap items-center justify-center gap-4 mb-8 px-1">
-          {(
-            [
-              { src: '/images/payments/belkart.png', alt: 'Белкарт', maxW: 'max-w-[6.5rem]' },
-              { src: '/images/payments/mastercard.svg', alt: 'Mastercard', maxW: 'max-w-[5.5rem]' },
-              { src: '/images/payments/visa.svg', alt: 'Visa', maxW: 'max-w-[5rem]' },
-              { src: '/images/payments/mir.svg', alt: 'Мир', maxW: 'max-w-[6rem]' },
-              { src: '/images/payments/unionpay.svg', alt: 'UnionPay', maxW: 'max-w-[7.5rem]' },
-            ] as const
-          ).map(({ src, alt, maxW }) => (
-            <div
-              key={src}
-              className="flex h-10 min-w-[4.5rem] items-center justify-center rounded-md bg-white px-3 py-1 shadow-sm ring-1 ring-black/10"
-            >
-              <img
-                src={src}
-                alt={alt}
-                className={`h-7 w-auto ${maxW} object-contain object-center`}
-                loading="lazy"
-                decoding="async"
-              />
-            </div>
-          ))}
-        </div>
+        <PaymentLogos />
 
         {/* Юридическая информация */}
         <div className="border-t border-white/10 pt-8 mb-8">
@@ -181,6 +160,18 @@ export default function Footer() {
               <p>
                 <span className="text-white/70">Почтовый адрес:</span>{' '}
                 220030, г. Минск, ул.Октябрьская, д. 19Б, каб. 101
+              </p>
+              <p>
+                <span className="text-white/70">Гос. регистрация:</span>{' '}
+                Минским городским исполнительным комитетом, 18.04.2017
+              </p>
+              <p>
+                <span className="text-white/70">Торговый объект:</span>{' '}
+                Комплекс отдыха «Парк Relax», Пинский район, д. Кончицы
+              </p>
+              <p>
+                <span className="text-white/70">Режим работы:</span>{' '}
+                круглосуточно, администрация — с 9:00 до 21:00
               </p>
             </div>
 
@@ -201,10 +192,10 @@ export default function Footer() {
               <p>
                 <span className="text-white/70">Телефон:</span>{' '}
                 <a
-                    href="tel:+375295005029"
+                    href="tel:+375173901950"
                     className="text-white/80 font-medium hover:text-white transition-colors"
                 >
-                  +375 (29) 500-50-29
+                  +375 (17) 390-19-50
                 </a>
               </p>
               <p>

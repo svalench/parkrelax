@@ -1,14 +1,13 @@
 # Progress
 
-## Юридические страницы (миграция из .doc)
+## Приведение к требованиям БАПБ (эквайринг)
 
-- Создана Alembic data migration `f1a2b3c4d5e6_update_legal_pages_from_docs.py`
-- Обновлён `public-offer`, добавлены `accommodation-rules`, `stay-rules`, `banya-stay-rules`
-- Обновлён футер: 4 новые ссылки вместо старых legal-страниц
-- Скрипт генерации: `backend/scripts/generate_legal_pages_migration.py`
-
-## Fullscreen photo lightbox
-
-- Переписан lightbox в `AccommodationImageSlider.tsx`: fixed fullscreen, крестик, стрелки, клавиатура
+- Логотипы: Visa/MC/Белкарт + Visa Secure, MC ID Check, Белкарт ИнтернетПароль, bePaid (`PaymentLogos.tsx`, футер, страница оплаты)
+- Legal: миграция `c8d9e0f1a2b3` — `payment-info`, обновлён `refund-policy` (60 раб. дней), исправлен `privacy-policy`
+- Футер: ссылки «Оплата и возврат», «Правила возврата»; госрегистрация, режим работы; телефон +375 (17) 390-19-50
+- BookingFormPage: согласие с офертой и правилами возврата
+- Отмена брони: `POST /profile/bookings/{id}/cancel` + кнопка в ProfilePage
+- bePaid: `bepaid_service.py`, redirect на checkout, webhook `/payment/webhook`, настройки в `.env.example`
+- Визуально выровнен блок платежных знаков: проблемные Белкарт / 3-D Secure / bePaid теперь рисуются HTML/CSS без битых SVG.
 
 DONE

@@ -62,6 +62,18 @@ DEFAULT_TEMPLATES = {
 <p>С уважением, команда Комплекса отдыха Парк Relax</p>
 """.strip(),
     },
+    "booking_cancelled": {
+        "subject": "Бронирование отменено — Комплекс отдыха Парк Relax",
+        "bodyHtml": """
+<h2>Здравствуйте, {{name}}!</h2>
+<p>Ваше бронирование №{{bookingId}} в <strong>Комплексе отдыха Парк Relax</strong> отменено.</p>
+<p><strong>Дом:</strong> {{houseName}}</p>
+<p><strong>Даты:</strong> {{startDate}} — {{endDate}}</p>
+<p>Условия возврата предоплаты указаны в <a href="https://parkrelax.by/legal/refund-policy">Правилах возврата средств</a>.</p>
+<hr>
+<p>С уважением, команда Комплекса отдыха Парк Relax</p>
+""".strip(),
+    },
     "booking_confirmation": {
         "subject": "Бронирование подтверждено — Комплекс отдыха Парк Relax",
         "bodyHtml": """

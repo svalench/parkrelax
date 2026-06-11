@@ -107,7 +107,7 @@ async def csrf_dependency(request: Request) -> None:
 
     # Exempt OAuth callbacks and webhook-style endpoints if needed
     path = request.url.path
-    exempt_paths = {"/oauth/callback", "/api/oauth/callback"}
+    exempt_paths = {"/oauth/callback", "/api/oauth/callback", "/payment/webhook"}
     if path in exempt_paths or path.startswith("/admin/"):
         return
 

@@ -14,6 +14,10 @@ class Settings(BaseSettings):
     kimi_open_url: str = ""
     owner_union_id: str = ""
     node_env: str = "development"
+    site_url: str = "https://parkrelax.by"
+    bepaid_shop_id: str = ""
+    bepaid_secret_key: str = ""
+    bepaid_test_mode: bool = True
 
     class Config:
         env_file = str(PROJECT_ROOT / ".env")
