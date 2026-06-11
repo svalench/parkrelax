@@ -8,6 +8,6 @@
 - BookingFormPage: согласие с офертой и правилами возврата
 - Отмена брони: `POST /profile/bookings/{id}/cancel` + кнопка в ProfilePage
 - bePaid: `bepaid_service.py`, redirect на checkout, webhook `/payment/webhook`, настройки в `.env.example`
-- Визуально выровнен блок платежных знаков: проблемные Белкарт / 3-D Secure / bePaid теперь рисуются HTML/CSS без битых SVG.
+- Блок платежных знаков заменён на присланный официальный PNG-набор: Visa, Visa Secure, Mastercard, ID Check, Белкарт, Белкарт ИнтернетПароль, bePaid, G Pay.
 
 DONE
