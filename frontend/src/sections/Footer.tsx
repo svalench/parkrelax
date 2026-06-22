@@ -142,7 +142,7 @@ export default function Footer() {
           </div>
         </div>
 
-        <PaymentLogos />
+        <PaymentLogos showDisclosure />
 
         {/* Юридическая информация */}
         <div className="border-t border-white/10 pt-8 mb-8">
@@ -154,7 +154,7 @@ export default function Footer() {
               </p>
               <p>
                 <span className="text-white/70">Юридический адрес:</span>{' '}
-                220036, г. Минск, проезд Бетонный, д. 17, каб. 11
+                Республика Беларусь, 220036, г. Минск, проезд Бетонный, д. 17, каб. 11
               </p>
               <p>
                 <span className="text-white/70">Почтовый адрес:</span>{' '}

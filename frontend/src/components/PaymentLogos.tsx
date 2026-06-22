@@ -1,10 +1,17 @@
+import BepaidPaymentDisclosure from '@/components/BepaidPaymentDisclosure'
+
 /** Логотипы платёжных систем и провайдера — требования БАПБ п. 11 */
 type PaymentLogosProps = {
   showProvider?: boolean
+  showDisclosure?: boolean
   compact?: boolean
 }
 
-export default function PaymentLogos({ showProvider = true, compact = false }: PaymentLogosProps) {
+export default function PaymentLogos({
+  showProvider = true,
+  showDisclosure = false,
+  compact = false,
+}: PaymentLogosProps) {
   return (
     <div className={compact ? 'space-y-3' : 'mb-8 space-y-4 px-1'}>
       <div className="mx-auto flex max-w-5xl justify-center">
@@ -18,7 +25,12 @@ export default function PaymentLogos({ showProvider = true, compact = false }: P
           />
         </div>
       </div>
-      {showProvider && (
+      {showProvider && showDisclosure && (
+        <div className="flex justify-center px-2">
+          <BepaidPaymentDisclosure variant="footer" />
+        </div>
+      )}
+      {showProvider && !showDisclosure && (
         <div className="flex justify-center text-center">
           <p className={`${compact ? 'text-xs' : 'text-sm'} text-white/65`}>
             Платежи принимаются через систему интернет-платежей{' '}
