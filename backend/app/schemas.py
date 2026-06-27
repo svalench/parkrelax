@@ -119,6 +119,7 @@ class AdminEmailBase(BaseModel):
     email: str
     name: Optional[str] = None
     isActive: bool = True
+    notifyOnPayments: bool = True
 
 
 class AdminEmailCreate(AdminEmailBase):
@@ -129,6 +130,7 @@ class AdminEmailUpdate(BaseModel):
     email: Optional[str] = None
     name: Optional[str] = None
     isActive: Optional[bool] = None
+    notifyOnPayments: Optional[bool] = None
 
 
 class AdminEmailResponse(AdminEmailBase):
@@ -644,10 +646,12 @@ class PaymentInitiateRequest(BaseModel):
 
 
 class PaymentInitiateResponse(BaseModel):
+    paymentId: int | None = None
     bookingId: int
     amount: int
     currency: str = "BYN"
     paymentMode: str = "mock"
+    status: str | None = None
     clientSecret: str | None = None
     redirectUrl: str | None = None
     paymentToken: str | None = None
@@ -655,6 +659,7 @@ class PaymentInitiateResponse(BaseModel):
 
 class PaymentConfirmRequest(BaseModel):
     bookingId: int
+    paymentId: int | None = None
     clientSecret: str | None = None
     paymentToken: str | None = None
 
@@ -673,6 +678,88 @@ class PaymentConfirmResponse(BaseModel):
     success: bool
     bookingId: int
     status: str
+    paymentId: int | None = None
+
+
+class PaymentSettingsBase(BaseModel):
+    shopId: Optional[str] = None
+    secretKey: Optional[str] = None
+    testMode: bool = True
+    isActive: bool = False
+    notificationUrl: Optional[str] = None
+    bookingPaymentMode: str = "manual_confirmation"
+
+    @field_validator("bookingPaymentMode")
+    @classmethod
+    def validate_booking_payment_mode(cls, v: str) -> str:
+        if v not in {"manual_confirmation", "auto_payment"}:
+            raise ValueError("Invalid booking payment mode")
+        return v
+
+
+class PaymentSettingsUpdate(BaseModel):
+    shopId: Optional[str] = None
+    secretKey: Optional[str] = None
+    testMode: Optional[bool] = None
+    isActive: Optional[bool] = None
+    notificationUrl: Optional[str] = None
+    bookingPaymentMode: Optional[str] = None
+
+    @field_validator("bookingPaymentMode")
+    @classmethod
+    def validate_optional_booking_payment_mode(cls, v: str | None) -> str | None:
+        if v is not None and v not in {"manual_confirmation", "auto_payment"}:
+            raise ValueError("Invalid booking payment mode")
+        return v
+
+
+class PaymentSettingsResponse(PaymentSettingsBase):
+    model_config = ConfigDict(from_attributes=True)
+    id: int = 1
+    updatedAt: datetime | None = None
+
+
+class PaymentEventResponse(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+    id: int | None = None
+    paymentId: int
+    eventType: str
+    providerStatus: Optional[str] = None
+    payloadJson: Optional[str] = None
+    createdAt: datetime | None = None
+
+
+class PaymentResponse(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+    id: int | None = None
+    bookingId: int | None = None
+    userId: int | None = None
+    customerName: Optional[str] = None
+    customerEmail: Optional[str] = None
+    customerPhone: Optional[str] = None
+    amountMinor: int
+    currency: str = "BYN"
+    provider: str = "bepaid"
+    status: str
+    bookingPaymentMode: str = "manual_confirmation"
+    trackingId: Optional[str] = None
+    checkoutToken: Optional[str] = None
+    redirectUrl: Optional[str] = None
+    transactionId: Optional[str] = None
+    providerStatus: Optional[str] = None
+    createdByType: str = "guest"
+    createdByUserId: int | None = None
+    createdByAdminId: int | None = None
+    requestIp: Optional[str] = None
+    userAgent: Optional[str] = None
+    errorMessage: Optional[str] = None
+    customerEmailSentAt: datetime | None = None
+    adminEmailSentAt: datetime | None = None
+    paidAt: datetime | None = None
+    lastWebhookAt: datetime | None = None
+    createdAt: datetime | None = None
+    updatedAt: datetime | None = None
+    events: list[PaymentEventResponse] = []
 
 
 class PriceListDataResponse(BaseModel):

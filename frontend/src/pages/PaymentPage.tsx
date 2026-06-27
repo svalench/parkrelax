@@ -18,6 +18,7 @@ async function fetchCsrfToken(): Promise<string | null> {
 }
 
 interface PaymentInitData {
+  paymentId?: number | null
   amount: number
   paymentMode: string
   clientSecret?: string
@@ -31,6 +32,7 @@ export default function PaymentPage() {
   const bookingId = Number(searchParams.get('bookingId'))
   const returnStatus = searchParams.get('status')
   const returnToken = searchParams.get('token')
+  const returnPaymentId = Number(searchParams.get('paymentId')) || undefined
 
   const [loading, setLoading] = useState(true)
   const [processing, setProcessing] = useState(false)
@@ -39,7 +41,7 @@ export default function PaymentPage() {
   const [error, setError] = useState('')
   const [paymentData, setPaymentData] = useState<PaymentInitData | null>(null)
 
-  const confirmPayment = useCallback(async (token?: string, secret?: string) => {
+  const confirmPayment = useCallback(async (token?: string, secret?: string, paymentId?: number) => {
     setProcessing(true)
     setError('')
     try {
@@ -53,6 +55,7 @@ export default function PaymentPage() {
         credentials: 'include',
         body: JSON.stringify({
           bookingId,
+          paymentId,
           paymentToken: token,
           clientSecret: secret,
         }),
@@ -79,8 +82,8 @@ export default function PaymentPage() {
       return
     }
 
-    if (returnStatus === 'successful' && returnToken) {
-      confirmPayment(returnToken)
+    if (returnStatus === 'successful' && (returnToken || returnPaymentId)) {
+      confirmPayment(returnToken || undefined, undefined, returnPaymentId)
       return
     }
 
@@ -115,6 +118,7 @@ export default function PaymentPage() {
         if (data.amount !== undefined) {
           setAmount(data.amount)
           setPaymentData({
+            paymentId: data.paymentId,
             amount: data.amount,
             paymentMode: data.paymentMode || 'mock',
             clientSecret: data.clientSecret,
@@ -130,7 +134,7 @@ export default function PaymentPage() {
 
     init()
     return () => { cancelled = true }
-  }, [bookingId, returnStatus, returnToken, confirmPayment])
+  }, [bookingId, returnStatus, returnToken, returnPaymentId, confirmPayment])
 
   const handlePay = async () => {
     if (!paymentData) return
@@ -141,7 +145,7 @@ export default function PaymentPage() {
     }
 
     if (paymentData.clientSecret) {
-      await confirmPayment(undefined, paymentData.clientSecret)
+      await confirmPayment(undefined, paymentData.clientSecret, paymentData.paymentId || undefined)
     }
   }
 

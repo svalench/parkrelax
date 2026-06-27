@@ -55,6 +55,9 @@ from app.models import (
     GalleryItem,
     AboutSliderItem,
     Booking,
+    Payment,
+    PaymentEvent,
+    PaymentSettings,
     AccommodationType,
     Accommodation,
     Admin as AdminModel,
@@ -466,6 +469,95 @@ class BookingView(ModelView):
         DateTimeField("createdAt", label="Создано", read_only=True),
         DateTimeField("updatedAt", label="Обновлено", read_only=True),
     ]
+
+
+class PaymentSettingsView(ModelView):
+    fields = [
+        IntegerField("id", read_only=True),
+        StringField("shopId", label="Shop ID"),
+        StringField("secretKey", label="Secret key", exclude_from_list=True),
+        BooleanField("testMode", label="Тестовый режим"),
+        BooleanField("isActive", label="Интеграция активна"),
+        TextAreaField("notificationUrl", label="Webhook URL"),
+        EnumField(
+            "bookingPaymentMode",
+            label="Режим оплаты заявок",
+            choices=[
+                ("manual_confirmation", "Ручное подтверждение админом"),
+                ("auto_payment", "Автоматическая оплата после заявки"),
+            ],
+        ),
+        DateTimeField("updatedAt", label="Обновлено", read_only=True),
+    ]
+
+    def can_create(self, request) -> bool:
+        return False
+
+    def can_delete(self, request) -> bool:
+        return False
+
+
+class PaymentView(ModelView):
+    fields = [
+        IntegerField("id", read_only=True),
+        HasOne("booking", identity="booking", label="Бронирование"),
+        IntegerField("userId", label="ID пользователя", read_only=True),
+        StringField("customerName", label="Клиент", read_only=True),
+        StringField("customerEmail", label="Email", read_only=True),
+        StringField("customerPhone", label="Телефон", read_only=True),
+        IntegerField("amountMinor", label="Сумма в копейках", read_only=True),
+        StringField("currency", label="Валюта", read_only=True),
+        StringField("provider", label="Провайдер", read_only=True),
+        StringField("status", label="Статус", read_only=True),
+        StringField("bookingPaymentMode", label="Режим оплаты", read_only=True),
+        StringField("trackingId", label="Tracking ID", read_only=True),
+        StringField("checkoutToken", label="Checkout token", read_only=True, exclude_from_list=True),
+        TextAreaField("redirectUrl", label="Redirect URL", read_only=True, exclude_from_list=True),
+        StringField("transactionId", label="Transaction ID", read_only=True),
+        StringField("providerStatus", label="Статус bePaid", read_only=True),
+        TextAreaField("responsePayload", label="Последний payload", read_only=True, exclude_from_list=True),
+        StringField("createdByType", label="Кем создан", read_only=True),
+        IntegerField("createdByUserId", label="ID пользователя-инициатора", read_only=True),
+        IntegerField("createdByAdminId", label="ID админа-инициатора", read_only=True),
+        StringField("requestIp", label="IP", read_only=True),
+        TextAreaField("userAgent", label="User-Agent", read_only=True, exclude_from_list=True),
+        TextAreaField("errorMessage", label="Ошибка", read_only=True),
+        DateTimeField("customerEmailSentAt", label="Письмо клиенту", read_only=True),
+        DateTimeField("adminEmailSentAt", label="Письмо админам", read_only=True),
+        DateTimeField("paidAt", label="Оплачено", read_only=True),
+        DateTimeField("lastWebhookAt", label="Последний webhook", read_only=True),
+        DateTimeField("createdAt", label="Создано", read_only=True),
+        DateTimeField("updatedAt", label="Обновлено", read_only=True),
+    ]
+
+    def can_create(self, request) -> bool:
+        return False
+
+    def can_edit(self, request) -> bool:
+        return False
+
+    def can_delete(self, request) -> bool:
+        return False
+
+
+class PaymentEventView(ModelView):
+    fields = [
+        IntegerField("id", read_only=True),
+        HasOne("payment", identity="payments", label="Платёж"),
+        StringField("eventType", label="Событие", read_only=True),
+        StringField("providerStatus", label="Статус провайдера", read_only=True),
+        TextAreaField("payloadJson", label="Payload JSON", read_only=True),
+        DateTimeField("createdAt", label="Создано", read_only=True),
+    ]
+
+    def can_create(self, request) -> bool:
+        return False
+
+    def can_edit(self, request) -> bool:
+        return False
+
+    def can_delete(self, request) -> bool:
+        return False
 
 
 class AccommodationTypeAdminView(ModelView):
@@ -1147,6 +1239,17 @@ admin = Admin(
 
 admin.add_view(UserAdminView(User, icon="fa fa-user", label="Пользователи", identity="users"))
 admin.add_view(BookingView(Booking, icon="fa fa-calendar-check", label="Бронирование", identity="booking"))
+admin.add_view(
+    DropDown(
+        "Оплаты",
+        icon="fa fa-credit-card",
+        views=[
+            PaymentView(Payment, label="Платежи", identity="payments"),
+            PaymentEventView(PaymentEvent, label="События платежей", identity="payment-events"),
+            PaymentSettingsView(PaymentSettings, label="Настройки bePaid", identity="payment-settings"),
+        ],
+    )
+)
 admin.add_view(
     AccommodationTypeAdminView(
         AccommodationType,

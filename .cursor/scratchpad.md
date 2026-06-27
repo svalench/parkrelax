@@ -1,5 +1,21 @@
 # Progress
 
+## bePaid: учёт платежей и настройки через админку
+
+- Итерация 4: добавлен шаблон `payment_available` и письмо пользователю при подтверждении заявки админом (`status` переходит в `pending`).
+- Проверка итерации 4: backend compile, Alembic upgrade, frontend build, import app и `git diff --check` прошли; lint остаётся на существующем baseline.
+- Итерация 1: начата схема `PaymentSettings` / `Payment` / `PaymentEvent`, флаг уведомлений по оплатам для админских email.
+- Итерация 1: модели и Alembic-миграция добавлены, включая seed `PaymentSettings` и шаблон `payment_success_admin`.
+- Итерация 2: payment flow переведён на таблицу `payments`, события, webhook/confirm и уведомления админам.
+- Итерация 3: добавлены разделы оплат в Starlette Admin и React admin dashboard, флаг `notifyOnPayments`, auto/manual режимы на frontend.
+- Проверка: `python` и глобальный `alembic` отсутствуют в shell; добавлено правило `.cursor/rules/verification-commands.mdc`, повтор через `python3`.
+- Проверка: `.venv/bin/python -m compileall backend/app` прошёл успешно.
+- Проверка: `../.venv/bin/alembic upgrade head` из `backend/` прошёл успешно.
+- Проверка: `npm run build` прошёл успешно; `npm run lint` падает на существующих ошибках baseline вне текущих изменений.
+- Проверка: `git diff --check` прошёл успешно, `TODO/FIXME` в backend/frontend коде не найдены, `import app.main` прошёл успешно.
+
+DONE
+
 ## Приведение к требованиям БАПБ (эквайринг)
 
 - Логотипы: Visa/MC/Белкарт + Visa Secure, MC ID Check, Белкарт ИнтернетПароль, bePaid (`PaymentLogos.tsx`, футер, страница оплаты)

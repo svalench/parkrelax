@@ -30,6 +30,16 @@ class User(Base):
     lastSignInAt = Column(DateTime, default=func.now(), nullable=True)
 
     bookings = relationship("Booking", back_populates="user")
+    payments = relationship(
+        "Payment",
+        back_populates="user",
+        foreign_keys="Payment.userId",
+    )
+    createdPayments = relationship(
+        "Payment",
+        back_populates="createdByUser",
+        foreign_keys="Payment.createdByUserId",
+    )
 
 
 class Contact(Base):
@@ -71,6 +81,7 @@ class AdminEmail(Base):
     email = Column(String(320), nullable=False)
     name = Column(String(100), nullable=True)
     isActive = Column(Boolean, default=True, nullable=False)
+    notifyOnPayments = Column(Boolean, default=True, nullable=False)
     createdAt = Column(DateTime, default=func.now(), nullable=True)
     updatedAt = Column(DateTime, default=func.now(), onupdate=func.now(), nullable=True)
 
@@ -248,6 +259,7 @@ class Booking(Base):
 
     accommodation = relationship("Accommodation", back_populates="bookings")
     user = relationship("User", back_populates="bookings")
+    payments = relationship("Payment", back_populates="booking")
 
 
 class Rule(Base):
@@ -347,6 +359,85 @@ class Admin(Base):
     name = Column(String(100), nullable=True)
     createdAt = Column(DateTime, default=func.now(), nullable=True)
     updatedAt = Column(DateTime, default=func.now(), onupdate=func.now(), nullable=True)
+    createdPayments = relationship("Payment", back_populates="createdByAdmin")
+
+
+class PaymentSettings(Base):
+    """Singleton-настройки эквайринга bePaid, управляемые из админки."""
+
+    __tablename__ = "payment_settings"
+
+    id = Column(Integer, primary_key=True, autoincrement=False, default=1)
+    shopId = Column(String(255), nullable=True)
+    secretKey = Column(String(255), nullable=True)
+    testMode = Column(Boolean, default=True, nullable=False)
+    isActive = Column(Boolean, default=False, nullable=False)
+    notificationUrl = Column(Text, nullable=True)
+    # manual_confirmation — оплата после проверки админом; auto_payment — сразу после заявки.
+    bookingPaymentMode = Column(String(50), default="manual_confirmation", nullable=False)
+    updatedAt = Column(DateTime, default=func.now(), onupdate=func.now(), nullable=True)
+
+
+class Payment(Base):
+    """Аудит одной попытки оплаты бронирования через bePaid или mock-режим."""
+
+    __tablename__ = "payments"
+
+    id = Column(Integer, primary_key=True, index=True)
+    bookingId = Column(Integer, ForeignKey("bookings.id", ondelete="SET NULL"), nullable=True)
+    userId = Column(Integer, ForeignKey("users.id", ondelete="SET NULL"), nullable=True)
+    customerName = Column(String(100), nullable=True)
+    customerEmail = Column(String(320), nullable=True)
+    customerPhone = Column(String(50), nullable=True)
+    amountMinor = Column(Integer, nullable=False)
+    currency = Column(String(3), default="BYN", nullable=False)
+    provider = Column(String(50), default="bepaid", nullable=False)
+    status = Column(String(50), default="created", nullable=False)
+    bookingPaymentMode = Column(String(50), default="manual_confirmation", nullable=False)
+    trackingId = Column(String(120), nullable=True, unique=True)
+    checkoutToken = Column(String(255), nullable=True, unique=True)
+    redirectUrl = Column(Text, nullable=True)
+    transactionId = Column(String(255), nullable=True, unique=True)
+    providerStatus = Column(String(100), nullable=True)
+    responsePayload = Column(Text, nullable=True)
+    createdByType = Column(String(50), default="guest", nullable=False)
+    createdByUserId = Column(Integer, ForeignKey("users.id", ondelete="SET NULL"), nullable=True)
+    createdByAdminId = Column(Integer, ForeignKey("admins.id", ondelete="SET NULL"), nullable=True)
+    requestIp = Column(String(64), nullable=True)
+    userAgent = Column(Text, nullable=True)
+    errorMessage = Column(Text, nullable=True)
+    customerEmailSentAt = Column(DateTime, nullable=True)
+    adminEmailSentAt = Column(DateTime, nullable=True)
+    paidAt = Column(DateTime, nullable=True)
+    lastWebhookAt = Column(DateTime, nullable=True)
+    createdAt = Column(DateTime, default=func.now(), nullable=True)
+    updatedAt = Column(DateTime, default=func.now(), onupdate=func.now(), nullable=True)
+
+    booking = relationship("Booking", back_populates="payments")
+    user = relationship("User", back_populates="payments", foreign_keys=[userId])
+    createdByUser = relationship("User", back_populates="createdPayments", foreign_keys=[createdByUserId])
+    createdByAdmin = relationship("Admin", back_populates="createdPayments")
+    events = relationship(
+        "PaymentEvent",
+        back_populates="payment",
+        cascade="all, delete-orphan",
+        order_by="PaymentEvent.createdAt",
+    )
+
+
+class PaymentEvent(Base):
+    """История событий платежа: создание checkout, webhook, confirm, ошибки."""
+
+    __tablename__ = "payment_events"
+
+    id = Column(Integer, primary_key=True, index=True)
+    paymentId = Column(Integer, ForeignKey("payments.id", ondelete="CASCADE"), nullable=False)
+    eventType = Column(String(50), nullable=False)
+    providerStatus = Column(String(100), nullable=True)
+    payloadJson = Column(Text, nullable=True)
+    createdAt = Column(DateTime, default=func.now(), nullable=True)
+
+    payment = relationship("Payment", back_populates="events")
 
 
 class SiteSettings(Base):

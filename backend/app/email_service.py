@@ -50,6 +50,45 @@ DEFAULT_TEMPLATES = {
 <p>С уважением, команда Комплекса отдыха Парк Relax</p>
 """.strip(),
     },
+    "payment_success_admin": {
+        "subject": "Оплата бронирования №{{bookingId}} — Комплекс отдыха Парк Relax",
+        "bodyHtml": """
+<h2>Платёж успешно оплачен</h2>
+<table style="border-collapse:collapse;width:100%;max-width:680px;font-family:Arial,sans-serif;">
+  <tr><td style="padding:8px;border:1px solid #ddd;background:#f9f9f9;"><strong>ID платежа</strong></td><td style="padding:8px;border:1px solid #ddd;">{{paymentId}}</td></tr>
+  <tr><td style="padding:8px;border:1px solid #ddd;background:#f9f9f9;"><strong>ID бронирования</strong></td><td style="padding:8px;border:1px solid #ddd;">{{bookingId}}</td></tr>
+  <tr><td style="padding:8px;border:1px solid #ddd;background:#f9f9f9;"><strong>Клиент</strong></td><td style="padding:8px;border:1px solid #ddd;">{{customerName}}</td></tr>
+  <tr><td style="padding:8px;border:1px solid #ddd;background:#f9f9f9;"><strong>Email</strong></td><td style="padding:8px;border:1px solid #ddd;">{{customerEmail}}</td></tr>
+  <tr><td style="padding:8px;border:1px solid #ddd;background:#f9f9f9;"><strong>Телефон</strong></td><td style="padding:8px;border:1px solid #ddd;">{{customerPhone}}</td></tr>
+  <tr><td style="padding:8px;border:1px solid #ddd;background:#f9f9f9;"><strong>Размещение</strong></td><td style="padding:8px;border:1px solid #ddd;">{{houseName}}</td></tr>
+  <tr><td style="padding:8px;border:1px solid #ddd;background:#f9f9f9;"><strong>Даты</strong></td><td style="padding:8px;border:1px solid #ddd;">{{startDate}} — {{endDate}}</td></tr>
+  <tr><td style="padding:8px;border:1px solid #ddd;background:#f9f9f9;"><strong>Сумма</strong></td><td style="padding:8px;border:1px solid #ddd;">{{amount}} {{currency}}</td></tr>
+  <tr><td style="padding:8px;border:1px solid #ddd;background:#f9f9f9;"><strong>Статус</strong></td><td style="padding:8px;border:1px solid #ddd;">{{status}}</td></tr>
+  <tr><td style="padding:8px;border:1px solid #ddd;background:#f9f9f9;"><strong>Создан</strong></td><td style="padding:8px;border:1px solid #ddd;">{{createdAt}}</td></tr>
+  <tr><td style="padding:8px;border:1px solid #ddd;background:#f9f9f9;"><strong>Оплачен</strong></td><td style="padding:8px;border:1px solid #ddd;">{{paidAt}}</td></tr>
+  <tr><td style="padding:8px;border:1px solid #ddd;background:#f9f9f9;"><strong>Transaction ID</strong></td><td style="padding:8px;border:1px solid #ddd;">{{transactionId}}</td></tr>
+</table>
+<p style="margin-top:16px;">Открыть админку: <a href="{{adminUrl}}">{{adminUrl}}</a></p>
+""".strip(),
+    },
+    "payment_available": {
+        "subject": "Оплата бронирования №{{bookingId}} доступна — Комплекс отдыха Парк Relax",
+        "bodyHtml": """
+<h2>Здравствуйте, {{name}}!</h2>
+<p>Ваше бронирование №{{bookingId}} подтверждено администратором. Теперь доступна онлайн-оплата банковской картой.</p>
+<p><strong>Дом:</strong> {{houseName}}</p>
+<p><strong>Даты:</strong> {{startDate}} — {{endDate}}</p>
+<p><strong>Сумма к оплате:</strong> {{amount}} Br</p>
+<p style="margin-top:16px;">
+  <a href="{{paymentUrl}}" style="display:inline-block;background:#1e6091;color:#fff;padding:12px 18px;border-radius:10px;text-decoration:none;">
+    Перейти к оплате
+  </a>
+</p>
+<p>Если кнопка не открывается, перейдите по ссылке: <a href="{{paymentUrl}}">{{paymentUrl}}</a></p>
+<hr>
+<p>С уважением, команда Комплекса отдыха Парк Relax</p>
+""".strip(),
+    },
     "booking_reminder": {
         "subject": "Напоминание о бронировании — Комплекс отдыха Парк Relax",
         "bodyHtml": """

@@ -87,6 +87,7 @@ import AccommodationTypeManager from '@/components/AccommodationTypeManager'
 import { BookingSettingsCard } from '@/components/BookingSettingsCard'
 import RentalManager from '@/components/RentalManager'
 import BanyaManager from '@/components/BanyaManager'
+import { PaymentTab } from '@/components/PaymentTab'
 import {
   BarChart,
   Bar,
@@ -356,6 +357,10 @@ export default function AdminDashboardPage() {
               <BarChart3 className="w-4 h-4" />
               Статистика
             </TabsTrigger>
+            <TabsTrigger value="payments" className="gap-1.5">
+              <CreditCard className="w-4 h-4" />
+              Оплаты
+            </TabsTrigger>
             <TabsTrigger value="occupancy" className="gap-1.5">
               <TrendingUp className="w-4 h-4" />
               Загрузка
@@ -397,6 +402,9 @@ export default function AdminDashboardPage() {
           </TabsContent>
           <TabsContent value="stats">
             <StatsTab />
+          </TabsContent>
+          <TabsContent value="payments">
+            <PaymentTab />
           </TabsContent>
           <TabsContent value="occupancy">
             <OccupancyTab />

@@ -1,0 +1,11 @@
+---
+description: Project verification command conventions
+alwaysApply: true
+---
+
+# Verification Commands
+
+- Use `python3` for backend Python checks on this project; the `python` executable may be absent in local shells.
+- Prefer the project virtualenv when present: `.venv/bin/python` for Python checks and `.venv/bin/alembic` for migrations.
+- If the `alembic` console script is unavailable, run Alembic from the repository root so `backend/alembic/` does not shadow the package: `python3 -c "from alembic.config import main; main(argv=['-c', 'backend/alembic.ini', 'upgrade', 'head'])"`.
+- Treat `npm run lint` failures in pre-existing unrelated files as a repository baseline issue; still report them separately from errors introduced by the current change.

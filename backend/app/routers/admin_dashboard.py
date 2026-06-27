@@ -3,10 +3,11 @@ from datetime import date, datetime, timedelta
 from typing import Optional
 from pydantic import BaseModel
 from fastapi import APIRouter, Depends, Query, HTTPException, UploadFile, File
-from sqlalchemy import select, func, and_, desc, asc
+from sqlalchemy import select, func, and_, desc, asc, or_
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import joinedload, selectinload
 
+from app.config import settings
 from app.dependencies import get_db, get_current_admin
 from app.models import (
     Booking,
@@ -15,6 +16,8 @@ from app.models import (
     AccommodationImage,
     RentalItem,
     AdminEmail,
+    Payment,
+    PaymentSettings,
     User,
     BanyaPageSettings,
     BanyaSliderItem,
@@ -25,6 +28,9 @@ from app.schemas import (
     AccommodationTypeCreate, AccommodationTypeUpdate, AccommodationTypeResponse,
     RentalItemCreate, RentalItemUpdate, RentalItemResponse,
     AdminEmailCreate, AdminEmailUpdate, AdminEmailResponse,
+    PaymentResponse,
+    PaymentSettingsResponse,
+    PaymentSettingsUpdate,
     BanyaPageSettingsResponse,
     BanyaPageSettingsUpdate,
     BanyaSliderItemCreate,
@@ -36,7 +42,8 @@ from app.schemas import (
 )
 from app.routers.banya import _section_to_response
 from app.routers.booking import _check_accommodation_availability
-from app.services.booking_availability import booking_occupies_dates_filter
+from app.services.booking_availability import booking_occupies_dates_filter, calculate_booking_total
+from app.services.payment_settings import get_or_create_payment_settings
 from app.user_password_service import hash_password
 from app.admin import _convert_to_webp, _delete_image_file
 from app.email_service import send_email, get_active_smtp_settings, generate_temp_password
@@ -51,6 +58,43 @@ def _booking_load_options():
         selectinload(Booking.accommodation).joinedload(Accommodation.type),
         selectinload(Booking.accommodation).selectinload(Accommodation.images),
         selectinload(Booking.accommodation).selectinload(Accommodation.features),
+        selectinload(Booking.user),
+    )
+
+
+def _booking_total_price(booking: Booking) -> int:
+    """Рассчитать сумму брони для письма о доступной оплате."""
+    if not booking.accommodation:
+        return 0
+    nights = max(1, (booking.endDate - booking.startDate).days)
+    return calculate_booking_total(
+        booking.accommodation,
+        adults=booking.adults or 1,
+        children=booking.children or 0,
+        nights=nights,
+    )
+
+
+async def _send_payment_available_email(db: AsyncSession, booking: Booking) -> None:
+    """Уведомить гостя, что админ подтвердил заявку и оплату можно выполнить."""
+    email = booking.customerEmail or (booking.user.email if booking.user else None)
+    if not email:
+        return
+
+    payment_url = f"{settings.site_url.rstrip('/')}/payment?bookingId={booking.id}"
+    await send_email(
+        db,
+        to_email=email,
+        template_type="payment_available",
+        variables={
+            "name": booking.customerName or (booking.user.name if booking.user else None) or "Гость",
+            "bookingId": str(booking.id),
+            "houseName": booking.accommodation.name if booking.accommodation else "—",
+            "startDate": booking.startDate.isoformat(),
+            "endDate": booking.endDate.isoformat(),
+            "amount": str(_booking_total_price(booking)),
+            "paymentUrl": payment_url,
+        },
     )
 
 
@@ -627,6 +671,7 @@ async def admin_update_booking(
         raise HTTPException(status_code=404, detail="Booking not found")
 
     update_data = data.model_dump(exclude_unset=True)
+    old_status = (booking.status or "").strip().lower()
 
     # Check availability if dates or accommodation changed
     new_acc = update_data.get("accommodationId", booking.accommodationId)
@@ -634,6 +679,12 @@ async def admin_update_booking(
     new_end = update_data.get("endDate", booking.endDate)
 
     new_status = update_data.get("status", booking.status)
+    new_status_normalized = (new_status or "").strip().lower()
+    should_send_payment_available = (
+        "status" in update_data
+        and old_status != "pending"
+        and new_status_normalized == "pending"
+    )
 
     if "accommodationId" in update_data or "startDate" in update_data or "endDate" in update_data:
         if new_acc:
@@ -650,7 +701,7 @@ async def admin_update_booking(
                 raise HTTPException(status_code=409, detail="Данный дом занят на выбранный период")
 
     # Смена статуса на неотменённый — проверяем пересечение с другими бронями
-    if "status" in update_data and new_status.strip().lower() not in ("cancelled", "canceled"):
+    if "status" in update_data and new_status_normalized not in ("cancelled", "canceled"):
         if new_acc:
             available = await _check_accommodation_availability(
                 db,
@@ -675,7 +726,10 @@ async def admin_update_booking(
         .options(*_booking_load_options())
         .where(Booking.id == booking.id)
     )
-    return result.unique().scalar_one()
+    updated_booking = result.unique().scalar_one()
+    if should_send_payment_available:
+        await _send_payment_available_email(db, updated_booking)
+    return updated_booking
 
 
 @router.delete("/bookings/{booking_id}", status_code=204)
@@ -1145,6 +1199,106 @@ async def test_smtp_connection(
         }
     except Exception as exc:
         return {"reachable": False, "host": smtp.host, "port": smtp.port, "error": str(exc)}
+
+
+# ── Payment Settings / Payment Audit ───────────────────────────────
+
+@router.get("/payment-settings", response_model=PaymentSettingsResponse)
+async def get_admin_payment_settings(
+    db: AsyncSession = Depends(get_db),
+    _admin=Depends(get_current_admin),
+):
+    return await get_or_create_payment_settings(db)
+
+
+@router.patch("/payment-settings", response_model=PaymentSettingsResponse)
+async def update_admin_payment_settings(
+    data: PaymentSettingsUpdate,
+    db: AsyncSession = Depends(get_db),
+    _admin=Depends(get_current_admin),
+):
+    item = await get_or_create_payment_settings(db)
+    update_data = data.model_dump(exclude_unset=True)
+
+    if "shopId" in update_data:
+        item.shopId = (update_data["shopId"] or "").strip() or None
+    if "secretKey" in update_data:
+        item.secretKey = (update_data["secretKey"] or "").strip() or None
+    if "testMode" in update_data:
+        item.testMode = bool(update_data["testMode"])
+    if "isActive" in update_data:
+        item.isActive = bool(update_data["isActive"])
+    if "notificationUrl" in update_data:
+        item.notificationUrl = (update_data["notificationUrl"] or "").strip() or None
+    if "bookingPaymentMode" in update_data and update_data["bookingPaymentMode"]:
+        item.bookingPaymentMode = update_data["bookingPaymentMode"]
+
+    await db.commit()
+    await db.refresh(item)
+    return item
+
+
+@router.get("/payments", response_model=list[PaymentResponse])
+async def list_admin_payments(
+    status: Optional[str] = Query(None),
+    booking_id: Optional[int] = Query(None, alias="bookingId"),
+    date_from: Optional[date] = Query(None, alias="dateFrom"),
+    date_to: Optional[date] = Query(None, alias="dateTo"),
+    q: Optional[str] = Query(None),
+    limit: int = Query(50, ge=1, le=200),
+    db: AsyncSession = Depends(get_db),
+    _admin=Depends(get_current_admin),
+):
+    stmt = (
+        select(Payment)
+        .options(selectinload(Payment.events))
+        .order_by(desc(Payment.createdAt), desc(Payment.id))
+        .limit(limit)
+    )
+
+    filters = []
+    if status:
+        filters.append(Payment.status == status)
+    if booking_id:
+        filters.append(Payment.bookingId == booking_id)
+    if date_from:
+        filters.append(Payment.createdAt >= datetime.combine(date_from, datetime.min.time()))
+    if date_to:
+        filters.append(Payment.createdAt <= datetime.combine(date_to, datetime.max.time()))
+    if q:
+        like = f"%{q.strip()}%"
+        filters.append(
+            or_(
+                Payment.customerName.ilike(like),
+                Payment.customerEmail.ilike(like),
+                Payment.customerPhone.ilike(like),
+                Payment.transactionId.ilike(like),
+                Payment.trackingId.ilike(like),
+            )
+        )
+
+    if filters:
+        stmt = stmt.where(and_(*filters))
+
+    result = await db.execute(stmt)
+    return result.unique().scalars().all()
+
+
+@router.get("/payments/{payment_id}", response_model=PaymentResponse)
+async def get_admin_payment(
+    payment_id: int,
+    db: AsyncSession = Depends(get_db),
+    _admin=Depends(get_current_admin),
+):
+    result = await db.execute(
+        select(Payment)
+        .options(selectinload(Payment.events))
+        .where(Payment.id == payment_id)
+    )
+    payment = result.unique().scalar_one_or_none()
+    if not payment:
+        raise HTTPException(status_code=404, detail="Payment not found")
+    return payment
 
 
 # ── Admin Emails CRUD ──────────────────────────────────────────────

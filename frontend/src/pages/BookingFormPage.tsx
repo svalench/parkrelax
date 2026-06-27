@@ -53,6 +53,7 @@ export default function BookingFormPage() {
   const [showConfirm, setShowConfirm] = useState(false)
   const [showSuccess, setShowSuccess] = useState(false)
   const [bookingId, setBookingId] = useState<number | null>(null)
+  const [bookingPaymentMode, setBookingPaymentMode] = useState<'manual_confirmation' | 'auto_payment'>('manual_confirmation')
 
   const [name, setName] = useState('')
   const [phone, setPhone] = useState('')
@@ -66,6 +67,22 @@ export default function BookingFormPage() {
     if (user.name && !name) setName(user.name)
     if (user.email && !email) setEmail(user.email)
   }, [user, name, email])
+
+  useEffect(() => {
+    let cancelled = false
+    fetch(`${API_BASE}/payment/public-settings`)
+      .then(async (res) => {
+        if (!res.ok) return
+        const data = await res.json()
+        if (!cancelled && data.bookingPaymentMode === 'auto_payment') {
+          setBookingPaymentMode('auto_payment')
+        }
+      })
+      .catch(() => {
+        setBookingPaymentMode('manual_confirmation')
+      })
+    return () => { cancelled = true }
+  }, [])
 
   const sessionParams = useMemo(() => {
     if (!accommodationId || !checkIn || !checkOut) return null
@@ -191,9 +208,14 @@ export default function BookingFormPage() {
         setError(data.detail || 'Не удалось создать бронирование')
         setShowConfirm(false)
       } else {
-        setBookingId(data.id ?? null)
+        const createdBookingId = data.id ?? null
+        setBookingId(createdBookingId)
         setShowConfirm(false)
-        setShowSuccess(true)
+        if (bookingPaymentMode === 'auto_payment' && createdBookingId) {
+          navigate(`/payment?bookingId=${createdBookingId}`)
+        } else {
+          setShowSuccess(true)
+        }
       }
     } catch {
       setError('Ошибка сети')

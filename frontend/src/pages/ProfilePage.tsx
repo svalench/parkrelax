@@ -55,6 +55,7 @@ export default function ProfilePage() {
   const [loading, setLoading] = useState(true)
   const [loadError, setLoadError] = useState('')
   const [cancellingId, setCancellingId] = useState<number | null>(null)
+  const [bookingPaymentMode, setBookingPaymentMode] = useState<'manual_confirmation' | 'auto_payment'>('manual_confirmation')
 
   async function fetchCsrfToken(): Promise<string | null> {
     try {
@@ -116,6 +117,20 @@ export default function ProfilePage() {
       })
       .finally(() => setLoading(false))
   }, [user, authLoading, navigate])
+
+  useEffect(() => {
+    fetch(`${API_BASE}/payment/public-settings`)
+      .then(async (res) => {
+        if (!res.ok) return
+        const data = await res.json()
+        if (data.bookingPaymentMode === 'auto_payment') {
+          setBookingPaymentMode('auto_payment')
+        }
+      })
+      .catch(() => {
+        setBookingPaymentMode('manual_confirmation')
+      })
+  }, [])
 
   const handleLogout = async () => {
     await logout()
@@ -245,7 +260,7 @@ export default function ProfilePage() {
                       <p className="mt-3 text-brand font-bold">{total.toLocaleString('ru-RU')} Br</p>
                     )}
                     <div className="mt-4 flex flex-wrap gap-2">
-                      {b.status === 'pending' && (
+                      {(b.status === 'pending' || (bookingPaymentMode === 'auto_payment' && b.status === 'pending_confirmation')) && (
                         <Button
                           onClick={() => navigate(`/payment?bookingId=${b.id}`)}
                           className="rounded-xl bg-brand hover:bg-brand-hover text-white"

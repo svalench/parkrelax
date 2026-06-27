@@ -43,12 +43,14 @@ from app.routers import (
 from contextlib import asynccontextmanager
 from app.database import AsyncSessionLocal
 from app.email_service import ensure_default_templates
+from app.services.payment_settings import get_or_create_payment_settings
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     async with AsyncSessionLocal() as db:
         await ensure_default_templates(db)
+        await get_or_create_payment_settings(db)
     yield
 
 

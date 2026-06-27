@@ -33,6 +33,7 @@ interface AdminEmailItem {
   email: string
   name?: string | null
   isActive: boolean
+  notifyOnPayments: boolean
   createdAt?: string | null
 }
 
@@ -158,6 +159,26 @@ export function EmailTab() {
         return
       }
       toast.success('Статус обновлён')
+      await loadEmails()
+    } catch {
+      toast.error('Ошибка сети')
+    }
+  }
+
+  const toggleEmailPayments = async (item: AdminEmailItem) => {
+    try {
+      const res = await fetch(`${API_BASE}/admin/dashboard/admin-emails/${item.id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ notifyOnPayments: !item.notifyOnPayments }),
+      })
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}))
+        toast.error(err.detail || 'Ошибка обновления')
+        return
+      }
+      toast.success('Настройки уведомлений обновлены')
       await loadEmails()
     } catch {
       toast.error('Ошибка сети')
@@ -317,6 +338,7 @@ export function EmailTab() {
                     <TableHead>Email</TableHead>
                     <TableHead>Имя</TableHead>
                     <TableHead>Активен</TableHead>
+                    <TableHead>Оплаты</TableHead>
                     <TableHead className="text-right">Действия</TableHead>
                   </TableRow>
                 </TableHeader>
@@ -324,14 +346,14 @@ export function EmailTab() {
                   {emailsLoading ? (
                     Array.from({ length: 3 }).map((_, i) => (
                       <TableRow key={i}>
-                        {Array.from({ length: 4 }).map((_, j) => (
+                        {Array.from({ length: 5 }).map((_, j) => (
                           <TableCell key={j}><div className="h-4 bg-gray-200 rounded animate-pulse w-20" /></TableCell>
                         ))}
                       </TableRow>
                     ))
                   ) : emails.length === 0 ? (
                     <TableRow>
-                      <TableCell colSpan={4} className="text-center py-8 text-graytext text-sm">
+                      <TableCell colSpan={5} className="text-center py-8 text-graytext text-sm">
                         Нет email адресов. Добавьте администраторов для получения уведомлений о бронированиях.
                       </TableCell>
                     </TableRow>
@@ -344,6 +366,12 @@ export function EmailTab() {
                           <Switch
                             checked={item.isActive}
                             onCheckedChange={() => toggleEmailActive(item)}
+                          />
+                        </TableCell>
+                        <TableCell>
+                          <Switch
+                            checked={item.notifyOnPayments}
+                            onCheckedChange={() => toggleEmailPayments(item)}
                           />
                         </TableCell>
                         <TableCell className="text-right">

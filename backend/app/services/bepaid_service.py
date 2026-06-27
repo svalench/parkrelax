@@ -8,6 +8,7 @@ from typing import Any
 import httpx
 
 from app.config import settings
+from app.services.payment_settings import BepaidRuntimeConfig
 
 logger = logging.getLogger(__name__)
 
@@ -15,19 +16,24 @@ BEPAID_CHECKOUT_API = "https://checkout.bepaid.by/ctp/api/checkouts"
 BEPAID_STATUS_API = "https://checkout.bepaid.by/ctp/api/checkouts"
 
 
-def bepaid_configured() -> bool:
+def bepaid_configured(config: BepaidRuntimeConfig | None = None) -> bool:
     """Проверка наличия учётных данных bePaid."""
+    if config is not None:
+        return bool(config.shop_id and config.secret_key)
     return bool(settings.bepaid_shop_id and settings.bepaid_secret_key)
 
 
-def _auth_header() -> str:
-    credentials = f"{settings.bepaid_shop_id}:{settings.bepaid_secret_key}"
+def _auth_header(config: BepaidRuntimeConfig | None = None) -> str:
+    shop_id = config.shop_id if config is not None else settings.bepaid_shop_id
+    secret_key = config.secret_key if config is not None else settings.bepaid_secret_key
+    credentials = f"{shop_id}:{secret_key}"
     encoded = base64.b64encode(credentials.encode()).decode()
     return f"Basic {encoded}"
 
 
-def _site_base_url() -> str:
-    return settings.site_url.rstrip("/")
+def _site_base_url(config: BepaidRuntimeConfig | None = None) -> str:
+    site_url = config.site_url if config is not None else settings.site_url
+    return site_url.rstrip("/")
 
 
 async def create_checkout(
@@ -39,20 +45,28 @@ async def create_checkout(
     customer_email: str | None,
     customer_name: str | None,
     booking_id: int,
+    payment_id: int | None = None,
+    config: BepaidRuntimeConfig | None = None,
 ) -> dict[str, Any]:
     """Создать платёжный токен bePaid и получить redirect_url."""
-    base = _site_base_url()
+    base = _site_base_url(config)
+    payment_query = f"&paymentId={payment_id}" if payment_id is not None else ""
+    notification_url = (
+        config.notification_url
+        if config is not None and config.notification_url
+        else f"{base}/api/payment/webhook"
+    )
     payload = {
         "checkout": {
-            "test": settings.bepaid_test_mode,
+            "test": config.test_mode if config is not None else settings.bepaid_test_mode,
             "transaction_type": "payment",
             "attempts": 3,
             "settings": {
-                "success_url": f"{base}/payment?bookingId={booking_id}&status=successful",
-                "decline_url": f"{base}/payment?bookingId={booking_id}&status=declined",
-                "fail_url": f"{base}/payment?bookingId={booking_id}&status=failed",
-                "cancel_url": f"{base}/payment?bookingId={booking_id}&status=cancelled",
-                "notification_url": f"{base}/api/payment/webhook",
+                "success_url": f"{base}/payment?bookingId={booking_id}&status=successful{payment_query}",
+                "decline_url": f"{base}/payment?bookingId={booking_id}&status=declined{payment_query}",
+                "fail_url": f"{base}/payment?bookingId={booking_id}&status=failed{payment_query}",
+                "cancel_url": f"{base}/payment?bookingId={booking_id}&status=cancelled{payment_query}",
+                "notification_url": notification_url,
                 "language": "ru",
                 "button_next_text": "Вернуться на сайт",
             },
@@ -80,7 +94,7 @@ async def create_checkout(
         "Content-Type": "application/json",
         "Accept": "application/json",
         "X-API-Version": "2",
-        "Authorization": _auth_header(),
+        "Authorization": _auth_header(config),
     }
 
     async with httpx.AsyncClient(timeout=30.0) as client:
@@ -101,12 +115,15 @@ async def create_checkout(
     return {"token": token, "redirect_url": redirect_url}
 
 
-async def get_checkout_status(token: str) -> dict[str, Any]:
+async def get_checkout_status(
+    token: str,
+    config: BepaidRuntimeConfig | None = None,
+) -> dict[str, Any]:
     """Запросить статус платежа по токену."""
     headers = {
         "Accept": "application/json",
         "X-API-Version": "2",
-        "Authorization": _auth_header(),
+        "Authorization": _auth_header(config),
     }
     url = f"{BEPAID_STATUS_API}/{token}"
 
@@ -137,6 +154,20 @@ def is_successful_payment(payload: dict[str, Any]) -> bool:
     return False
 
 
+def extract_payment_status(payload: dict[str, Any]) -> str | None:
+    """Извлечь человекочитаемый статус из ответа bePaid."""
+    tx = payload.get("transaction") or {}
+    payment = tx.get("payment") or {}
+    for value in (
+        tx.get("status"),
+        payment.get("status"),
+        payload.get("status"),
+    ):
+        if value:
+            return str(value).lower()
+    return None
+
+
 def extract_tracking_id(payload: dict[str, Any]) -> str | None:
     """Извлечь tracking_id из webhook/status payload."""
     order = payload.get("order") or {}
@@ -149,4 +180,38 @@ def extract_tracking_id(payload: dict[str, Any]) -> str | None:
     if tracking_id:
         return str(tracking_id)
 
+    return None
+
+
+def extract_checkout_token(payload: dict[str, Any]) -> str | None:
+    """Извлечь checkout token из webhook/status payload, если bePaid его прислал."""
+    checkout = payload.get("checkout") or {}
+    token = checkout.get("token")
+    if token:
+        return str(token)
+
+    tx = payload.get("transaction") or {}
+    checkout = tx.get("checkout") or {}
+    token = checkout.get("token")
+    if token:
+        return str(token)
+
+    token = payload.get("token")
+    if token:
+        return str(token)
+    return None
+
+
+def extract_transaction_id(payload: dict[str, Any]) -> str | None:
+    """Извлечь идентификатор транзакции bePaid из разных вариантов payload."""
+    tx = payload.get("transaction") or {}
+    for key in ("uid", "id", "transaction_id"):
+        value = tx.get(key)
+        if value:
+            return str(value)
+
+    for key in ("transaction_uid", "transaction_id"):
+        value = payload.get(key)
+        if value:
+            return str(value)
     return None
