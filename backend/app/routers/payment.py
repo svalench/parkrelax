@@ -12,7 +12,7 @@ from sqlalchemy.orm import joinedload, selectinload
 from app.config import settings
 from app.dependencies import get_db
 from app.email_service import send_email
-from app.models import AdminEmail, Booking, Payment, PaymentEvent
+from app.models import Accommodation, AdminEmail, Booking, Payment, PaymentEvent
 from app.routers.site_settings import require_public_booking_enabled
 from app.schemas import (
     PaymentConfirmRequest,
@@ -64,7 +64,7 @@ async def payment_public_settings(db: AsyncSession = Depends(get_db)):
 
 def _payment_load_options():
     return (
-        joinedload(Payment.booking).joinedload(Booking.accommodation),
+        joinedload(Payment.booking).joinedload(Booking.accommodation).joinedload(Accommodation.type),
         joinedload(Payment.booking).joinedload(Booking.user),
         selectinload(Payment.events),
     )
@@ -148,7 +148,10 @@ def _add_payment_event(
 async def _load_booking(db: AsyncSession, booking_id: int) -> Booking | None:
     result = await db.execute(
         select(Booking)
-        .options(joinedload(Booking.accommodation), joinedload(Booking.user))
+        .options(
+            joinedload(Booking.accommodation).joinedload(Accommodation.type),
+            joinedload(Booking.user),
+        )
         .where(Booking.id == booking_id)
     )
     return result.unique().scalar_one_or_none()
@@ -440,6 +443,7 @@ async def initiate_payment(
     booking = await _load_booking(db, data.bookingId)
     if not booking:
         raise HTTPException(status_code=404, detail="Booking not found")
+    booking_id = booking.id
     if not _can_pay_booking(booking.status, booking_payment_mode):
         raise HTTPException(status_code=400, detail="Booking is not available for payment")
 
@@ -450,11 +454,11 @@ async def initiate_payment(
     bepaid_config = to_bepaid_runtime_config(payment_settings)
 
     if bepaid_config is not None:
-        existing = await _find_reusable_payment(db, booking_id=booking.id, provider="bepaid")
+        existing = await _find_reusable_payment(db, booking_id=booking_id, provider="bepaid")
         if existing and existing.checkoutToken and existing.redirectUrl:
             return PaymentInitiateResponse(
                 paymentId=existing.id,
-                bookingId=booking.id,
+                bookingId=booking_id,
                 amount=amount,
                 currency=existing.currency,
                 paymentMode="bepaid",
@@ -475,16 +479,16 @@ async def initiate_payment(
             checkout = await bepaid_service.create_checkout(
                 amount_minor=amount_minor,
                 currency="BYN",
-                description=f"Бронирование #{booking.id} — {booking.accommodation.name if booking.accommodation else 'Парк Relax'}",
+                description=f"Бронирование #{booking_id} — {booking.accommodation.name if booking.accommodation else 'Парк Relax'}",
                 tracking_id=payment.trackingId,
                 customer_email=booking.customerEmail or (booking.user.email if booking.user else None),
                 customer_name=booking.customerName,
-                booking_id=booking.id,
+                booking_id=booking_id,
                 payment_id=payment.id,
                 config=bepaid_config,
             )
         except ValueError as exc:
-            logger.exception("bePaid initiate failed for booking %s", booking.id)
+            logger.exception("bePaid initiate failed for booking %s", booking_id)
             payment.status = "init_failed"
             payment.errorMessage = str(exc)
             _add_payment_event(db, payment, event_type="checkout_failed", payload={"error": str(exc)})
@@ -501,7 +505,7 @@ async def initiate_payment(
 
         return PaymentInitiateResponse(
             paymentId=payment.id,
-            bookingId=booking.id,
+            bookingId=booking_id,
             amount=amount,
             currency="BYN",
             paymentMode="bepaid",
@@ -510,11 +514,11 @@ async def initiate_payment(
             paymentToken=checkout["token"],
         )
 
-    existing = await _find_reusable_payment(db, booking_id=booking.id, provider="mock")
+    existing = await _find_reusable_payment(db, booking_id=booking_id, provider="mock")
     if existing and existing.checkoutToken:
         return PaymentInitiateResponse(
             paymentId=existing.id,
-            bookingId=booking.id,
+            bookingId=booking_id,
             clientSecret=existing.checkoutToken,
             amount=amount,
             currency=existing.currency,
@@ -522,7 +526,7 @@ async def initiate_payment(
             status=existing.status,
         )
 
-    client_secret = f"secret_{booking.id}_{secrets.token_urlsafe(16)}"
+    client_secret = f"secret_{booking_id}_{secrets.token_urlsafe(16)}"
     payment = await _create_payment_record(
         db,
         booking=booking,
@@ -545,7 +549,7 @@ async def initiate_payment(
 
     return PaymentInitiateResponse(
         paymentId=payment.id,
-        bookingId=booking.id,
+        bookingId=booking_id,
         clientSecret=client_secret,
         amount=amount,
         currency="BYN",

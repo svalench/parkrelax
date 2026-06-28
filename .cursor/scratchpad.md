@@ -1,5 +1,14 @@
 # Progress
 
+## Исправление 500 на /api/payment/initiate
+
+- Причина: ленивая подгрузка `Accommodation.type` в async-сессии при `_booking_amount` -> `MissingGreenlet` -> HTTP 500 (plain text).
+- Исправление: eager-загрузка `Accommodation.type` в `_load_booking` и `_payment_load_options` в `backend/app/routers/payment.py`.
+- Дополнительно: кэш `booking_id` до `commit`, чтобы не обращаться к истёкшему `booking.id` после commit.
+- Проверка: репро `calculate_booking_total` OK (5200), прямой вызов `initiate_payment` -> mock/pending OK, `compileall` и `import app.main` OK.
+
+DONE
+
 ## bePaid: учёт платежей и настройки через админку
 
 - Итерация 4: добавлен шаблон `payment_available` и письмо пользователю при подтверждении заявки админом (`status` переходит в `pending`).
