@@ -1,5 +1,15 @@
 # Progress
 
+## Исправление bePaid checkout failed + логи бронирования
+
+- Причина ошибки «bePaid checkout failed» и суммы 0 Br: в БД `notificationUrl` был относительным (`/api/payment/webhook`), bePaid требует абсолютный URL; фронт не проверял `res.ok` при initiate.
+- Исправление: `normalize_notification_url()` в `payment_settings.py` — автопочинка при чтении/сохранении настроек.
+- Логи: `logs/booking.log` (RotatingFileHandler 5MB × 10) через `app/booking_logging.py`; логирование в `booking.py`, `payment.py`, `bepaid_service.py`.
+- Фронт: `PaymentPage` проверяет `res.ok`, показывает текст ошибки bePaid, корректный заголовок при активном bePaid.
+- Проверка: normalize + DB fix OK, `initiate_payment` mock OK, compile OK.
+
+DONE
+
 ## Исправление 500 на /api/payment/initiate
 
 - Причина: ленивая подгрузка `Accommodation.type` в async-сессии при `_booking_amount` -> `MissingGreenlet` -> HTTP 500 (plain text).

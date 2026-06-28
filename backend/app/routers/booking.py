@@ -6,6 +6,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import joinedload, selectinload
 from fastapi_viewsets import AsyncBaseViewset
 
+from app.booking_logging import booking_logger
 from app.database import AsyncSessionLocal
 from app.dependencies import get_db, get_current_user
 from app.models import Booking, Accommodation, User, AdminEmail
@@ -97,6 +98,18 @@ async def create_booking(data: BookingCreate, db: AsyncSession = Depends(get_db)
         booking.customerEmail = data.customerEmail.strip().lower()
     db.add(booking)
     await db.flush()
+
+    booking_logger.info(
+        "booking created: id=%s accommodation_id=%s dates=%s..%s adults=%s children=%s email=%s phone=%s",
+        booking.id,
+        data.accommodationId,
+        data.startDate,
+        data.endDate,
+        data.adults or 1,
+        data.children or 0,
+        data.customerEmail or "—",
+        data.customerPhone or "—",
+    )
 
     is_new_user = False
     temp_password = None

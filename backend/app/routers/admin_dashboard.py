@@ -43,7 +43,7 @@ from app.schemas import (
 from app.routers.banya import _section_to_response
 from app.routers.booking import _check_accommodation_availability
 from app.services.booking_availability import booking_occupies_dates_filter, calculate_booking_total
-from app.services.payment_settings import get_or_create_payment_settings
+from app.services.payment_settings import get_or_create_payment_settings, normalize_notification_url
 from app.user_password_service import hash_password
 from app.admin import _convert_to_webp, _delete_image_file
 from app.email_service import send_email, get_active_smtp_settings, generate_temp_password
@@ -1229,7 +1229,10 @@ async def update_admin_payment_settings(
     if "isActive" in update_data:
         item.isActive = bool(update_data["isActive"])
     if "notificationUrl" in update_data:
-        item.notificationUrl = (update_data["notificationUrl"] or "").strip() or None
+        raw_url = (update_data["notificationUrl"] or "").strip() or None
+        item.notificationUrl = (
+            normalize_notification_url(raw_url, settings.site_url) if raw_url else None
+        )
     if "bookingPaymentMode" in update_data and update_data["bookingPaymentMode"]:
         item.bookingPaymentMode = update_data["bookingPaymentMode"]
 

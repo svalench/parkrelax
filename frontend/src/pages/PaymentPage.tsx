@@ -40,6 +40,7 @@ export default function PaymentPage() {
   const [amount, setAmount] = useState(0)
   const [error, setError] = useState('')
   const [paymentData, setPaymentData] = useState<PaymentInitData | null>(null)
+  const [bepaidActive, setBepaidActive] = useState(false)
 
   const confirmPayment = useCallback(async (token?: string, secret?: string, paymentId?: number) => {
     setProcessing(true)
@@ -101,8 +102,19 @@ export default function PaymentPage() {
     let cancelled = false
 
     async function init() {
-      const csrf = await fetchCsrfToken()
+      const [csrf, publicSettingsRes] = await Promise.all([
+        fetchCsrfToken(),
+        fetch(`${API_BASE}/payment/public-settings`),
+      ])
       if (cancelled) return
+
+      if (publicSettingsRes.ok) {
+        const publicSettings = await publicSettingsRes.json()
+        if (!cancelled) {
+          setBepaidActive(Boolean(publicSettings.bepaidActive))
+        }
+      }
+
       const res = await fetch(`${API_BASE}/payment/initiate`, {
         method: 'POST',
         headers: {
@@ -115,6 +127,15 @@ export default function PaymentPage() {
       if (cancelled) return
       const data = await res.json()
       if (!cancelled) {
+        if (!res.ok) {
+          setError(
+            typeof data.detail === 'string'
+              ? data.detail
+              : 'Не удалось инициализировать оплату',
+          )
+          setLoading(false)
+          return
+        }
         if (data.amount !== undefined) {
           setAmount(data.amount)
           setPaymentData({
@@ -126,7 +147,7 @@ export default function PaymentPage() {
             paymentToken: data.paymentToken,
           })
         } else {
-          setError(data.detail || 'Не удалось инициализировать оплату')
+          setError('Не удалось инициализировать оплату')
         }
         setLoading(false)
       }
@@ -169,7 +190,7 @@ export default function PaymentPage() {
     )
   }
 
-  const isBepaid = paymentData?.paymentMode === 'bepaid'
+  const isBepaid = paymentData?.paymentMode === 'bepaid' || (bepaidActive && !paymentData)
 
   return (
     <div className="min-h-screen bg-lightgray pt-24 md:pt-28 pb-12">

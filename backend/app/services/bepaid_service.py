@@ -2,11 +2,13 @@
 from __future__ import annotations
 
 import base64
+import json
 import logging
 from typing import Any
 
 import httpx
 
+from app.booking_logging import booking_logger
 from app.config import settings
 from app.services.payment_settings import BepaidRuntimeConfig
 
@@ -34,6 +36,33 @@ def _auth_header(config: BepaidRuntimeConfig | None = None) -> str:
 def _site_base_url(config: BepaidRuntimeConfig | None = None) -> str:
     site_url = config.site_url if config is not None else settings.site_url
     return site_url.rstrip("/")
+
+
+def _extract_error_message(data: Any, status_code: int) -> str:
+    """Собрать текст ошибки из разных форматов ответа bePaid."""
+    if not isinstance(data, dict):
+        return f"bePaid checkout failed (HTTP {status_code})"
+
+    for key in ("message", "error", "error_message"):
+        value = data.get(key)
+        if value:
+            return str(value)
+
+    errors = data.get("errors")
+    if isinstance(errors, dict):
+        parts = [f"{field}: {msg}" for field, msg in errors.items()]
+        if parts:
+            return "; ".join(parts)
+    if isinstance(errors, list) and errors:
+        return "; ".join(str(item) for item in errors)
+
+    checkout = data.get("checkout")
+    if isinstance(checkout, dict):
+        checkout_message = checkout.get("message")
+        if checkout_message:
+            return str(checkout_message)
+
+    return f"bePaid checkout failed (HTTP {status_code})"
 
 
 async def create_checkout(
@@ -97,21 +126,57 @@ async def create_checkout(
         "Authorization": _auth_header(config),
     }
 
+    booking_logger.info(
+        "bePaid create_checkout: booking_id=%s payment_id=%s amount_minor=%s currency=%s tracking_id=%s notification_url=%s test=%s",
+        booking_id,
+        payment_id,
+        amount_minor,
+        currency,
+        tracking_id,
+        notification_url,
+        payload["checkout"]["test"],
+    )
+
     async with httpx.AsyncClient(timeout=30.0) as client:
         response = await client.post(BEPAID_CHECKOUT_API, json=payload, headers=headers)
-        data = response.json()
+        raw_text = response.text
+        try:
+            data = response.json()
+        except json.JSONDecodeError:
+            booking_logger.error(
+                "bePaid create_checkout invalid JSON: status=%s body=%s",
+                response.status_code,
+                raw_text[:1000],
+            )
+            raise ValueError(f"bePaid checkout failed (HTTP {response.status_code})") from None
 
     if response.status_code >= 400:
+        message = _extract_error_message(data, response.status_code)
+        booking_logger.error(
+            "bePaid create_checkout error: status=%s message=%s response=%s",
+            response.status_code,
+            message,
+            json.dumps(data, ensure_ascii=False)[:2000],
+        )
         logger.error("bePaid checkout error: %s %s", response.status_code, data)
-        message = data.get("message") if isinstance(data, dict) else str(data)
-        raise ValueError(message or "bePaid checkout failed")
+        raise ValueError(message)
 
     checkout = data.get("checkout", {})
     token = checkout.get("token")
     redirect_url = checkout.get("redirect_url")
     if not token or not redirect_url:
+        booking_logger.error(
+            "bePaid create_checkout missing token/redirect: response=%s",
+            json.dumps(data, ensure_ascii=False)[:2000],
+        )
         raise ValueError("bePaid response missing token or redirect_url")
 
+    booking_logger.info(
+        "bePaid create_checkout success: booking_id=%s payment_id=%s token=%s",
+        booking_id,
+        payment_id,
+        token,
+    )
     return {"token": token, "redirect_url": redirect_url}
 
 

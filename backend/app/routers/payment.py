@@ -9,6 +9,7 @@ from sqlalchemy import desc, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import joinedload, selectinload
 
+from app.booking_logging import booking_logger
 from app.config import settings
 from app.dependencies import get_db
 from app.email_service import send_email
@@ -442,16 +443,35 @@ async def initiate_payment(
 
     booking = await _load_booking(db, data.bookingId)
     if not booking:
+        booking_logger.warning("payment initiate: booking not found booking_id=%s", data.bookingId)
         raise HTTPException(status_code=404, detail="Booking not found")
     booking_id = booking.id
     if not _can_pay_booking(booking.status, booking_payment_mode):
+        booking_logger.warning(
+            "payment initiate: booking not payable booking_id=%s status=%s mode=%s",
+            booking_id,
+            booking.status,
+            booking_payment_mode,
+        )
         raise HTTPException(status_code=400, detail="Booking is not available for payment")
 
     amount = _booking_amount(booking)
     if amount <= 0:
+        booking_logger.warning(
+            "payment initiate: empty amount booking_id=%s accommodation_id=%s",
+            booking_id,
+            booking.accommodationId,
+        )
         raise HTTPException(status_code=400, detail="Booking amount is empty")
     amount_minor = amount * 100
     bepaid_config = to_bepaid_runtime_config(payment_settings)
+    booking_logger.info(
+        "payment initiate: booking_id=%s amount=%s provider=%s mode=%s",
+        booking_id,
+        amount,
+        "bepaid" if bepaid_config is not None else "mock",
+        booking_payment_mode,
+    )
 
     if bepaid_config is not None:
         existing = await _find_reusable_payment(db, booking_id=booking_id, provider="bepaid")
@@ -488,6 +508,12 @@ async def initiate_payment(
                 config=bepaid_config,
             )
         except ValueError as exc:
+            booking_logger.error(
+                "payment initiate bePaid failed: booking_id=%s payment_id=%s error=%s",
+                booking_id,
+                payment.id,
+                exc,
+            )
             logger.exception("bePaid initiate failed for booking %s", booking_id)
             payment.status = "init_failed"
             payment.errorMessage = str(exc)
