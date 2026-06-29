@@ -1,10 +1,11 @@
 import { useState, useEffect, useCallback } from 'react'
 import { useSearchParams, useNavigate, Link } from 'react-router'
 import { Button } from '@/components/ui/button'
-import { Loader2, CreditCard, CheckCircle, ArrowLeft, ExternalLink } from 'lucide-react'
+import { Loader2, CreditCard, CheckCircle, ArrowLeft, ExternalLink, Clock } from 'lucide-react'
 import PaymentLogos from '@/components/PaymentLogos'
 
 const API_BASE = '/api'
+const HOLD_EXPIRED_MESSAGE = 'Время резервирования истекло. Оформите бронирование заново.'
 
 async function fetchCsrfToken(): Promise<string | null> {
   try {
@@ -15,6 +16,12 @@ async function fetchCsrfToken(): Promise<string | null> {
   } catch {
     return null
   }
+}
+
+function formatCountdown(totalSeconds: number): string {
+  const minutes = Math.floor(totalSeconds / 60)
+  const seconds = totalSeconds % 60
+  return `${minutes}:${seconds.toString().padStart(2, '0')}`
 }
 
 interface PaymentInitData {
@@ -33,6 +40,7 @@ export default function PaymentPage() {
   const returnStatus = searchParams.get('status')
   const returnToken = searchParams.get('token')
   const returnPaymentId = Number(searchParams.get('paymentId')) || undefined
+  const holdUntilParam = searchParams.get('holdUntil')
 
   const [loading, setLoading] = useState(true)
   const [processing, setProcessing] = useState(false)
@@ -41,6 +49,9 @@ export default function PaymentPage() {
   const [error, setError] = useState('')
   const [paymentData, setPaymentData] = useState<PaymentInitData | null>(null)
   const [bepaidActive, setBepaidActive] = useState(false)
+  const [holdExpiresAt, setHoldExpiresAt] = useState<string | null>(holdUntilParam)
+  const [secondsLeft, setSecondsLeft] = useState<number | null>(null)
+  const [holdExpired, setHoldExpired] = useState(false)
 
   const confirmPayment = useCallback(async (token?: string, secret?: string, paymentId?: number) => {
     setProcessing(true)
@@ -75,6 +86,27 @@ export default function PaymentPage() {
       setLoading(false)
     }
   }, [bookingId, navigate])
+
+  useEffect(() => {
+    if (!holdExpiresAt) {
+      setSecondsLeft(null)
+      return
+    }
+
+    const updateCountdown = () => {
+      const expiresMs = new Date(holdExpiresAt).getTime()
+      const diff = Math.max(0, Math.floor((expiresMs - Date.now()) / 1000))
+      setSecondsLeft(diff)
+      if (diff <= 0) {
+        setHoldExpired(true)
+        setError(HOLD_EXPIRED_MESSAGE)
+      }
+    }
+
+    updateCountdown()
+    const timer = window.setInterval(updateCountdown, 1000)
+    return () => window.clearInterval(timer)
+  }, [holdExpiresAt])
 
   useEffect(() => {
     if (!bookingId) {
@@ -128,16 +160,19 @@ export default function PaymentPage() {
       const data = await res.json()
       if (!cancelled) {
         if (!res.ok) {
-          setError(
-            typeof data.detail === 'string'
-              ? data.detail
-              : 'Не удалось инициализировать оплату',
-          )
+          const detail = typeof data.detail === 'string' ? data.detail : 'Не удалось инициализировать оплату'
+          setError(detail)
+          if (detail === HOLD_EXPIRED_MESSAGE) {
+            setHoldExpired(true)
+          }
           setLoading(false)
           return
         }
         if (data.amount !== undefined) {
           setAmount(data.amount)
+          if (data.holdExpiresAt) {
+            setHoldExpiresAt(data.holdExpiresAt)
+          }
           setPaymentData({
             paymentId: data.paymentId,
             amount: data.amount,
@@ -158,7 +193,7 @@ export default function PaymentPage() {
   }, [bookingId, returnStatus, returnToken, returnPaymentId, confirmPayment])
 
   const handlePay = async () => {
-    if (!paymentData) return
+    if (!paymentData || holdExpired) return
 
     if (paymentData.paymentMode === 'bepaid' && paymentData.redirectUrl) {
       window.location.href = paymentData.redirectUrl
@@ -190,6 +225,26 @@ export default function PaymentPage() {
     )
   }
 
+  if (holdExpired) {
+    return (
+      <div className="min-h-screen bg-lightgray flex items-center justify-center px-4">
+        <div className="bg-white rounded-2xl shadow-sm border p-8 text-center max-w-md w-full">
+          <Clock className="w-16 h-16 text-amber-500 mx-auto mb-4" />
+          <h1 className="text-2xl font-bold text-dark mb-2">Время резервирования истекло</h1>
+          <p className="text-graytext mb-6">
+            К сожалению, 10 минут на оплату закончились, и размещение снова доступно для бронирования.
+          </p>
+          <Button
+            onClick={() => navigate('/booking')}
+            className="w-full h-12 bg-brand hover:bg-brand-hover text-white font-semibold rounded-xl"
+          >
+            Оформить заново
+          </Button>
+        </div>
+      </div>
+    )
+  }
+
   const isBepaid = paymentData?.paymentMode === 'bepaid' || (bepaidActive && !paymentData)
 
   return (
@@ -211,6 +266,16 @@ export default function PaymentPage() {
               : 'Тестовая оплата (без реальных средств) — режим разработки'}
           </p>
 
+          {secondsLeft !== null && (
+            <div className="flex items-center gap-2 p-3 mb-4 rounded-xl bg-amber-50 border border-amber-200 text-amber-800 text-sm">
+              <Clock className="w-4 h-4 shrink-0" />
+              <span>
+                Размещение зарезервировано на{' '}
+                <strong>{formatCountdown(secondsLeft)}</strong>
+              </span>
+            </div>
+          )}
+
           <div className="flex items-center gap-3 p-4 bg-gray-50 rounded-xl mb-6">
             <CreditCard className="w-8 h-8 text-brand" />
             <div>
@@ -223,7 +288,7 @@ export default function PaymentPage() {
 
           <Button
             onClick={handlePay}
-            disabled={processing || !paymentData}
+            disabled={processing || !paymentData || holdExpired}
             className="w-full h-12 bg-brand hover:bg-brand-hover text-white font-semibold rounded-xl text-base mb-4"
           >
             {processing ? (

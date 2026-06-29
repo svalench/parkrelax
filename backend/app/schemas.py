@@ -369,6 +369,7 @@ class BookingPublicResponse(BaseModel):
     children: int
     accommodationId: Optional[int] = None
     status: str
+    holdExpiresAt: Optional[datetime] = None
     createdAt: datetime
     updatedAt: datetime
     accommodation: Optional[AccommodationResponse] = None
@@ -655,6 +656,7 @@ class PaymentInitiateResponse(BaseModel):
     clientSecret: str | None = None
     redirectUrl: str | None = None
     paymentToken: str | None = None
+    holdExpiresAt: datetime | None = None
 
 
 class PaymentConfirmRequest(BaseModel):

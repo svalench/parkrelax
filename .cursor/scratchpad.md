@@ -1,5 +1,15 @@
 # Progress
 
+## Payment-hold: флоу бронирования с оплатой
+
+- auto_payment: бронь создаётся со статусом `payment_hold` и `holdExpiresAt=now+10min`, письма отложены до оплаты.
+- availability: просроченный `payment_hold` не блокирует даты; ленивая очистка в `cancelled`.
+- payment: initiate проверяет холд, после оплаты отправляет `booking_confirmation` + `new_booking_admin`.
+- frontend: таймер на PaymentPage, holdUntil в URL из BookingFormPage.
+- Миграция `f2a3b4c5d6e7`, compile OK.
+
+DONE
+
 ## Исправление bePaid checkout failed + логи бронирования
 
 - Причина ошибки «bePaid checkout failed» и суммы 0 Br: в БД `notificationUrl` был относительным (`/api/payment/webhook`), bePaid требует абсолютный URL; фронт не проверял `res.ok` при initiate.

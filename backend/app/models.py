@@ -254,6 +254,7 @@ class Booking(Base):
     userId = Column(Integer, ForeignKey("users.id"), nullable=True)
     status = Column(String(50), default="pending", nullable=False)
     notes = Column(Text, nullable=True)
+    holdExpiresAt = Column(DateTime, nullable=True)
     createdAt = Column(DateTime, default=func.now(), nullable=True)
     updatedAt = Column(DateTime, default=func.now(), onupdate=func.now(), nullable=True)
 

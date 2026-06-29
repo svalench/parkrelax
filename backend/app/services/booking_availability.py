@@ -1,8 +1,8 @@
 """Проверка занятости размещения по датам (единая логика для API и админки)."""
 
-from datetime import date, timedelta
+from datetime import date, datetime
 
-from sqlalchemy import and_, exists, func, select
+from sqlalchemy import and_, exists, func, or_, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import joinedload
 
@@ -10,11 +10,25 @@ from app.models import Accommodation, AccommodationType, Booking
 
 # Свободно только если нет брони или бронь отменена
 _CANCELLED_STATUSES = frozenset({"cancelled", "canceled"})
+_PAYMENT_HOLD_STATUS = "payment_hold"
 
 
 def booking_occupies_dates_filter():
-    """Условие: бронь занимает даты (все статусы, кроме отменённых)."""
-    return func.lower(Booking.status).notin_(tuple(_CANCELLED_STATUSES))
+    """Условие: бронь занимает даты.
+
+    payment_hold учитывается только пока не истёк holdExpiresAt.
+    """
+    now = datetime.utcnow()
+    return or_(
+        and_(
+            func.lower(Booking.status) == _PAYMENT_HOLD_STATUS,
+            Booking.holdExpiresAt.isnot(None),
+            Booking.holdExpiresAt > now,
+        ),
+        and_(
+            func.lower(Booking.status).notin_(tuple(_CANCELLED_STATUSES | {_PAYMENT_HOLD_STATUS})),
+        ),
+    )
 
 
 def is_per_person_type(acc_type: AccommodationType | None) -> bool:

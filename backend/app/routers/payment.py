@@ -36,8 +36,9 @@ router = APIRouter(prefix="/payment", tags=["payment"])
 
 _PENDING_PAYMENT_STATUSES = frozenset({"created", "pending"})
 _BOOKING_PAYMENT_STATUSES = frozenset({"pending"})
-_AUTO_PAYMENT_BOOKING_STATUSES = frozenset({"pending", "pending_confirmation"})
+_AUTO_PAYMENT_BOOKING_STATUSES = frozenset({"pending", "pending_confirmation", "payment_hold"})
 _DECLINED_STATUSES = frozenset({"declined", "failed", "cancelled", "canceled", "expired"})
+HOLD_EXPIRED_DETAIL = "Время резервирования истекло. Оформите бронирование заново."
 
 
 def _booking_amount(booking: Booking) -> int:
@@ -93,6 +94,20 @@ def _can_pay_booking(status: str, booking_payment_mode: str) -> bool:
     if booking_payment_mode == AUTO_PAYMENT_MODE:
         return normalized in _AUTO_PAYMENT_BOOKING_STATUSES
     return normalized in _BOOKING_PAYMENT_STATUSES
+
+
+def _is_hold_expired(booking: Booking) -> bool:
+    if booking.status != "payment_hold":
+        return False
+    if booking.holdExpiresAt is None:
+        return True
+    return booking.holdExpiresAt <= datetime.utcnow()
+
+
+async def _cancel_expired_hold(db: AsyncSession, booking: Booking) -> None:
+    booking.status = "cancelled"
+    booking.holdExpiresAt = None
+    await db.commit()
 
 
 def _parse_ids_from_tracking(tracking_id: str | None) -> tuple[int | None, int | None]:
@@ -385,6 +400,64 @@ async def _send_admin_payment_email(
         await db.commit()
 
 
+async def _send_auto_payment_booking_emails(
+    db: AsyncSession,
+    booking: Booking,
+) -> None:
+    """Письма о бронировании после успешной оплаты в режиме auto_payment."""
+    if booking.accommodation is None and booking.accommodationId is not None:
+        booking = await _load_booking(db, booking.id)
+    if booking.accommodation is None:
+        return
+
+    nights = max(1, (booking.endDate - booking.startDate).days)
+    total_price = _booking_amount(booking)
+    admin_url = f"{settings.site_url.rstrip('/')}/admin"
+
+    admin_result = await db.execute(select(AdminEmail).where(AdminEmail.isActive == True))
+    for admin_email in admin_result.scalars().all():
+        await send_email(
+            db,
+            to_email=admin_email.email,
+            template_type="new_booking_admin",
+            variables={
+                "bookingId": str(booking.id),
+                "customerName": booking.customerName or "—",
+                "customerPhone": booking.customerPhone or "—",
+                "customerEmail": booking.customerEmail or "—",
+                "houseName": booking.accommodation.name,
+                "startDate": booking.startDate.isoformat(),
+                "endDate": booking.endDate.isoformat(),
+                "adults": str(booking.adults or 1),
+                "children": str(booking.children or 0),
+                "nights": str(nights),
+                "totalPrice": str(total_price),
+                "adminUrl": admin_url,
+            },
+        )
+
+    customer_email = booking.customerEmail
+    customer_name = booking.customerName or "Гость"
+    if booking.user and booking.user.email:
+        customer_email = booking.user.email
+        customer_name = booking.user.name or customer_name
+    if customer_email:
+        await send_email(
+            db,
+            to_email=customer_email,
+            template_type="booking_confirmation",
+            variables={
+                "name": customer_name,
+                "houseName": booking.accommodation.name,
+                "startDate": booking.startDate.isoformat(),
+                "endDate": booking.endDate.isoformat(),
+                "adults": str(booking.adults or 1),
+                "children": str(booking.children or 0),
+                "nights": str(nights),
+            },
+        )
+
+
 async def _mark_payment_successful(
     db: AsyncSession,
     *,
@@ -406,6 +479,7 @@ async def _mark_payment_successful(
         return
 
     was_successful = payment.status == "successful"
+    was_payment_hold = booking.status == "payment_hold"
     payment.status = "successful"
     payment.providerStatus = bepaid_service.extract_payment_status(payload) or "successful"
     payment.transactionId = payment.transactionId or bepaid_service.extract_transaction_id(payload)
@@ -414,6 +488,7 @@ async def _mark_payment_successful(
     if source == "webhook":
         payment.lastWebhookAt = datetime.utcnow()
     booking.status = "paid"
+    booking.holdExpiresAt = None
     _add_payment_event(
         db,
         payment,
@@ -429,6 +504,8 @@ async def _mark_payment_successful(
         await _send_customer_payment_email(db, payment, booking)
     if not was_successful or payment.adminEmailSentAt is None:
         await _send_admin_payment_email(db, payment, booking)
+    if payment.bookingPaymentMode == AUTO_PAYMENT_MODE or was_payment_hold:
+        await _send_auto_payment_booking_emails(db, booking)
 
 
 @router.post("/initiate", response_model=PaymentInitiateResponse)
@@ -446,6 +523,11 @@ async def initiate_payment(
         booking_logger.warning("payment initiate: booking not found booking_id=%s", data.bookingId)
         raise HTTPException(status_code=404, detail="Booking not found")
     booking_id = booking.id
+    hold_expires_at = booking.holdExpiresAt
+    if _is_hold_expired(booking):
+        await _cancel_expired_hold(db, booking)
+        booking_logger.warning("payment initiate: hold expired booking_id=%s", booking_id)
+        raise HTTPException(status_code=400, detail=HOLD_EXPIRED_DETAIL)
     if not _can_pay_booking(booking.status, booking_payment_mode):
         booking_logger.warning(
             "payment initiate: booking not payable booking_id=%s status=%s mode=%s",
@@ -485,6 +567,7 @@ async def initiate_payment(
                 status=existing.status,
                 redirectUrl=existing.redirectUrl,
                 paymentToken=existing.checkoutToken,
+                holdExpiresAt=hold_expires_at,
             )
 
         payment = await _create_payment_record(
@@ -538,6 +621,7 @@ async def initiate_payment(
             status=payment.status,
             redirectUrl=checkout["redirect_url"],
             paymentToken=checkout["token"],
+            holdExpiresAt=hold_expires_at,
         )
 
     existing = await _find_reusable_payment(db, booking_id=booking_id, provider="mock")
@@ -550,6 +634,7 @@ async def initiate_payment(
             currency=existing.currency,
             paymentMode="mock",
             status=existing.status,
+            holdExpiresAt=hold_expires_at,
         )
 
     client_secret = f"secret_{booking_id}_{secrets.token_urlsafe(16)}"
@@ -581,6 +666,7 @@ async def initiate_payment(
         currency="BYN",
         paymentMode="mock",
         status=payment.status,
+        holdExpiresAt=hold_expires_at,
     )
 
 

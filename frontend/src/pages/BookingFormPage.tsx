@@ -212,7 +212,8 @@ export default function BookingFormPage() {
         setBookingId(createdBookingId)
         setShowConfirm(false)
         if (bookingPaymentMode === 'auto_payment' && createdBookingId) {
-          navigate(`/payment?bookingId=${createdBookingId}`)
+          const holdUntil = data.holdExpiresAt ? `&holdUntil=${encodeURIComponent(data.holdExpiresAt)}` : ''
+          navigate(`/payment?bookingId=${createdBookingId}${holdUntil}`)
         } else {
           setShowSuccess(true)
         }

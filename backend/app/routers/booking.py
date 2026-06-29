@@ -1,7 +1,8 @@
 import logging
+from datetime import datetime, timedelta
 
 from fastapi import APIRouter, Depends, HTTPException, status
-from sqlalchemy import select, desc, and_, or_, func
+from sqlalchemy import select, desc, and_, or_, func, update
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import joinedload, selectinload
 from fastapi_viewsets import AsyncBaseViewset
@@ -19,8 +20,15 @@ from app.schemas import (
 from app.email_service import generate_temp_password, send_email
 from app.user_password_service import hash_password
 from app.routers.site_settings import require_public_booking_enabled
+from app.services.payment_settings import (
+    AUTO_PAYMENT_MODE,
+    get_or_create_payment_settings,
+    normalize_booking_payment_mode,
+)
 
 logger = logging.getLogger(__name__)
+
+BOOKING_HOLD_MINUTES = 10
 
 router = APIRouter(prefix="/booking", tags=["booking"])
 
@@ -62,7 +70,23 @@ async def create_booking(data: BookingCreate, db: AsyncSession = Depends(get_db)
     if data.endDate <= data.startDate:
         raise HTTPException(status_code=400, detail="endDate must be after startDate")
 
+    payment_settings = await get_or_create_payment_settings(db)
+    booking_payment_mode = normalize_booking_payment_mode(payment_settings.bookingPaymentMode)
+    auto_payment = booking_payment_mode == AUTO_PAYMENT_MODE
+
+    accommodation = None
     if data.accommodationId:
+        if auto_payment:
+            await db.execute(
+                update(Booking)
+                .where(
+                    Booking.accommodationId == data.accommodationId,
+                    Booking.status == "payment_hold",
+                    Booking.holdExpiresAt < datetime.utcnow(),
+                )
+                .values(status="cancelled")
+            )
+
         # Verify accommodation exists and is active
         acc_result = await db.execute(
             select(Accommodation)
@@ -92,15 +116,18 @@ async def create_booking(data: BookingCreate, db: AsyncSession = Depends(get_db)
             raise HTTPException(status_code=409, detail="Данный дом занят на выбранный период")
 
     booking = Booking(**data.model_dump())
-    # New public bookings always start as pending_confirmation
-    booking.status = "pending_confirmation"
+    if auto_payment:
+        booking.status = "payment_hold"
+        booking.holdExpiresAt = datetime.utcnow() + timedelta(minutes=BOOKING_HOLD_MINUTES)
+    else:
+        booking.status = "pending_confirmation"
     if data.customerEmail:
         booking.customerEmail = data.customerEmail.strip().lower()
     db.add(booking)
     await db.flush()
 
     booking_logger.info(
-        "booking created: id=%s accommodation_id=%s dates=%s..%s adults=%s children=%s email=%s phone=%s",
+        "booking created: id=%s accommodation_id=%s dates=%s..%s adults=%s children=%s email=%s phone=%s status=%s hold_until=%s",
         booking.id,
         data.accommodationId,
         data.startDate,
@@ -109,6 +136,8 @@ async def create_booking(data: BookingCreate, db: AsyncSession = Depends(get_db)
         data.children or 0,
         data.customerEmail or "—",
         data.customerPhone or "—",
+        booking.status,
+        booking.holdExpiresAt.isoformat() if booking.holdExpiresAt else "—",
     )
 
     is_new_user = False
@@ -163,47 +192,48 @@ async def create_booking(data: BookingCreate, db: AsyncSession = Depends(get_db)
     )
     admin_url = "https://parkrelax.by/admin"
 
-    # 1. Admin notification
-    admin_emails_result = await db.execute(select(AdminEmail).where(AdminEmail.isActive == True))
-    admin_emails = [ae.email for ae in admin_emails_result.scalars().all()]
-    if admin_emails and accommodation:
-        for admin_email in admin_emails:
+    if not auto_payment:
+        # 1. Admin notification
+        admin_emails_result = await db.execute(select(AdminEmail).where(AdminEmail.isActive == True))
+        admin_emails = [ae.email for ae in admin_emails_result.scalars().all()]
+        if admin_emails and accommodation:
+            for admin_email in admin_emails:
+                await send_email(
+                    db,
+                    to_email=admin_email,
+                    template_type="new_booking_admin",
+                    variables={
+                        "bookingId": str(booking.id),
+                        "customerName": data.customerName or "—",
+                        "customerPhone": data.customerPhone or "—",
+                        "customerEmail": data.customerEmail or "—",
+                        "houseName": accommodation.name,
+                        "startDate": data.startDate.isoformat(),
+                        "endDate": data.endDate.isoformat(),
+                        "adults": str(data.adults or 1),
+                        "children": str(data.children or 0),
+                        "nights": str(nights),
+                        "totalPrice": str(total_price),
+                        "adminUrl": admin_url,
+                    },
+                )
+
+        # 2. Client confirmation (always send if email provided)
+        if data.customerEmail and accommodation:
             await send_email(
                 db,
-                to_email=admin_email,
-                template_type="new_booking_admin",
+                to_email=data.customerEmail,
+                template_type="booking_confirmation",
                 variables={
-                    "bookingId": str(booking.id),
-                    "customerName": data.customerName or "—",
-                    "customerPhone": data.customerPhone or "—",
-                    "customerEmail": data.customerEmail or "—",
+                    "name": data.customerName or "Гость",
                     "houseName": accommodation.name,
                     "startDate": data.startDate.isoformat(),
                     "endDate": data.endDate.isoformat(),
                     "adults": str(data.adults or 1),
                     "children": str(data.children or 0),
                     "nights": str(nights),
-                    "totalPrice": str(total_price),
-                    "adminUrl": admin_url,
                 },
             )
-
-    # 2. Client confirmation (always send if email provided)
-    if data.customerEmail and accommodation:
-        await send_email(
-            db,
-            to_email=data.customerEmail,
-            template_type="booking_confirmation",
-            variables={
-                "name": data.customerName or "Гость",
-                "houseName": accommodation.name,
-                "startDate": data.startDate.isoformat(),
-                "endDate": data.endDate.isoformat(),
-                "adults": str(data.adults or 1),
-                "children": str(data.children or 0),
-                "nights": str(nights),
-            },
-        )
 
     # Reload with relationships for serialization
     result = await db.execute(
