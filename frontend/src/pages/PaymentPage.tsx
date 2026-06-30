@@ -92,12 +92,21 @@ export default function PaymentPage() {
           clientSecret: secret,
         }),
       })
-      const data = await res.json()
-      if (data.success) {
+
+      const contentType = res.headers.get('content-type') || ''
+      let data: { success?: boolean; detail?: string } = {}
+      if (contentType.includes('application/json')) {
+        data = await res.json()
+      } else {
+        const text = await res.text()
+        data = { detail: text.slice(0, 200) || `Ошибка сервера ${res.status}` }
+      }
+
+      if (res.ok && data.success) {
         setSuccess(true)
         setTimeout(() => navigate('/profile'), 2000)
       } else {
-        setError(data.detail || 'Оплата не подтверждена')
+        setError(data.detail || `Оплата не подтверждена (код ${res.status})`)
       }
     } catch {
       setError('Ошибка сети')
@@ -165,7 +174,15 @@ export default function PaymentPage() {
         body: JSON.stringify({ bookingId }),
       })
       if (cancelled) return
-      const data = await res.json()
+
+      const contentType = res.headers.get('content-type') || ''
+      let data: { detail?: string; amount?: number; holdExpiresAt?: string; paymentId?: number | null; paymentMode?: string; clientSecret?: string; redirectUrl?: string; paymentToken?: string } = {}
+      if (contentType.includes('application/json')) {
+        data = await res.json()
+      } else {
+        const text = await res.text()
+        data = { detail: text.slice(0, 200) || `Ошибка сервера ${res.status}` }
+      }
       if (cancelled) return
 
       if (!res.ok) {

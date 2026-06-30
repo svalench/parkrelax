@@ -498,7 +498,11 @@ async def _mark_payment_successful(
     )
     await db.commit()
     await db.refresh(payment)
-    await db.refresh(booking)
+    # После commit объекты expired; перезагружаем booking со всеми нужными связями,
+    # чтобы избежать MissingGreenlet при доступе к user/accommodation в письмах.
+    booking = await _load_booking(db, booking.id)
+    if booking is None:
+        return
 
     if not was_successful or payment.customerEmailSentAt is None:
         await _send_customer_payment_email(db, payment, booking)
