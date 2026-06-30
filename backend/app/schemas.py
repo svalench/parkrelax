@@ -1,6 +1,19 @@
-from datetime import datetime, date
+from datetime import datetime, date, timezone
 from typing import Optional
-from pydantic import BaseModel, ConfigDict, field_validator, model_validator
+from pydantic import BaseModel, ConfigDict, field_serializer, field_validator, model_validator
+
+
+def _serialize_utc_datetime(value: datetime | None) -> str | None:
+    """Сериализовать datetime в UTC с явным суффиксом Z.
+
+    Используется для holdExpiresAt: сервер хранит время в UTC, но без tzinfo,
+    поэтому при выдаче фронтенду явно указываем, что это UTC.
+    """
+    if value is None:
+        return None
+    if value.tzinfo is None:
+        value = value.replace(tzinfo=timezone.utc)
+    return value.astimezone(timezone.utc).isoformat().replace("+00:00", "Z")
 
 
 # ── Users ──────────────────────────────────────────────────────────
@@ -376,6 +389,10 @@ class BookingPublicResponse(BaseModel):
     isNewUser: bool = False
     tempPassword: Optional[str] = None
 
+    @field_serializer("holdExpiresAt")
+    def serialize_hold_expires_at(self, value: datetime | None) -> str | None:
+        return _serialize_utc_datetime(value)
+
 
 # ── Rules ──────────────────────────────────────────────────────────
 
@@ -657,6 +674,10 @@ class PaymentInitiateResponse(BaseModel):
     redirectUrl: str | None = None
     paymentToken: str | None = None
     holdExpiresAt: datetime | None = None
+
+    @field_serializer("holdExpiresAt")
+    def serialize_hold_expires_at(self, value: datetime | None) -> str | None:
+        return _serialize_utc_datetime(value)
 
 
 class PaymentConfirmRequest(BaseModel):

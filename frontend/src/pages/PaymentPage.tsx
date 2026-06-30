@@ -24,6 +24,16 @@ function formatCountdown(totalSeconds: number): string {
   return `${minutes}:${seconds.toString().padStart(2, '0')}`
 }
 
+function parseHoldExpiresAt(value: string | null): number | null {
+  if (!value) return null
+  const normalized = value.trim()
+  // Если сервер прислал naive UTC-строку без tz, считаем её UTC (а не локальным временем)
+  const hasTz = /[Zz]$|[+-]\d{2}:?\d{2}$/.test(normalized)
+  const withTz = hasTz ? normalized : `${normalized}Z`
+  const ms = new Date(withTz).getTime()
+  return Number.isNaN(ms) ? null : ms
+}
+
 interface PaymentInitData {
   paymentId?: number | null
   amount: number
@@ -94,7 +104,11 @@ export default function PaymentPage() {
     }
 
     const updateCountdown = () => {
-      const expiresMs = new Date(holdExpiresAt).getTime()
+      const expiresMs = parseHoldExpiresAt(holdExpiresAt)
+      if (expiresMs === null) {
+        setSecondsLeft(null)
+        return
+      }
       const diff = Math.max(0, Math.floor((expiresMs - Date.now()) / 1000))
       setSecondsLeft(diff)
       if (diff <= 0) {
