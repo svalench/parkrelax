@@ -765,10 +765,29 @@ async def confirm_payment(
 @router.post("/webhook")
 async def payment_webhook(request: Request, db: AsyncSession = Depends(get_db)):
     """Webhook-уведомление bePaid (без CSRF)."""
+    client_ip = _request_ip(request)
+    raw_body = ""
     try:
-        payload = await request.json()
-    except Exception:
-        raise HTTPException(status_code=400, detail="Некорректный JSON")
+        raw_body_bytes = await request.body()
+        raw_body = raw_body_bytes.decode("utf-8", errors="replace")
+        payload = json.loads(raw_body)
+    except Exception as exc:
+        booking_logger.error(
+            "bePaid webhook invalid JSON: ip=%s error=%s body=%s",
+            client_ip,
+            exc,
+            raw_body[:4000],
+        )
+        raise HTTPException(status_code=400, detail="Некорректный JSON") from exc
+
+    booking_logger.info(
+        "bePaid webhook received: ip=%s method=%s path=%s headers=%s payload=%s",
+        client_ip,
+        request.method,
+        request.url.path,
+        dict(request.headers),
+        raw_body[:4000],
+    )
 
     payment_settings = await get_or_create_payment_settings(db)
     booking_payment_mode = normalize_booking_payment_mode(payment_settings.bookingPaymentMode)
@@ -778,10 +797,20 @@ async def payment_webhook(request: Request, db: AsyncSession = Depends(get_db)):
     if payment is None:
         payment = await _load_legacy_booking_payment(db, payload=payload, booking_payment_mode=booking_payment_mode)
     if payment is None:
-        logger.warning("bePaid webhook without known payment: %s", payload)
+        booking_logger.warning(
+            "bePaid webhook without known payment: ip=%s payload=%s",
+            client_ip,
+            raw_body[:4000],
+        )
         return {"ok": True, "ignored": True}
 
     provider_status = bepaid_service.extract_payment_status(payload)
+    booking_logger.info(
+        "bePaid webhook payment found: payment_id=%s booking_id=%s provider_status=%s",
+        payment.id,
+        payment.bookingId,
+        provider_status,
+    )
     payment.providerStatus = provider_status
     payment.transactionId = payment.transactionId or bepaid_service.extract_transaction_id(payload)
     payment.lastWebhookAt = datetime.utcnow()
@@ -789,15 +818,36 @@ async def payment_webhook(request: Request, db: AsyncSession = Depends(get_db)):
     _add_payment_event(db, payment, event_type="webhook_received", provider_status=provider_status, payload=payload)
 
     if not bepaid_service.is_successful_payment(payload):
-        payment.status = _map_provider_status(provider_status, False)
+        mapped_status = _map_provider_status(provider_status, False)
+        booking_logger.info(
+            "bePaid webhook not successful: payment_id=%s booking_id=%s provider_status=%s mapped_status=%s",
+            payment.id,
+            payment.bookingId,
+            provider_status,
+            mapped_status,
+        )
+        payment.status = mapped_status
         await db.commit()
         return {"ok": True, "ignored": True}
+
+    booking_logger.info(
+        "bePaid webhook successful, verifying: payment_id=%s booking_id=%s checkout_token=%s",
+        payment.id,
+        payment.bookingId,
+        payment.checkoutToken,
+    )
 
     if bepaid_config is not None and payment.checkoutToken:
         try:
             status_data = await bepaid_service.get_checkout_status(payment.checkoutToken, bepaid_config)
         except ValueError as exc:
             payment.errorMessage = str(exc)
+            booking_logger.error(
+                "bePaid webhook verification failed: payment_id=%s booking_id=%s error=%s",
+                payment.id,
+                payment.bookingId,
+                exc,
+            )
             _add_payment_event(
                 db,
                 payment,
@@ -808,7 +858,14 @@ async def payment_webhook(request: Request, db: AsyncSession = Depends(get_db)):
             await db.commit()
             raise HTTPException(status_code=502, detail="Не удалось проверить оплату") from exc
         if not bepaid_service.is_successful_payment(status_data):
-            payment.status = _map_provider_status(bepaid_service.extract_payment_status(status_data), False)
+            verify_status = _map_provider_status(bepaid_service.extract_payment_status(status_data), False)
+            booking_logger.warning(
+                "bePaid webhook verification not successful: payment_id=%s booking_id=%s verify_status=%s",
+                payment.id,
+                payment.bookingId,
+                verify_status,
+            )
+            payment.status = verify_status
             _add_payment_event(
                 db,
                 payment,
@@ -820,5 +877,10 @@ async def payment_webhook(request: Request, db: AsyncSession = Depends(get_db)):
             return {"ok": True, "ignored": True}
         payload = status_data
 
+    booking_logger.info(
+        "bePaid webhook marking successful: payment_id=%s booking_id=%s",
+        payment.id,
+        payment.bookingId,
+    )
     await _mark_payment_successful(db, payment=payment, payload=payload, source="webhook")
     return {"ok": True}
