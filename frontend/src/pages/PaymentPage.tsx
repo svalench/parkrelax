@@ -246,7 +246,7 @@ export default function PaymentPage() {
           <Clock className="w-16 h-16 text-amber-500 mx-auto mb-4" />
           <h1 className="text-2xl font-bold text-dark mb-2">Время резервирования истекло</h1>
           <p className="text-graytext mb-6">
-            К сожалению, 10 минут на оплату закончились, и размещение снова доступно для бронирования.
+            К сожалению, 60 минут на оплату закончились, и размещение снова доступно для бронирования.
           </p>
           <Button
             onClick={() => navigate('/booking')}

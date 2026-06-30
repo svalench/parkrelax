@@ -28,7 +28,7 @@ from app.services.payment_settings import (
 
 logger = logging.getLogger(__name__)
 
-BOOKING_HOLD_MINUTES = 10
+BOOKING_HOLD_MINUTES = 60
 
 router = APIRouter(prefix="/booking", tags=["booking"])
 
