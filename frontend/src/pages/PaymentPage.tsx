@@ -34,6 +34,16 @@ function parseHoldExpiresAt(value: string | null): number | null {
   return Number.isNaN(ms) ? null : ms
 }
 
+function statusReturnMessage(status: string | null): string | null {
+  if (!status) return null
+  const messages: Record<string, string> = {
+    declined: 'Оплата отклонена банком. Вы можете попробовать ещё раз.',
+    failed: 'Оплата не прошла. Проверьте данные карты и попробуйте снова.',
+    cancelled: 'Оплата отменена. Вы можете попробовать ещё раз.',
+  }
+  return messages[status] || 'Оплата не завершена. Вы можете попробовать ещё раз.'
+}
+
 interface PaymentInitData {
   paymentId?: number | null
   amount: number
@@ -93,7 +103,6 @@ export default function PaymentPage() {
       setError('Ошибка сети')
     } finally {
       setProcessing(false)
-      setLoading(false)
     }
   }, [bookingId, navigate])
 
@@ -122,25 +131,10 @@ export default function PaymentPage() {
     return () => window.clearInterval(timer)
   }, [holdExpiresAt])
 
+  // Загружаем данные об оплате в любом случае, даже если пользователь вернулся с bePaid.
   useEffect(() => {
     if (!bookingId) {
       setError('Не указан номер бронирования')
-      setLoading(false)
-      return
-    }
-
-    if (returnStatus === 'successful' && (returnToken || returnPaymentId)) {
-      confirmPayment(returnToken || undefined, undefined, returnPaymentId)
-      return
-    }
-
-    if (returnStatus && returnStatus !== 'successful') {
-      const messages: Record<string, string> = {
-        declined: 'Оплата отклонена банком',
-        failed: 'Оплата не прошла',
-        cancelled: 'Оплата отменена',
-      }
-      setError(messages[returnStatus] || 'Оплата не завершена')
       setLoading(false)
       return
     }
@@ -172,34 +166,52 @@ export default function PaymentPage() {
       })
       if (cancelled) return
       const data = await res.json()
-      if (!cancelled) {
-        if (!res.ok) {
-          const detail = typeof data.detail === 'string' ? data.detail : 'Не удалось инициализировать оплату'
-          setError(detail)
-          if (detail === HOLD_EXPIRED_MESSAGE) {
-            setHoldExpired(true)
-          }
-          setLoading(false)
-          return
-        }
-        if (data.amount !== undefined) {
-          setAmount(data.amount)
-          if (data.holdExpiresAt) {
-            setHoldExpiresAt(data.holdExpiresAt)
-          }
-          setPaymentData({
-            paymentId: data.paymentId,
-            amount: data.amount,
-            paymentMode: data.paymentMode || 'mock',
-            clientSecret: data.clientSecret,
-            redirectUrl: data.redirectUrl,
-            paymentToken: data.paymentToken,
-          })
-        } else {
-          setError('Не удалось инициализировать оплату')
+      if (cancelled) return
+
+      if (!res.ok) {
+        const detail = typeof data.detail === 'string' ? data.detail : 'Не удалось инициализировать оплату'
+        setError(detail)
+        if (detail === HOLD_EXPIRED_MESSAGE) {
+          setHoldExpired(true)
         }
         setLoading(false)
+        return
       }
+
+      if (data.amount !== undefined) {
+        setAmount(data.amount)
+        if (data.holdExpiresAt) {
+          setHoldExpiresAt(data.holdExpiresAt)
+        }
+        setPaymentData({
+          paymentId: data.paymentId,
+          amount: data.amount,
+          paymentMode: data.paymentMode || 'mock',
+          clientSecret: data.clientSecret,
+          redirectUrl: data.redirectUrl,
+          paymentToken: data.paymentToken,
+        })
+      } else {
+        setError('Не удалось инициализировать оплату')
+        setLoading(false)
+        return
+      }
+
+      // После загрузки данных обрабатываем возврат с bePaid.
+      if (returnStatus === 'successful' && (returnToken || returnPaymentId || data.paymentToken)) {
+        await confirmPayment(
+          returnToken || data.paymentToken || undefined,
+          undefined,
+          returnPaymentId || data.paymentId || undefined,
+        )
+      } else if (returnStatus && returnStatus !== 'successful') {
+        const message = statusReturnMessage(returnStatus)
+        if (message) {
+          setError(message)
+        }
+      }
+
+      setLoading(false)
     }
 
     init()
@@ -317,7 +329,24 @@ export default function PaymentPage() {
             )}
           </Button>
 
-          <p className="text-xs text-graytext leading-relaxed">
+          <div className="flex flex-col sm:flex-row gap-3">
+            <Button
+              variant="outline"
+              onClick={() => navigate('/profile')}
+              className="flex-1 h-11 rounded-xl"
+            >
+              В личный кабинет
+            </Button>
+            <Button
+              variant="outline"
+              onClick={() => navigate('/booking')}
+              className="flex-1 h-11 rounded-xl"
+            >
+              К бронированиям
+            </Button>
+          </div>
+
+          <p className="text-xs text-graytext leading-relaxed mt-4">
             При оплате карточкой возврат денежных средств осуществляется на ту же карточку, с которой была произведена оплата.
             Сохраняйте карт-чеки для сверки с выпиской.{' '}
             <Link to="/legal/payment-info" className="text-brand hover:underline">

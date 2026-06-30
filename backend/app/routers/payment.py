@@ -521,7 +521,7 @@ async def initiate_payment(
     booking = await _load_booking(db, data.bookingId)
     if not booking:
         booking_logger.warning("payment initiate: booking not found booking_id=%s", data.bookingId)
-        raise HTTPException(status_code=404, detail="Booking not found")
+        raise HTTPException(status_code=404, detail="Бронирование не найдено")
     booking_id = booking.id
     hold_expires_at = booking.holdExpiresAt
     if _is_hold_expired(booking):
@@ -535,7 +535,7 @@ async def initiate_payment(
             booking.status,
             booking_payment_mode,
         )
-        raise HTTPException(status_code=400, detail="Booking is not available for payment")
+        raise HTTPException(status_code=400, detail="Бронирование недоступно для оплаты")
 
     amount = _booking_amount(booking)
     if amount <= 0:
@@ -544,7 +544,7 @@ async def initiate_payment(
             booking_id,
             booking.accommodationId,
         )
-        raise HTTPException(status_code=400, detail="Booking amount is empty")
+        raise HTTPException(status_code=400, detail="Сумма бронирования пуста")
     amount_minor = amount * 100
     bepaid_config = to_bepaid_runtime_config(payment_settings)
     booking_logger.info(
@@ -681,11 +681,11 @@ async def confirm_payment(
 
     booking = await _load_booking(db, data.bookingId)
     if not booking:
-        raise HTTPException(status_code=404, detail="Booking not found")
+        raise HTTPException(status_code=404, detail="Бронирование не найдено")
 
     payment = await _load_payment_by_id(db, data.paymentId) if data.paymentId else None
     if payment and payment.bookingId != booking.id:
-        raise HTTPException(status_code=400, detail="Payment booking mismatch")
+        raise HTTPException(status_code=400, detail="Платёж не соответствует бронированию")
 
     if booking.status == "paid":
         return PaymentConfirmResponse(
@@ -711,7 +711,7 @@ async def confirm_payment(
         if payment is None:
             payment = await _find_payment_from_payload(db, status_data)
         if payment is None or payment.bookingId != booking.id:
-            raise HTTPException(status_code=400, detail="Payment token mismatch")
+            raise HTTPException(status_code=400, detail="Платёжный токен не соответствует бронированию")
 
         provider_status = bepaid_service.extract_payment_status(status_data)
         _add_payment_event(db, payment, event_type="confirm_status", provider_status=provider_status, payload=status_data)
@@ -720,7 +720,7 @@ async def confirm_payment(
             payment.status = _map_provider_status(provider_status, False)
             payment.responsePayload = _json_payload(status_data)
             await db.commit()
-            raise HTTPException(status_code=400, detail="Payment not completed")
+            raise HTTPException(status_code=400, detail="Оплата не завершена")
 
         await _mark_payment_successful(db, payment=payment, payload=status_data, source="confirm")
         return PaymentConfirmResponse(success=True, bookingId=booking.id, status="paid", paymentId=payment.id)
@@ -736,12 +736,12 @@ async def confirm_payment(
         if payment.checkoutToken and bepaid_config is not None:
             status_data = await bepaid_service.get_checkout_status(payment.checkoutToken, bepaid_config)
             if not bepaid_service.is_successful_payment(status_data):
-                raise HTTPException(status_code=400, detail="Payment not completed")
+                raise HTTPException(status_code=400, detail="Оплата не завершена")
             await _mark_payment_successful(db, payment=payment, payload=status_data, source="confirm")
             return PaymentConfirmResponse(success=True, bookingId=booking.id, status="paid", paymentId=payment.id)
 
     if not data.clientSecret or not data.clientSecret.startswith(f"secret_{booking.id}_"):
-        raise HTTPException(status_code=400, detail="Invalid payment confirmation data")
+        raise HTTPException(status_code=400, detail="Неверные данные для подтверждения оплаты")
 
     if payment is None:
         result = await db.execute(
@@ -751,7 +751,7 @@ async def confirm_payment(
         )
         payment = result.unique().scalar_one_or_none()
     if payment is None:
-        raise HTTPException(status_code=400, detail="Payment not found")
+        raise HTTPException(status_code=400, detail="Платёж не найден")
 
     await _mark_payment_successful(
         db,
@@ -768,7 +768,7 @@ async def payment_webhook(request: Request, db: AsyncSession = Depends(get_db)):
     try:
         payload = await request.json()
     except Exception:
-        raise HTTPException(status_code=400, detail="Invalid JSON")
+        raise HTTPException(status_code=400, detail="Некорректный JSON")
 
     payment_settings = await get_or_create_payment_settings(db)
     booking_payment_mode = normalize_booking_payment_mode(payment_settings.bookingPaymentMode)
@@ -806,7 +806,7 @@ async def payment_webhook(request: Request, db: AsyncSession = Depends(get_db)):
                 payload={"error": str(exc)},
             )
             await db.commit()
-            raise HTTPException(status_code=502, detail="Payment verification failed") from exc
+            raise HTTPException(status_code=502, detail="Не удалось проверить оплату") from exc
         if not bepaid_service.is_successful_payment(status_data):
             payment.status = _map_provider_status(bepaid_service.extract_payment_status(status_data), False)
             _add_payment_event(
