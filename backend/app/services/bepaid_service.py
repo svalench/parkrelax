@@ -209,6 +209,10 @@ def is_successful_payment(payload: dict[str, Any]) -> bool:
         tx = payload["transaction"]
         return tx.get("status") == "successful" or tx.get("payment", {}).get("status") == "successful"
 
+    checkout = payload.get("checkout") or {}
+    if checkout:
+        return checkout.get("status") == "successful"
+
     status = str(payload.get("status", "")).lower()
     if status == "successful":
         return True
@@ -223,9 +227,11 @@ def extract_payment_status(payload: dict[str, Any]) -> str | None:
     """Извлечь человекочитаемый статус из ответа bePaid."""
     tx = payload.get("transaction") or {}
     payment = tx.get("payment") or {}
+    checkout = payload.get("checkout") or {}
     for value in (
         tx.get("status"),
         payment.get("status"),
+        checkout.get("status"),
         payload.get("status"),
     ):
         if value:
