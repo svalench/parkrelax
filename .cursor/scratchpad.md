@@ -70,3 +70,12 @@ DONE
 - `PaymentPage`: без изменений (compact, короткая строка)
 
 DONE
+
+## Выпадающее меню связи в шапке
+
+- `frontend/src/lib/contactLinks.ts`: normalizePhone + buildContactLinks (tel, WhatsApp, Viber, Telegram)
+- `frontend/src/components/PhoneContactMenu.tsx`: DropdownMenu с 4 пунктами и SVG-иконками
+- `frontend/src/sections/Navbar.tsx`: desktop слева, mobile иконка, mobile menu — PhoneContactMenu
+- Проверка: `npm run build` OK; `npm run lint` — baseline ошибки вне текущих изменений
+
+DONE

@@ -1,8 +1,9 @@
 import { useState, useEffect, type MouseEvent } from 'react'
 import { useLocation, useNavigate } from 'react-router'
-import { Menu, X, Phone, MapPin, Check, User } from 'lucide-react'
+import { Menu, X, MapPin, Check, User } from 'lucide-react'
 import { useAuth } from '@/contexts/AuthContext'
 import { fetchContacts } from '@/lib/contacts'
+import PhoneContactMenu from '@/components/PhoneContactMenu'
 
 type NavLink =
   | { label: string; href: string; homeSection?: undefined }
@@ -131,8 +132,6 @@ export default function Navbar() {
       ? 'text-white hover:bg-white/15 active:bg-white/20'
       : 'text-dark hover:bg-black/5 active:bg-black/10'
 
-  const phoneHref = `tel:${headerPhone.replace(/\s/g, '').replace(/[()-]/g, '')}`
-
   return (
     <>
       <header className={`${headerBase} ${isHome ? headerHome : headerInner}`}>
@@ -154,15 +153,11 @@ export default function Navbar() {
             >
               {mobileOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
             </button>
-            <a
-              href={phoneHref}
-              className={`hidden min-w-0 truncate md:flex items-center gap-2 text-xs font-medium transition-colors duration-300 xl:text-sm ${
-                isHome ? textHome : textSolid
-              }`}
-            >
-              <Phone className="w-4 h-4 shrink-0" />
-              <span className="truncate">{headerPhone}</span>
-            </a>
+            <PhoneContactMenu
+              phone={headerPhone}
+              variant="text"
+              triggerClassName={isHome ? textHome : textSolid}
+            />
           </div>
 
           {/* Desktop Nav */}
@@ -181,13 +176,11 @@ export default function Navbar() {
           {/* Справа */}
           <div className="flex min-w-max items-center justify-end gap-1 sm:gap-2 md:gap-2.5 lg:gap-3">
             <div className="flex md:hidden items-center gap-0.5">
-              <a
-                href={phoneHref}
-                aria-label="Позвонить"
-                className={`p-2 rounded-lg transition-colors ${mobileContactIcon}`}
-              >
-                <Phone className="w-5 h-5" />
-              </a>
+              <PhoneContactMenu
+                phone={headerPhone}
+                variant="icon"
+                triggerClassName={mobileContactIcon}
+              />
               <a
                 href="https://www.instagram.com/baza_relax_pinsk/"
                 target="_blank"
@@ -304,28 +297,11 @@ export default function Navbar() {
                 onNavigate={() => setMobileOpen(false)}
               />
             ))}
-            {phones.length > 0 ? (
-              <div className="flex flex-col gap-2 mt-4">
-                {phones.map((p, i) => (
-                  <a
-                    key={i}
-                    href={`tel:${p.replace(/\s/g, '').replace(/[()-]/g, '')}`}
-                    className="flex items-center gap-2 font-semibold text-brand"
-                  >
-                    <Phone className="w-5 h-5" />
-                    {p}
-                  </a>
-                ))}
-              </div>
-            ) : (
-              <a
-                href={phoneHref}
-                className="flex items-center gap-2 font-semibold mt-4 text-brand"
-              >
-                <Phone className="w-5 h-5" />
-                {headerPhone}
-              </a>
-            )}
+            <div className="flex flex-col gap-2 mt-4">
+              {(phones.length > 0 ? phones : [headerPhone]).map((p, i) => (
+                <PhoneContactMenu key={i} phone={p} variant="menu" />
+              ))}
+            </div>
             {user ? (
               <button
                 onClick={() => { setMobileOpen(false); navigate('/profile') }}

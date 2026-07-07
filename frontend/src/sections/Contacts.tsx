@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { MapPin, Phone, Mail, Check, Copy, ArrowRight } from 'lucide-react'
 import { fetchContacts, type ContactPublicResponse } from '@/lib/contacts'
+import ContactPhoneActions from '@/components/ContactPhoneActions'
 
 export default function Contacts() {
   const [data, setData] = useState<ContactPublicResponse | null>(null)
@@ -19,6 +20,7 @@ export default function Contacts() {
   const contact = data?.contact
   const phones = data?.phones ?? []
   const emails = data?.emails ?? []
+  const headerPhone = phones.find((p) => p.isVisibleInHeader) ?? phones[0]
 
   const address = contact?.address ?? 'Пинский район, д. Кончицы'
   const mapEmbed = contact?.yandexMapEmbed ?? ''
@@ -101,20 +103,28 @@ export default function Contacts() {
                       <div className="text-sm font-semibold uppercase tracking-wide text-graytext mb-2">
                         Телефон
                       </div>
-                      <div className="flex flex-col gap-2">
+                      <div className="flex flex-col gap-3">
                         {phones.map((p) => (
-                          <a
+                          <div
                             key={p.id}
-                            href={`tel:${p.number.replace(/\s/g, '').replace(/[()-]/g, '')}`}
-                            className="group/link flex items-center justify-between text-lg md:text-xl font-semibold text-dark hover:text-brand transition-colors"
+                            className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between"
                           >
-                            <span>{p.number}</span>
-                            <span className="hidden sm:flex items-center gap-1.5 text-sm font-medium text-graytext group-hover/link:text-brand transition-colors">
-                              <Phone className="w-4 h-4" />
-                              Позвонить
-                              <ArrowRight className="w-4 h-4 opacity-0 -translate-x-1 group-hover/link:opacity-100 group-hover/link:translate-x-0 transition-all" />
-                            </span>
-                          </a>
+                            {headerPhone?.id === p.id ? (
+                              <>
+                                <span className="text-lg md:text-xl font-semibold text-dark">
+                                  {p.number}
+                                </span>
+                                <ContactPhoneActions phone={p.number} />
+                              </>
+                            ) : (
+                              <a
+                                href={`tel:${p.number.replace(/\s/g, '').replace(/[()-]/g, '')}`}
+                                className="text-lg md:text-xl font-semibold text-dark hover:text-brand transition-colors"
+                              >
+                                {p.number}
+                              </a>
+                            )}
+                          </div>
                         ))}
                       </div>
                     </div>
